@@ -1,0 +1,50 @@
+name: Create release on tag
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+permissions:
+  contents: write
+
+jobs:
+  Release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Prepare zip for release
+        run: |
+          mkdir amneziawg-server-tools
+
+          cp -r lib amneziawg-server-tools
+
+          cp amneziawg-install.sh amneziawg-server-tools
+
+          cp amneziawg-manager.sh amneziawg-server-tools
+
+          cp amneziawg-uninstall.sh amneziawg-server-tools
+
+          zip -r amneziawg-server-tools-${{ github.ref_name }}.zip amneziawg-server-tools
+
+      - name: Prepare release description
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: | 
+          TAG_SHA=$(gh api repos/sovokan/amneziawg-server-tools/git/ref/tags/${{ github.ref_name }} --jq '.object.sha')
+
+          gh api repos/sovokan/amneziawg-server-tools/git/tags/$TAG_SHA --jq '.message' > release-description.txt
+
+      - name: Create release
+        uses: softprops/action-gh-release@v2
+        with:
+          append_body: true
+          generate_release_notes: true
+          tag_name: ${{ github.ref_name }}
+          body_path: release-description.txt
+          files: amneziawg-server-tools-${{ github.ref_name }}.zip
