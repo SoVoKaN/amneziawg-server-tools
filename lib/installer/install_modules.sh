@@ -2,9 +2,7 @@ add_installation_scripts() {
     SCRIPT_DIR=$(cd $(dirname "$0") && pwd)
     FOLDER_DIR="${SCRIPT_DIR}/lib/installer"
 
-    case "$OS" in
-        "ubuntu") INSTALLATION_DIR="${FOLDER_DIR}/ubuntu" ;;
-    esac
+    INSTALLATION_DIR="${FOLDER_DIR}/${OS}"
 
     for SCRIPT in "${INSTALLATION_DIR}"/*.sh; do
         if [ -f "$SCRIPT" ]; then

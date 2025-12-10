@@ -2,11 +2,9 @@ add_uninstallation_scripts() {
     SCRIPT_DIR=$(cd $(dirname "$0") && pwd)
     FOLDER_DIR="${SCRIPT_DIR}/lib/uninstaller"
 
-    case "$OS" in
-        "ubuntu") INSTALLATION_DIR="${FOLDER_DIR}/ubuntu" ;;
-    esac
+    UNINSTALLATION_DIR="${FOLDER_DIR}/${OS}"
 
-    for SCRIPT in "${INSTALLATION_DIR}"/*.sh; do
+    for SCRIPT in "${UNINSTALLATION_DIR}"/*.sh; do
         if [ -f "$SCRIPT" ]; then
             . "$SCRIPT"
         fi
