@@ -5,6 +5,7 @@ Allows you to create unlimited awg interfaces, toggle them, manage clients, and 
 
 ### Supported Linux distributions
 
+![Debian 11+](https://img.shields.io/badge/Debian-11%2B-A80030?logo=debian&logoColor=white)
 ![Ubuntu 20.04+](https://img.shields.io/badge/Ubuntu-20.04%2B-E95420?logo=ubuntu&logoColor=white)
 
 ## Download &amp; Install

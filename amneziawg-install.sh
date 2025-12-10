@@ -56,6 +56,12 @@ check_os() {
 
 validate_os_ver() {
     case "$OS" in
+        "debian")
+            if [ "$VERSION_ID" -lt 11 ]; then
+                echo "Your version of Debian ${VERSION_ID} is not supported. Please use Debian 11 or later."
+                exit 1
+            fi
+            ;;
         "ubuntu")
             MAJOR_VERSION="${VERSION_ID%%.*}"
             if [ "$MAJOR_VERSION" -lt 20 ]; then
