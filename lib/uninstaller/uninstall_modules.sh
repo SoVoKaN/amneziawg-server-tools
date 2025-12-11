@@ -11,6 +11,10 @@ add_uninstallation_scripts() {
     done
 }
 
+configure_uninstallation_packages() {
+    UNINSTALLATION_PACKAGES="amneziawg-dkms amneziawg-tools"
+}
+
 remove_config_files() {
     rm -rf "/etc/amnezia/amneziawg"
 }
@@ -18,6 +22,8 @@ remove_config_files() {
 
 uninstall_modules() {
     add_uninstallation_scripts
+
+    configure_uninstallation_packages
 
     remove_config_files
 
