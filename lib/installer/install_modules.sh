@@ -12,7 +12,7 @@ add_installation_scripts() {
 }
 
 configure_installation_packages() {
-    INSTALLATION_PACKAGES="amneziawg amneziawg-tools nftables"
+    INSTALLATION_PACKAGES="amneziawg-dkms amneziawg-tools nftables"
 
     if [ "$INSTALL_QRENCODE" = "y" ]; then
         INSTALLATION_PACKAGES="${INSTALLATION_PACKAGES} qrencode"
