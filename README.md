@@ -5,7 +5,7 @@ Allows you to create unlimited awg interfaces, toggle them, manage clients, and 
 
 ### Supported Linux distributions
 
-![Rocky 8+](https://img.shields.io/badge/Rocky_8%2B-10B981?logo=rockylinux&logoColor=white)
+![Rocky 9+](https://img.shields.io/badge/Rocky_9%2B-10B981?logo=rockylinux&logoColor=white)
 ![Fedora 41](https://img.shields.io/badge/Fedora_41-51A2DA?logo=fedora&logoColor=white)
 
 ![Debian 11+](https://img.shields.io/badge/Debian_11%2B-A80030?logo=debian&logoColor=white)
