@@ -1,9 +1,9 @@
 get_interface_name_for_clients_menu() {
     echo "------------------"
-    echo "${BOLD_FS}  Manage clients ${DEFAULT_FS}"
+    printf "${BOLD_FS}  Manage clients ${DEFAULT_FS}\n"
     echo "------------------"
     echo ""
-    echo "${BOLD_FS}Enter interface name to manage its clients.${DEFAULT_FS}"
+    printf "${BOLD_FS}Enter interface name to manage its clients.${DEFAULT_FS}\n"
     printf '%s' "Name: "
 
     handle_user_input
@@ -46,7 +46,7 @@ clients_menu() {
 
     while :; do
         echo "-----------------------"
-        echo "${BOLD_FS} Manage clients [${AWG_INTERFACE_NAME}] ${DEFAULT_FS}"
+        printf "${BOLD_FS} Manage clients [${AWG_INTERFACE_NAME}] ${DEFAULT_FS}\n"
         echo "-----------------------"
         echo ""
         echo "1) Create client"

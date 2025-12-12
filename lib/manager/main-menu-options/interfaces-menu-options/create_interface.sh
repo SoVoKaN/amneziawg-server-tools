@@ -488,7 +488,7 @@ get_awg_interface_jc() {
 
     while :; do
         echo ""
-        echo "${BOLD_FS}Recommended range for Jc is from 4 to 12 inclusive.${DEFAULT_FS}"
+        printf "${BOLD_FS}Recommended range for Jc is from 4 to 12 inclusive.${DEFAULT_FS}\n"
 
         printf "$QUESTION"
 
@@ -917,7 +917,7 @@ get_awg_h4() {
 get_awg_interface_jmin_jmax() {
     while :; do
         echo ""
-        echo "${BOLD_FS}Required Jmin < Jmax. Recommended values Jmin = 8, Jmax = 80.${DEFAULT_FS}"
+        printf "${BOLD_FS}Required Jmin < Jmax. Recommended values Jmin = 8, Jmax = 80.${DEFAULT_FS}\n"
 
         get_awg_jmin
 
@@ -925,7 +925,7 @@ get_awg_interface_jmin_jmax() {
 
         if [ "$AWG_JMAX" -le "$AWG_JMIN" ]; then
             echo ""
-            echo "${YELLOW}Invalid J values detected — Jmax must be > Jmin. Please re-enter them.${DEFAULT_COLOR}"
+            printf "${YELLOW}Invalid J values detected — Jmax must be > Jmin. Please re-enter them.${DEFAULT_COLOR}\n"
             continue
         fi
 
@@ -966,7 +966,7 @@ get_awg_interface_s_params() {
 
     while :; do
         echo ""
-        echo "${BOLD_FS}Required S1 + 56 ≠ S2. Recommended range for S1 and S2 is from 15 to 150 inclusive.${DEFAULT_FS}"
+        printf "${BOLD_FS}Required S1 + 56 ≠ S2. Recommended range for S1 and S2 is from 15 to 150 inclusive.${DEFAULT_FS}\n"
 
         get_awg_s1
 
@@ -974,7 +974,7 @@ get_awg_interface_s_params() {
 
         if [ $((AWG_S1 + 56)) -eq "$AWG_S2" ]; then
             echo ""
-            echo "${YELLOW}Invalid S values detected — S2 must not equal S1 + 56. Please re-enter them.${DEFAULT_COLOR}"
+            printf "${YELLOW}Invalid S values detected — S2 must not equal S1 + 56. Please re-enter them.${DEFAULT_COLOR}\n"
             continue
         fi
 
@@ -985,7 +985,7 @@ get_awg_interface_s_params() {
 get_awg_interface_h_params() {
     while :; do
         echo ""
-        echo "${BOLD_FS}Each H parameter must be unique.${DEFAULT_FS}"
+        printf "${BOLD_FS}Each H parameter must be unique.${DEFAULT_FS}\n"
 
         get_awg_h1
 
@@ -997,7 +997,7 @@ get_awg_interface_h_params() {
 
         if [ "$AWG_H1" = "$AWG_H2" ] || [ "$AWG_H1" = "$AWG_H3" ] || [ "$AWG_H1" = "$AWG_H4" ] || [ "$AWG_H2" = "$AWG_H3" ] || [ "$AWG_H2" = "$AWG_H4" ] || [ "$AWG_H3" = "$AWG_H4" ]; then
             echo ""
-            echo "${YELLOW}Duplicate H parameters detected. Please re-enter them.${DEFAULT_COLOR}"
+            printf "${YELLOW}Duplicate H parameters detected. Please re-enter them.${DEFAULT_COLOR}\n"
             continue
         fi
 
@@ -1141,10 +1141,10 @@ reserve_awg_interface_ipv6() {
 check_awg_interface_service() {
     if SYSTEMD_PAGER="" systemctl --no-ask-password status "awg-quick@${AWG_INTERFACE_NAME}" > /dev/null 2>&1; then
         echo ""
-        echo "${GREEN}Interface ${BOLD_FS}\"${AWG_INTERFACE_NAME}\"${DEFAULT_FS} is succesfuly created.${DEFAULT_COLOR}"
+        printf "${GREEN}Interface ${BOLD_FS}\"${AWG_INTERFACE_NAME}\"${DEFAULT_FS} is succesfuly created.${DEFAULT_COLOR}\n"
     else
         echo ""
-        echo "${YELLOW}WARNING:${DEFAULT_COLOR} ${BOLD_FS}Interface \"${AWG_INTERFACE_NAME}\" appears to be inactive.${DEFAULT_FS}"
+        printf "${YELLOW}WARNING:${DEFAULT_COLOR} ${BOLD_FS}Interface \"${AWG_INTERFACE_NAME}\" appears to be inactive.${DEFAULT_FS}\n"
         echo "You can verify the service status by running: systemctl status awg-quick@${AWG_INTERFACE_NAME}"
     fi
 }
@@ -1152,7 +1152,7 @@ check_awg_interface_service() {
 
 create_awg_interface() {
     echo "------------------"
-    echo "${BOLD_FS} Create Interface ${DEFAULT_FS}"
+    printf "${BOLD_FS} Create Interface ${DEFAULT_FS}\n"
     echo "------------------"
     echo ""
 

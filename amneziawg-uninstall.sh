@@ -77,7 +77,7 @@ main() {
     add_lib "utils" "uninstaller"
 
     echo "-----------------------------"
-    echo "${BOLD_FS} AmneziaWG Uninstaller ${AWG_TOOLS_VERSION} ${DEFAULT_FS} -> https://github.com/SoVoKaN/amneziawg-server-tools"
+    printf "${BOLD_FS} AmneziaWG Uninstaller ${AWG_TOOLS_VERSION} ${DEFAULT_FS} -> https://github.com/SoVoKaN/amneziawg-server-tools\n"
     echo "-----------------------------"
     echo ""
 
@@ -86,7 +86,7 @@ main() {
     uninstall_modules
 
     echo ""
-    echo "${GREEN}AmneziaWG is succesfuly uninstalled.${DEFAULT_COLOR}"
+    printf "${GREEN}AmneziaWG is succesfuly uninstalled.${DEFAULT_COLOR}\n"
     echo "You can also remove the qrencode and nftables if you don't need them."
 }
 

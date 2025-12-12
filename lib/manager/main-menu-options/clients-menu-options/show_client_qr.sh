@@ -1,6 +1,6 @@
 get_awg_client_name_to_display_qr() {
     while :; do
-        echo "${BOLD_FS}Enter client name to display QR code.${DEFAULT_FS}"
+        printf "${BOLD_FS}Enter client name to display QR code.${DEFAULT_FS}\n"
         printf '%s' "Name: "
 
         handle_user_input
@@ -34,7 +34,7 @@ show_awg_client_qr() {
     fi
 
     echo "-----------------------"
-    echo "${BOLD_FS} Show client QR [${AWG_INTERFACE_NAME}] ${DEFAULT_FS}"
+    printf "${BOLD_FS} Show client QR [${AWG_INTERFACE_NAME}] ${DEFAULT_FS}\n"
     echo "-----------------------"
     echo ""
 
@@ -64,5 +64,5 @@ AllowedIPs = ${AWG_CLIENT_ALLOWED_IPS}
 Endpoint = "${SERVER_PUBLIC_IP_OR_DOMAIN}:${AWG_INTERFACE_PORT}"" | qrencode -t ansiutf8 -l L
 
     echo ""
-    echo "Here is your ${BOLD_FS}\"${AWG_CLIENT_NAME}\"${DEFAULT_FS} client as a QR code."
+    printf "Here is your ${BOLD_FS}\"${AWG_CLIENT_NAME}\"${DEFAULT_FS} client as a QR code.\n"
 }

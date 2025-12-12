@@ -60,7 +60,7 @@ validate_ipv6() {
 main_menu() {
     while :; do
         echo "-------------------------"
-        echo "${BOLD_FS} AmneziaWG Manager ${AWG_TOOLS_VERSION} ${DEFAULT_FS} -> https://github.com/SoVoKaN/amneziawg-server-tools"
+        printf "${BOLD_FS} AmneziaWG Manager ${AWG_TOOLS_VERSION} ${DEFAULT_FS} -> https://github.com/SoVoKaN/amneziawg-server-tools\n"
         echo "-------------------------"
         echo ""
         echo "1) Manage clients"

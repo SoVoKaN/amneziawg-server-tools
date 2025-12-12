@@ -1,6 +1,6 @@
 get_awg_interface_name_to_enable() {
     while :; do
-        echo "${BOLD_FS}Enter interface name to enable.${DEFAULT_FS}"
+        printf "${BOLD_FS}Enter interface name to enable.${DEFAULT_FS}\n"
         printf '%s' "Name: "
 
         handle_user_input
@@ -52,7 +52,7 @@ confirm_awg_interface_enable() {
 
 enable_awg_interface() {
     echo "------------------"
-    echo "${BOLD_FS} Enable Interface ${DEFAULT_FS}"
+    printf "${BOLD_FS} Enable Interface ${DEFAULT_FS}\n"
     echo "------------------"
     echo ""
 
@@ -63,5 +63,5 @@ enable_awg_interface() {
     start_awg_interface_service
 
     echo ""
-    echo "${GREEN}Interface ${BOLD_FS}\"${AWG_INTERFACE_NAME}\"${DEFAULT_FS} is succesfuly enabled.${DEFAULT_COLOR}"
+    printf "${GREEN}Interface ${BOLD_FS}\"${AWG_INTERFACE_NAME}\"${DEFAULT_FS} is succesfuly enabled.${DEFAULT_COLOR}\n"
 }

@@ -38,7 +38,7 @@ stop_awg_interface_service() {
 interfaces_menu() {
     while :; do
         echo "-------------------"
-        echo "${BOLD_FS} Manage interfaces ${DEFAULT_FS}"
+        printf "${BOLD_FS} Manage interfaces ${DEFAULT_FS}\n"
         echo "-------------------"
         echo ""
         echo "1) Enable interface"

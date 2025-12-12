@@ -82,7 +82,7 @@ free_awg_interface_ipv6() {
 
 get_awg_interface_name_to_delete() {
     while :; do
-        echo "${BOLD_FS}Enter interface name to delete.${DEFAULT_FS}"
+        printf "${BOLD_FS}Enter interface name to delete.${DEFAULT_FS}\n"
         printf '%s' "Name: "
 
         handle_user_input
@@ -148,7 +148,7 @@ delete_awg_interface_configs() {
 
 delete_awg_interface() {
     echo "------------------"
-    echo "${BOLD_FS} Delete Interface ${DEFAULT_FS}"
+    printf "${BOLD_FS} Delete Interface ${DEFAULT_FS}\n"
     echo "------------------"
     echo ""
 
@@ -161,5 +161,5 @@ delete_awg_interface() {
     delete_awg_interface_configs
 
     echo ""
-    echo "${GREEN}Interface ${BOLD_FS}\"${AWG_INTERFACE_NAME}\"${DEFAULT_FS} is succesfuly deleted.${DEFAULT_COLOR}"
+    printf "${GREEN}Interface ${BOLD_FS}\"${AWG_INTERFACE_NAME}\"${DEFAULT_FS} is succesfuly deleted.${DEFAULT_COLOR}\n"
 }

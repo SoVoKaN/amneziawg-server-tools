@@ -1,6 +1,6 @@
 confirm_uninstallation() {
-    echo "This will ${RED}uninstall${DEFAULT_COLOR} ${BOLD_FS}AmneziaWG${DEFAULT_FS} and ${RED}remove${DEFAULT_COLOR} all the ${BOLD_FS}configuration files${DEFAULT_FS}!"
-	echo "Please ${GREEN}backup${DEFAULT_COLOR} the \"/etc/amnezia/amneziawg\" directory if you want to keep your configuration files."
+    printf "This will ${RED}uninstall${DEFAULT_COLOR} ${BOLD_FS}AmneziaWG${DEFAULT_FS} and ${RED}remove${DEFAULT_COLOR} all the ${BOLD_FS}configuration files${DEFAULT_FS}!\n"
+	printf "Please ${GREEN}backup${DEFAULT_COLOR} the \"/etc/amnezia/amneziawg\" directory if you want to keep your configuration files.\n"
     echo ""
 
     QUESTION=$(printf '%s' "Do you want to continue with uninstallation (y/n): ")

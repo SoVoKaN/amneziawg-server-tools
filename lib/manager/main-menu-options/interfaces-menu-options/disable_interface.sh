@@ -1,6 +1,6 @@
 get_awg_interface_name_to_disable() {
     while :; do
-        echo "${BOLD_FS}Enter interface name to delete.${DEFAULT_FS}"
+        printf "${BOLD_FS}Enter interface name to delete.${DEFAULT_FS}\n"
         printf '%s' "Name: "
 
         handle_user_input
@@ -52,7 +52,7 @@ confirm_awg_interface_disable() {
 
 disable_awg_interface() {
     echo "------------------"
-    echo "${BOLD_FS} Disable Interface ${DEFAULT_FS}"
+    printf "${BOLD_FS} Disable Interface ${DEFAULT_FS}\n"
     echo "------------------"
     echo ""
 
@@ -63,5 +63,5 @@ disable_awg_interface() {
     stop_awg_interface_service
 
     echo ""
-    echo "${GREEN}Interface ${BOLD_FS}\"${AWG_INTERFACE_NAME}\"${DEFAULT_FS} is succesfuly disabled.${DEFAULT_COLOR}"
+    printf "${GREEN}Interface ${BOLD_FS}\"${AWG_INTERFACE_NAME}\"${DEFAULT_FS} is succesfuly disabled.${DEFAULT_COLOR}\n"
 }

@@ -119,7 +119,7 @@ main() {
     add_lib "utils" "installer"
 
     echo "---------------------------"
-    echo "${BOLD_FS} AmneziaWG Installer ${AWG_TOOLS_VERSION} ${DEFAULT_FS} -> https://github.com/SoVoKaN/amneziawg-server-tools"
+    printf "${BOLD_FS} AmneziaWG Installer ${AWG_TOOLS_VERSION} ${DEFAULT_FS} -> https://github.com/SoVoKaN/amneziawg-server-tools\n"
     echo "---------------------------"
     echo ""
 
@@ -130,8 +130,8 @@ main() {
     setup_awg_server_tools
 
     echo ""
-    echo "${GREEN}AmneziaWG is succesfuly installed.${DEFAULT_COLOR}"
-    echo "You can now add an interface and then add clients using the ${CYAN}amneziawg-manager${DEFAULT_COLOR} tool."
+    printf "${GREEN}AmneziaWG is succesfuly installed.${DEFAULT_COLOR}\n"
+    printf "You can now add an interface and then add clients using the ${CYAN}amneziawg-manager${DEFAULT_COLOR} tool.\n"
 }
 
 main "$@"

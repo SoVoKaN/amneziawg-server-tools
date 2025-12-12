@@ -185,10 +185,10 @@ prepare_to_install() {
     confirm_installation
 
     echo ""
-    echo "Options require input. Default value is shown in [brackets] — press ${BOLD_FS}Enter${DEFAULT_FS} to ${GREEN}accept${DEFAULT_COLOR} it."
+    printf "Options require input. Default value is shown in [brackets] — press ${BOLD_FS}Enter${DEFAULT_FS} to ${GREEN}accept${DEFAULT_COLOR} it.\n"
     echo ""
 
-    echo "${BOLD_FS}Server settings${DEFAULT_FS}"
+    printf "${BOLD_FS}Server settings${DEFAULT_FS}\n"
 
     get_server_public_network_interface
 
@@ -197,12 +197,12 @@ prepare_to_install() {
     get_awg_client_configs_path
 
     echo ""
-    echo "${BOLD_FS}Optional features${DEFAULT_FS}"
+    printf "${BOLD_FS}Optional features${DEFAULT_FS}\n"
 
     ask_to_install_qrencode
 
     echo ""
-    echo "${GREEN}Configuration done.${DEFAULT_COLOR}"
+    printf "${GREEN}Configuration done.${DEFAULT_COLOR}\n"
     
     is_ready_to_continue
 

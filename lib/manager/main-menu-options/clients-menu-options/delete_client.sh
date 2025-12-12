@@ -18,7 +18,7 @@ check_awg_client_exists() {
 
 get_awg_client_name_to_delete() {
     while :; do
-        echo "${BOLD_FS}Enter client name to delete.${DEFAULT_FS}"
+        printf "${BOLD_FS}Enter client name to delete.${DEFAULT_FS}\n"
         printf '%s' "Name: "
 
         handle_user_input
@@ -96,7 +96,7 @@ bring_down_awg_client() {
 
 delete_awg_client() {
     echo "----------------------"
-    echo "${BOLD_FS} Delete client [${AWG_INTERFACE_NAME}] ${DEFAULT_FS}"
+    printf "${BOLD_FS} Delete client [${AWG_INTERFACE_NAME}] ${DEFAULT_FS}\n"
     echo "----------------------"
     echo ""
 
@@ -111,5 +111,5 @@ delete_awg_client() {
     bring_down_awg_client
 
     echo ""
-    echo "${GREEN}Client ${BOLD_FS}\"${AWG_CLIENT_NAME}\"${DEFAULT_FS} is succesfuly deleted.${DEFAULT_COLOR}"
+    printf "${GREEN}Client ${BOLD_FS}\"${AWG_CLIENT_NAME}\"${DEFAULT_FS} is succesfuly deleted.${DEFAULT_COLOR}\n"
 }

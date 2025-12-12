@@ -371,7 +371,7 @@ ask_to_show_qr() {
 
         if [ "$USER_INPUT" = "y" ]; then
             echo ""
-            echo "${BOLD_FS}Here is your client config file as a QR code: ${DEFAULT_FS}"
+            printf "${BOLD_FS}Here is your client config file as a QR code: ${DEFAULT_FS}\n"
             qrencode -t ansiutf8 -l L < "${AWG_CLIENT_CONFIGS_PATH}/${AWG_INTERFACE_NAME}/${AWG_CLIENT_NAME}.conf"
             echo ""
         fi
@@ -381,7 +381,7 @@ ask_to_show_qr() {
 
 create_awg_client() {
     echo "----------------------"
-    echo "${BOLD_FS} Create client [${AWG_INTERFACE_NAME}] ${DEFAULT_FS}"
+    printf "${BOLD_FS} Create client [${AWG_INTERFACE_NAME}] ${DEFAULT_FS}\n"
     echo "----------------------"
     echo ""
 
@@ -412,6 +412,6 @@ create_awg_client() {
     ask_to_show_qr
 
     echo ""
-    echo "${GREEN}Client ${BOLD_FS}\"${AWG_CLIENT_NAME}\"${DEFAULT_FS} is succesfuly created.${DEFAULT_COLOR}"
-    echo "Your client config file saved in \"${AWG_CLIENT_CONFIGS_PATH}/${AWG_INTERFACE_NAME}/${AWG_CLIENT_NAME}.conf\"."
+    printf "${GREEN}Client ${BOLD_FS}\"${AWG_CLIENT_NAME}\"${DEFAULT_FS} is succesfuly created.${DEFAULT_COLOR}\n"
+    printf "Your client config file saved in \"${AWG_CLIENT_CONFIGS_PATH}/${AWG_INTERFACE_NAME}/${AWG_CLIENT_NAME}.conf\".\n"
 }
