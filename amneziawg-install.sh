@@ -1,6 +1,6 @@
 #!/bin/sh
 
-AWG_TOOLS_VERSION="0.4.1"
+AWG_SERVER_TOOLS_VERSION="0.4.1"
 
 set -eu
 
@@ -103,7 +103,7 @@ handle_common_flags() {
     for ARG in "$@"; do
         case "$ARG" in
             "-v"|"--version")
-                echo "amneziawg-server-tools version ${AWG_TOOLS_VERSION}"
+                echo "amneziawg-server-tools version ${AWG_SERVER_TOOLS_VERSION}"
                 exit 0
                 ;;
         esac
@@ -119,7 +119,7 @@ main() {
     add_lib "utils" "installer"
 
     echo "---------------------------"
-    printf "${BOLD_FS} AmneziaWG Installer ${AWG_TOOLS_VERSION} ${DEFAULT_FS} -> https://github.com/SoVoKaN/amneziawg-server-tools\n"
+    printf "${BOLD_FS} AmneziaWG Installer ${AWG_SERVER_TOOLS_VERSION} ${DEFAULT_FS} -> https://github.com/SoVoKaN/amneziawg-server-tools\n"
     echo "---------------------------"
     echo ""
 

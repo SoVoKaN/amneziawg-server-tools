@@ -1,7 +1,7 @@
 main_menu() {
     while :; do
         echo "-------------------------"
-        printf "${BOLD_FS} AmneziaWG Manager ${AWG_TOOLS_VERSION} ${DEFAULT_FS} -> https://github.com/SoVoKaN/amneziawg-server-tools\n"
+        printf "${BOLD_FS} AmneziaWG Manager ${AWG_SERVER_TOOLS_VERSION} ${DEFAULT_FS} -> https://github.com/SoVoKaN/amneziawg-server-tools\n"
         echo "-------------------------"
         echo ""
         echo "1) Manage clients"
