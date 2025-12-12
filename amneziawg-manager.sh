@@ -1,6 +1,6 @@
 #!/bin/sh
 
-AWG_TOOLS_VERSION="0.3.0"
+AWG_TOOLS_VERSION="0.4.0"
 
 set -eu
 
