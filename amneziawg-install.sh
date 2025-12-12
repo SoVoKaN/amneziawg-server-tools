@@ -75,6 +75,13 @@ validate_os_ver() {
                 exit 1
             fi
             ;;
+        "rocky")
+            MAJOR_VERSION="${VERSION_ID%%.*}"
+            if [ "$MAJOR_VERSION" -lt 8 ]; then
+                echo "Your version of Rocky ${VERSION_ID} is not supported. Please use Rocky 8 or later."
+                exit 1
+            fi
+            ;;
             *)
                 echo "Your Linux distribution is not supported."
                 exit 1
