@@ -3,7 +3,7 @@ install_packages() {
     dnf install -y epel-release
 
     dnf check-update
-    dnf install kernel-headers-$(uname -r) kernel-devel-$(uname -r)
+    dnf install -y kernel-headers-$(uname -r) kernel-devel-$(uname -r)
 
     dnf copr enable -y amneziavpn/amneziawg
 
