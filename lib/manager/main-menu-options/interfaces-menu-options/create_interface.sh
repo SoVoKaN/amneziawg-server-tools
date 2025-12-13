@@ -1028,7 +1028,27 @@ H4 = ${AWG_H4}
 MTU = ${AWG_INTERFACE_MTU}
 " > "/etc/amnezia/amneziawg/${AWG_INTERFACE_NAME}.conf"
 
-    echo "PostUp = nft add table inet ${AWG_INTERFACE_NAME}
+    if ps -e | grep '[f]irewalld' > /dev/null 2>&1; then
+        echo "PostUp = firewall-cmd --zone=trusted --add-interface=${AWG_INTERFACE_NAME}
+PostUp = firewall-cmd --zone=public --add-port=${AWG_INTERFACE_PORT}/udp
+PostUp = firewall-cmd --direct --add-rule ipv4 filter FORWARD 0 -i ${SERVER_PUBLIC_NETWORK_INTERFACE} -o ${AWG_INTERFACE_NAME} -j ACCEPT
+PostUp = firewall-cmd --direct --add-rule ipv4 filter FORWARD 0 -i ${AWG_INTERFACE_NAME} -o ${SERVER_PUBLIC_NETWORK_INTERFACE} -j ACCEPT
+PostUp = firewall-cmd --direct --add-rule ipv4 nat POSTROUTING 0 -o ${SERVER_PUBLIC_NETWORK_INTERFACE} -j MASQUERADE
+PostUp = firewall-cmd --direct --add-rule ipv6 filter FORWARD 0 -i ${SERVER_PUBLIC_NETWORK_INTERFACE} -o ${AWG_INTERFACE_NAME} -j ACCEPT
+PostUp = firewall-cmd --direct --add-rule ipv6 filter FORWARD 0 -i ${AWG_INTERFACE_NAME} -o ${SERVER_PUBLIC_NETWORK_INTERFACE} -j ACCEPT
+PostUp = firewall-cmd --direct --add-rule ipv6 nat POSTROUTING 0 -o ${SERVER_PUBLIC_NETWORK_INTERFACE} -j MASQUERADE
+PostDown = firewall-cmd --direct --remove-rule ipv6 nat POSTROUTING 0 -o ${SERVER_PUBLIC_NETWORK_INTERFACE} -j MASQUERADE
+PostDown = firewall-cmd --direct --remove-rule ipv6 filter FORWARD 0 -i ${AWG_INTERFACE_NAME} -o ${SERVER_PUBLIC_NETWORK_INTERFACE} -j ACCEPT
+PostDown = firewall-cmd --direct --remove-rule ipv6 filter FORWARD 0 -i ${SERVER_PUBLIC_NETWORK_INTERFACE} -o ${AWG_INTERFACE_NAME} -j ACCEPT
+PostDown = firewall-cmd --direct --remove-rule ipv4 nat POSTROUTING 0 -o ${SERVER_PUBLIC_NETWORK_INTERFACE} -j MASQUERADE
+PostDown = firewall-cmd --direct --remove-rule ipv4 filter FORWARD 0 -i ${AWG_INTERFACE_NAME} -o ${SERVER_PUBLIC_NETWORK_INTERFACE} -j ACCEPT
+PostDown = firewall-cmd --direct --remove-rule ipv4 filter FORWARD 0 -i ${SERVER_PUBLIC_NETWORK_INTERFACE} -o ${AWG_INTERFACE_NAME} -j ACCEPT
+PostDown = firewall-cmd --zone=public --remove-port=${AWG_INTERFACE_PORT}/udp
+PostDown = firewall-cmd --zone=trusted --remove-interface=${AWG_INTERFACE_NAME}
+
+" >> "/etc/amnezia/amneziawg/${AWG_INTERFACE_NAME}.conf"
+    else
+        echo "PostUp = nft add table inet ${AWG_INTERFACE_NAME}
 PostUp = nft add chain inet ${AWG_INTERFACE_NAME} input { type filter hook input priority 0 \; }
 PostUp = nft add rule inet ${AWG_INTERFACE_NAME} input udp dport ${AWG_INTERFACE_PORT} accept
 PostUp = nft add chain inet ${AWG_INTERFACE_NAME} forward { type filter hook forward priority 0 \; }
@@ -1039,6 +1059,7 @@ PostUp = nft add rule inet ${AWG_INTERFACE_NAME} postrouting oifname \"${SERVER_
 PostDown = nft delete table inet ${AWG_INTERFACE_NAME}
 
 " >> "/etc/amnezia/amneziawg/${AWG_INTERFACE_NAME}.conf"
+    fi
 }
 
 save_awg_interface_data() {
