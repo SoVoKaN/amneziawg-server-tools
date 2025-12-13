@@ -33,9 +33,11 @@ show_awg_client_qr() {
         echo "To use this option, \"qrencode\" must be installed. Please install it and try again."
     fi
 
-    echo "-----------------------"
+    print_dashes "$((19 + ${#AWG_INTERFACE_NAME}))"
+
     printf "${BOLD_FS} Show client QR [${AWG_INTERFACE_NAME}] ${DEFAULT_FS}\n"
-    echo "-----------------------"
+
+    print_dashes "$((19 + ${#AWG_INTERFACE_NAME}))"
     echo ""
 
     get_awg_client_name_to_display_qr

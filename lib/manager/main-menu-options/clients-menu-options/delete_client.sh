@@ -95,9 +95,11 @@ bring_down_awg_client() {
 
 
 delete_awg_client() {
-    echo "----------------------"
+    print_dashes "$((18 + ${#AWG_INTERFACE_NAME}))"
+
     printf "${BOLD_FS} Delete client [${AWG_INTERFACE_NAME}] ${DEFAULT_FS}\n"
-    echo "----------------------"
+
+    print_dashes "$((18 + ${#AWG_INTERFACE_NAME}))"
     echo ""
 
     get_awg_client_name_to_delete

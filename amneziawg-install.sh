@@ -118,9 +118,11 @@ main() {
 
     add_lib "utils" "installer"
 
-    echo "---------------------------"
+    print_dashes "$((22 + ${#AWG_SERVER_TOOLS_VERSION}))"
+
     printf "${BOLD_FS} AmneziaWG Installer ${AWG_SERVER_TOOLS_VERSION} ${DEFAULT_FS} -> https://github.com/SoVoKaN/amneziawg-server-tools\n"
-    echo "---------------------------"
+
+    print_dashes "$((22 + ${#AWG_SERVER_TOOLS_VERSION}))"
     echo ""
 
     prepare_to_install

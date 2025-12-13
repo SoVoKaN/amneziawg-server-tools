@@ -380,9 +380,11 @@ ask_to_show_qr() {
 
 
 create_awg_client() {
-    echo "----------------------"
+    print_dashes "$((18 + ${#AWG_INTERFACE_NAME}))"
+
     printf "${BOLD_FS} Create client [${AWG_INTERFACE_NAME}] ${DEFAULT_FS}\n"
-    echo "----------------------"
+
+    print_dashes "$((18 + ${#AWG_INTERFACE_NAME}))"
     echo ""
 
     check_awg_interface_has_free_clients

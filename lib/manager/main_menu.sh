@@ -1,8 +1,10 @@
 main_menu() {
     while :; do
-        echo "-------------------------"
+        print_dashes "$((20 + ${#AWG_SERVER_TOOLS_VERSION}))"
+
         printf "${BOLD_FS} AmneziaWG Manager ${AWG_SERVER_TOOLS_VERSION} ${DEFAULT_FS} -> https://github.com/SoVoKaN/amneziawg-server-tools\n"
-        echo "-------------------------"
+
+        print_dashes "$((20 + ${#AWG_SERVER_TOOLS_VERSION}))"
         echo ""
         echo "1) Manage clients"
         echo "2) Manage interfaces"

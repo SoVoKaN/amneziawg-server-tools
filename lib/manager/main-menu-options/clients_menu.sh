@@ -45,9 +45,11 @@ clients_menu() {
     load_interface_data
 
     while :; do
-        echo "-----------------------"
+        print_dashes "$((19 + ${#AWG_INTERFACE_NAME}))"
+
         printf "${BOLD_FS} Manage clients [${AWG_INTERFACE_NAME}] ${DEFAULT_FS}\n"
-        echo "-----------------------"
+
+        print_dashes "$((19 + ${#AWG_INTERFACE_NAME}))"
         echo ""
         echo "1) Create client"
         echo "2) Delete client"
