@@ -1,6 +1,6 @@
 #!/bin/sh
 
-AWG_SERVER_TOOLS_VERSION="0.4.1"
+AWG_SERVER_TOOLS_VERSION="0.4.2"
 
 set -eu
 
@@ -77,7 +77,7 @@ main() {
     add_lib "utils" "uninstaller"
 
     print_dashes "$((24 + ${#AWG_INTERFACE_NAME}))"
-    
+
     printf "${BOLD_FS} AmneziaWG Uninstaller ${AWG_SERVER_TOOLS_VERSION} ${DEFAULT_FS} -> https://github.com/SoVoKaN/amneziawg-server-tools\n"
 
     print_dashes "$((24 + ${#AWG_INTERFACE_NAME}))"
