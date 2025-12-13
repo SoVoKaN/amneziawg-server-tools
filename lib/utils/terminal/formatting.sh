@@ -7,3 +7,14 @@ clean_lines() {
         NUM=$((NUM + 1))
     done
 }
+
+print_dashes() {
+    NUM="0"
+    while [ "$NUM" -lt "$1" ]; do
+        printf "-"
+
+        NUM=$((NUM + 1))
+    done
+
+    printf "\n"
+}
