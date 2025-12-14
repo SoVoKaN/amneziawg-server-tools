@@ -13,16 +13,21 @@ validate_ipv4() {
     done
 
     if [ "$AWG_VALIDATE_IPV4_PARTS_COUNT" != "4" ]; then
+        unset IFS
         return 1
     fi
 
     for PART in $VALIDATE_IPV4; do
         case "$PART" in
             [0-9] | [0-9][0-9] | [0-9][0-9][0-9]) ;;
-            *) return 1 ;;
+            *)
+                unset IFS
+                return 1
+                ;;
         esac
 
         if [ "$PART" -lt 0 ] || [ "$PART" -gt 255 ]; then
+            unset IFS
             return 1
         fi
     done
@@ -65,11 +70,13 @@ validate_ipv6() {
     case "$VALIDATE_IPV6" in
         *::*)
             if [ "$AWG_VALIDATE_IPV6_PARTS_SUM" -gt 7 ]; then
+                unset IFS
                 return 1
             fi
             ;;
         *)
             if [ "$AWG_VALIDATE_IPV6_PARTS_SUM" != "8" ]; then
+                unset IFS
                 return 1
             fi
             ;;
@@ -80,7 +87,9 @@ validate_ipv6() {
         for PART in $AWG_VALIDATE_IPV6_LEFT_SIDE; do
             case "$PART" in
                 [0-9a-fA-F] | [0-9a-fA-F][0-9a-fA-F] | [0-9a-fA-F][0-9a-fA-F][0-9a-fA-F] | [0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]) ;;
-                *) return 1 ;;
+                *)
+                    unset IFS
+                    return 1 ;;
             esac
         done
     fi
@@ -90,7 +99,9 @@ validate_ipv6() {
         for PART in $AWG_VALIDATE_IPV6_RIGHT_SIDE; do
             case "$PART" in
                 [0-9a-fA-F] | [0-9a-fA-F][0-9a-fA-F] | [0-9a-fA-F][0-9a-fA-F][0-9a-fA-F] | [0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]) ;;
-                *) return 1 ;;
+                *)
+                    unset IFS
+                    return 1 ;;
             esac
         done
     fi
