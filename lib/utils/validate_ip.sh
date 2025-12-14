@@ -1,47 +1,101 @@
 validate_ipv4() {
-    if ! printf '%s' "$1" | grep "^\([0-9][0-9]*\.\)\{3\}[0-9][0-9]*$" > /dev/null 2>&1; then
-        return 1
-    fi
-
-
     VALIDATE_IPV4="$1"
 
-    VALIDATE_IPV4_FIRST_PART=${VALIDATE_IPV4%%.*}
+    case "$VALIDATE_IPV4" in
+        *.*.*.*.*) return 1 ;;
+    esac
 
-    VALIDATE_IPV4=${VALIDATE_IPV4#*.}
+    IFS="."
 
-    VALIDATE_IPV4_SECOND_PART=${VALIDATE_IPV4%%.*}
+    AWG_VALIDATE_IPV4_PARTS_COUNT="0"
+    for PART in $VALIDATE_IPV4; do
+        AWG_VALIDATE_IPV4_PARTS_COUNT=$((AWG_VALIDATE_IPV4_PARTS_COUNT + 1))
+    done
 
-    VALIDATE_IPV4=${VALIDATE_IPV4#*.}
-
-    VALIDATE_IPV4_THIRD_PART=${VALIDATE_IPV4%%.*}
-
-    VALIDATE_IPV4_FOURTH_PART=${VALIDATE_IPV4#*.}
-
-    if [ "$VALIDATE_IPV4_FIRST_PART" -lt 1 ] || [ "$VALIDATE_IPV4_FIRST_PART" -gt 254 ]; then
+    if [ "$AWG_VALIDATE_IPV4_PARTS_COUNT" != "4" ]; then
         return 1
     fi
 
-    if [ "$VALIDATE_IPV4_SECOND_PART" -lt 1 ] || [ "$VALIDATE_IPV4_SECOND_PART" -gt 254 ]; then
-        return 1
-    fi
+    for PART in $VALIDATE_IPV4; do
+        case "$PART" in
+            [0-9] | [0-9][0-9] | [0-9][0-9][0-9]) ;;
+            *) return 1 ;;
+        esac
 
-    if [ "$VALIDATE_IPV4_THIRD_PART" -lt 1 ] || [ "$VALIDATE_IPV4_THIRD_PART" -gt 254 ]; then
-        return 1
-    fi
+        if [ "$PART" -lt 0 ] || [ "$PART" -gt 255 ]; then
+            return 1
+        fi
+    done
 
-    if [ "$VALIDATE_IPV4_FOURTH_PART" -lt 1 ] || [ "$VALIDATE_IPV4_FOURTH_PART" -gt 254 ]; then
-        return 1
-    fi
-
+    unset IFS
 
     return 0
 }
 
 validate_ipv6() {
-    if ! printf '%s' "$1" | awk '{s=$0; if(gsub(/::/,"::",s)>1) exit 1; n=split($0,p,"::"); left=p[1]; if(n>1) right=p[2]; else right=""; nL=split(left,L,":"); if(right=="") nR=0; else nR=split(right,R,":"); g=nL+nR; if(index($0,".")) exit 1; if(index($0,"::")) { if(g>7) exit 1 } else { if(g!=8) exit 1 } for(i=1;i<=nL;i++) if(L[i]!="" && match(L[i],"^[0-9A-Fa-f]{1,4}$")==0) exit 1; for(i=1;i<=nR;i++) if(R[i]!="" && match(R[i],"^[0-9A-Fa-f]{1,4}$")==0) exit 1; exit 0 }'; then
-        return 1
+    VALIDATE_IPV6="$1"
+
+    case "$VALIDATE_IPV6" in
+        *.*) return 1 ;;
+        *:::*) return 1 ;;
+        *::*::*) return 1 ;;
+    esac
+
+    AWG_VALIDATE_IPV6_LEFT_SIDE=${VALIDATE_IPV6%%::*}
+    AWG_VALIDATE_IPV6_RIGHT_SIDE=${VALIDATE_IPV6#*::}
+
+    if [ "$AWG_VALIDATE_IPV6_LEFT_SIDE" = "$AWG_VALIDATE_IPV6_RIGHT_SIDE" ]; then
+        AWG_VALIDATE_IPV6_RIGHT_SIDE=""
     fi
+
+    IFS=":"
+
+    AWG_VALIDATE_IPV6_LEFT_SIDE_PARTS_COUNT="0"
+    for PART in $AWG_VALIDATE_IPV6_LEFT_SIDE; do
+        AWG_VALIDATE_IPV6_LEFT_SIDE_PARTS_COUNT=$((AWG_VALIDATE_IPV6_LEFT_SIDE_PARTS_COUNT + 1))
+    done
+
+    AWG_VALIDATE_IPV6_RIGHT_SIDE_PARTS_COUNT="0"
+    for PART in $AWG_VALIDATE_IPV6_RIGHT_SIDE; do
+        AWG_VALIDATE_IPV6_RIGHT_SIDE_PARTS_COUNT=$((AWG_VALIDATE_IPV6_RIGHT_SIDE_PARTS_COUNT + 1))
+    done
+
+    AWG_VALIDATE_IPV6_PARTS_SUM=$((AWG_VALIDATE_IPV6_LEFT_SIDE_PARTS_COUNT + AWG_VALIDATE_IPV6_RIGHT_SIDE_PARTS_COUNT))
+
+    case "$VALIDATE_IPV6" in
+        *::*)
+            if [ "$AWG_VALIDATE_IPV6_PARTS_SUM" -gt 7 ]; then
+                return 1
+            fi
+            ;;
+        *)
+            if [ "$AWG_VALIDATE_IPV6_PARTS_SUM" != "8" ]; then
+                return 1
+            fi
+            ;;
+    esac
+
+    if [ -n "$AWG_VALIDATE_IPV6_LEFT_SIDE" ]; then
+
+        for PART in $AWG_VALIDATE_IPV6_LEFT_SIDE; do
+            case "$PART" in
+                [0-9a-fA-F] | [0-9a-fA-F][0-9a-fA-F] | [0-9a-fA-F][0-9a-fA-F][0-9a-fA-F] | [0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]) ;;
+                *) return 1 ;;
+            esac
+        done
+    fi
+
+    if [ -n "$AWG_VALIDATE_IPV6_RIGHT_SIDE" ]; then
+
+        for PART in $AWG_VALIDATE_IPV6_RIGHT_SIDE; do
+            case "$PART" in
+                [0-9a-fA-F] | [0-9a-fA-F][0-9a-fA-F] | [0-9a-fA-F][0-9a-fA-F][0-9a-fA-F] | [0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]) ;;
+                *) return 1 ;;
+            esac
+        done
+    fi
+
+    unset IFS
 
     return 0
 }
