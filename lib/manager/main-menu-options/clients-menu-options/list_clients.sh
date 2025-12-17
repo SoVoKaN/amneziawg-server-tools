@@ -23,7 +23,6 @@ check_has_awg_interface_clients() {
     done
 
     echo "No clients have been created yet."
-    exit 0
 }
 
 create_clients_list() {

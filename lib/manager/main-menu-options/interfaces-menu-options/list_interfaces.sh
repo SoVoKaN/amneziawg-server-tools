@@ -27,7 +27,6 @@ check_awg_has_interfaces() {
     done
 
     echo "No interfaces have been created yet."
-    exit 0
 }
 
 create_awg_interfaces_list() {
