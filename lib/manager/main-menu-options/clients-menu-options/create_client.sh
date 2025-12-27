@@ -108,11 +108,11 @@ get_awg_client_name() {
             continue
         fi
 
-        if [ "${#USER_INPUT}" -lt 1 ]; then
+        if [ ${#USER_INPUT} -lt 1 ]; then
             continue
         fi
 
-        if [ "${#USER_INPUT}" -gt 20 ]; then
+        if [ ${#USER_INPUT} -gt 20 ]; then
             continue
         fi
 
@@ -159,6 +159,10 @@ get_awg_client_ipv4() {
             fi
 
             if ! validate_ipv4 "${AWG_CLIENT_IPV4_PREFIX}${USER_INPUT}"; then
+                continue
+            fi
+
+            if [ ${USER_INPUT%%.*} = "0" ]; then
                 continue
             fi
 
@@ -222,6 +226,10 @@ get_awg_client_first_dns() {
                 continue
             fi
 
+            if [ ${USER_INPUT%%.*} = "0" ]; then
+                continue
+            fi
+
             AWG_CLIENT_FIRST_DNS="$USER_INPUT"
         else
             default_value_autocomplete "$AWG_CLIENT_FIRST_DNS" "$QUESTION"
@@ -243,6 +251,10 @@ get_awg_client_second_dns() {
 
         if [ -n "$USER_INPUT" ]; then
             if ! validate_ipv4 "$USER_INPUT"; then
+                continue
+            fi
+
+            if [ ${USER_INPUT%%.*} = "0" ]; then
                 continue
             fi
 

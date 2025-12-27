@@ -439,6 +439,10 @@ get_awg_interface_ipv4() {
                 continue
             fi
 
+            if [ ${USER_INPUT%%.*} = "0" ]; then
+                continue
+            fi
+
             if ! check_awg_interface_ipv4_free "$USER_INPUT"; then
                 continue
             fi
