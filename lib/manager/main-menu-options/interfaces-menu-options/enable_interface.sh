@@ -1,3 +1,14 @@
+check_awg_interface_already_enabled() {
+    ACTIVE_INTERFACES=$(awg show interfaces)
+
+    case "$ACTIVE_INTERFACES" in
+        *"$1"*)
+            return 0
+    esac
+
+    return 1
+}
+
 get_awg_interface_name_to_enable() {
     while :; do
         printf "${BOLD_FS}Enter interface name to enable.${DEFAULT_FS}\n"
@@ -19,6 +30,11 @@ get_awg_interface_name_to_enable() {
 
         if ! check_awg_interface_exists "$USER_INPUT"; then
             echo "Interface \"${USER_INPUT}\" does not exists."
+            exit 1
+        fi
+
+        if check_awg_interface_already_enabled "$USER_INPUT"; then
+            echo "Interface \"${USER_INPUT}\" is already enabled."
             exit 1
         fi
 
