@@ -76,11 +76,11 @@ main() {
 
     add_lib "utils" "uninstaller"
 
-    print_dashes "$((24 + ${#AWG_INTERFACE_NAME}))"
+    print_dashes "$((22 + ${#AWG_SERVER_TOOLS_VERSION}))"
 
     printf "${BOLD_FS} AmneziaWG Uninstaller ${AWG_SERVER_TOOLS_VERSION} ${DEFAULT_FS} -> https://github.com/SoVoKaN/amneziawg-server-tools\n"
 
-    print_dashes "$((24 + ${#AWG_INTERFACE_NAME}))"
+    print_dashes "$((22 + ${#AWG_SERVER_TOOLS_VERSION}))"
     echo ""
 
     prepare_to_uninstall
