@@ -69,9 +69,10 @@ validate_os_ver() {
                 exit 1
             fi
             ;;
-        "fedora")
-            if [ "$VERSION_ID" -ne 41 ]; then
-                echo "Your version of Fedora ${VERSION_ID} is not supported. Please use Fedora 41."
+        "almalinux")
+            MAJOR_VERSION="${VERSION_ID%%.*}"
+            if [ "$MAJOR_VERSION" -lt 9 ]; then
+                echo "Your version of Alma ${VERSION_ID} is not supported. Please use Alma 9 or later."
                 exit 1
             fi
             ;;
@@ -79,6 +80,12 @@ validate_os_ver() {
             MAJOR_VERSION="${VERSION_ID%%.*}"
             if [ "$MAJOR_VERSION" -lt 9 ]; then
                 echo "Your version of Rocky ${VERSION_ID} is not supported. Please use Rocky 9 or later."
+                exit 1
+            fi
+            ;;
+        "fedora")
+            if [ "$VERSION_ID" -ne 41 ]; then
+                echo "Your version of Fedora ${VERSION_ID} is not supported. Please use Fedora 41."
                 exit 1
             fi
             ;;
