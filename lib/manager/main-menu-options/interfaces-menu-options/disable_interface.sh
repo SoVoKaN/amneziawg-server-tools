@@ -1,3 +1,14 @@
+check_awg_interface_already_disabled() {
+    ACTIVE_INTERFACES=$(awg show interfaces)
+
+    case "$ACTIVE_INTERFACES" in
+        *"$1"*)
+            return 1
+    esac
+
+    return 0
+}
+
 get_awg_interface_name_to_disable() {
     while :; do
         printf "${BOLD_FS}Enter interface name to delete.${DEFAULT_FS}\n"
@@ -19,6 +30,11 @@ get_awg_interface_name_to_disable() {
 
         if ! check_awg_interface_exists "$USER_INPUT"; then
             echo "Interface \"${USER_INPUT}\" does not exists."
+            exit 1
+        fi
+
+        if check_awg_interface_already_disabled "$USER_INPUT"; then
+            echo "Interface \"${USER_INPUT}\" is already disabled."
             exit 1
         fi
 
