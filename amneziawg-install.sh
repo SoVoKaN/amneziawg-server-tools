@@ -83,6 +83,13 @@ validate_os_ver() {
                 exit 1
             fi
             ;;
+        "centos")
+            MAJOR_VERSION="${VERSION_ID%%.*}"
+            if [ "$MAJOR_VERSION" -lt 9 ]; then
+                echo "Your version of CentOS ${VERSION_ID} is not supported. Please use CentOS 9 or later."
+                exit 1
+            fi
+            ;;
         "fedora")
             if [ "$VERSION_ID" -ne 41 ]; then
                 echo "Your version of Fedora ${VERSION_ID} is not supported. Please use Fedora 41."
