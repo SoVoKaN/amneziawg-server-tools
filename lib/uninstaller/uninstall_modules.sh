@@ -2,7 +2,7 @@ add_uninstallation_scripts() {
     SCRIPT_DIR=$(cd $(dirname "$0") && pwd)
     FOLDER_DIR="${SCRIPT_DIR}/lib/uninstaller"
 
-    UNINSTALLATION_DIR="${FOLDER_DIR}/${OS}"
+    UNINSTALLATION_DIR="${FOLDER_DIR}/distros/${OS}"
 
     for SCRIPT in "${UNINSTALLATION_DIR}"/*.sh; do
         if [ -f "$SCRIPT" ]; then
