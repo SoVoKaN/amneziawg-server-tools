@@ -31,7 +31,7 @@ stop_services() {
 }
 
 disable_routing() {
-    rm -f "/etc/sysctl.d/awg.conf"
+    rm -f "/etc/sysctl.d/amneziawg.conf"
 
     sysctl --system > /dev/null 2>&1
 }

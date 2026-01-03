@@ -34,7 +34,13 @@ create_clients_list() {
 
         . "$CLIENT_DATA_PATH"
 
-        CLIENTS_LIST="${CLIENTS_LIST}${CURRENT_CLIENT_NAME} (IPv4: ${AWG_CLIENT_IPV4}, IPv6: ${AWG_CLIENT_IPV6})\n"
+        CLIENTS_LIST="${CLIENTS_LIST}${CURRENT_CLIENT_NAME} (IPv4: ${AWG_CLIENT_IPV4}"
+
+        if [ "$AWG_INTERFACE_USE_IPV6" = "y" ]; then
+            CLIENTS_LIST="${CLIENTS_LIST}, IPv6: ${AWG_CLIENT_IPV6}"
+        fi
+
+        CLIENTS_LIST="${CLIENTS_LIST})\n"
     done
 }
 

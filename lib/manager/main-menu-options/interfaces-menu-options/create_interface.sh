@@ -278,6 +278,78 @@ generate_awg_interface_ipv6() {
     AWG_INTERFACE_IPV6="$AWG_POSSIBLE_INTERFACE_IPV6"
 }
 
+add_awg_interface_firewalld_rules() {
+    echo "PostUp = firewall-cmd --direct --add-rule ipv4 filter INPUT 0 -p udp --dport ${AWG_INTERFACE_PORT} -j ACCEPT
+PostUp = firewall-cmd --direct --add-rule ipv4 filter FORWARD 0 -i "${SERVER_PUBLIC_NETWORK_INTERFACE}" -o "${AWG_INTERFACE_NAME}" -j ACCEPT
+PostUp = firewall-cmd --direct --add-rule ipv4 filter FORWARD 0 -i "${SERVER_PUBLIC_NETWORK_INTERFACE}" -j ACCEPT
+PostUp = firewall-cmd --direct --add-rule ipv4 nat POSTROUTING 0 -o "${SERVER_PUBLIC_NETWORK_INTERFACE}" -j MASQUERADE" >> "/etc/amnezia/amneziawg/${AWG_INTERFACE_NAME}.conf"
+
+    if [ "$AWG_INTERFACE_USE_IPV6" = "y" ]; then
+        echo "PostUp = firewall-cmd --direct --add-rule ipv6 filter INPUT 0 -p udp --dport ${AWG_INTERFACE_PORT} -j ACCEPT
+PostUp = firewall-cmd --direct --add-rule ipv6 filter FORWARD 0 -i "${SERVER_PUBLIC_NETWORK_INTERFACE}" -o "${AWG_INTERFACE_NAME}" -j ACCEPT
+PostUp = firewall-cmd --direct --add-rule ipv6 filter FORWARD 0 -i "${SERVER_PUBLIC_NETWORK_INTERFACE}" -j ACCEPT" >> "/etc/amnezia/amneziawg/${AWG_INTERFACE_NAME}.conf"
+    fi
+
+    echo "PostDown = firewall-cmd --direct --remove-rule ipv4 filter INPUT 0 -p udp --dport ${AWG_INTERFACE_PORT} -j ACCEPT
+PostDown = firewall-cmd --direct --remove-rule ipv4 filter FORWARD 0 -i "${SERVER_PUBLIC_NETWORK_INTERFACE}" -o "${AWG_INTERFACE_NAME}" -j ACCEPT
+PostDown = firewall-cmd --direct --remove-rule ipv4 filter FORWARD 0 -i "${SERVER_PUBLIC_NETWORK_INTERFACE}" -j ACCEPT
+PostDown = firewall-cmd --direct --remove-rule ipv4 nat POSTROUTING 0 -o "${SERVER_PUBLIC_NETWORK_INTERFACE}" -j MASQUERADE" >> "/etc/amnezia/amneziawg/${AWG_INTERFACE_NAME}.conf"
+
+    if [ "$AWG_INTERFACE_USE_IPV6" = "y" ]; then
+        echo "PostDown = firewall-cmd --direct --remove-rule ipv6 filter INPUT 0 -p udp --dport ${AWG_INTERFACE_PORT} -j ACCEPT
+PostDown = firewall-cmd --direct --remove-rule ipv6 filter FORWARD 0 -i "${SERVER_PUBLIC_NETWORK_INTERFACE}" -o "${AWG_INTERFACE_NAME}" -j ACCEPT
+PostDown = firewall-cmd --direct --remove-rule ipv6 filter FORWARD 0 -i "${SERVER_PUBLIC_NETWORK_INTERFACE}" -j ACCEPT" >> "/etc/amnezia/amneziawg/${AWG_INTERFACE_NAME}.conf"
+    fi
+
+    echo "" >> "/etc/amnezia/amneziawg/${AWG_INTERFACE_NAME}.conf"
+}
+
+add_awg_interface_nftables_rules() {
+    if [ "$AWG_INTERFACE_USE_IPV6" = "y" ]; then
+        echo "PostUp = nft add table inet ${AWG_INTERFACE_NAME}
+PostUp = nft add chain inet ${AWG_INTERFACE_NAME} input { type filter hook input priority 0 \; }
+PostUp = nft add rule inet ${AWG_INTERFACE_NAME} input udp dport ${AWG_INTERFACE_PORT} accept
+PostUp = nft add chain inet ${AWG_INTERFACE_NAME} forward { type filter hook forward priority 0 \; }
+PostUp = nft add rule inet ${AWG_INTERFACE_NAME} forward iifname \"${SERVER_PUBLIC_NETWORK_INTERFACE}\" oifname \"${AWG_INTERFACE_NAME}\" accept
+PostUp = nft add rule inet ${AWG_INTERFACE_NAME} forward iifname \"${SERVER_PUBLIC_NETWORK_INTERFACE}\" accept
+PostUp = nft add chain inet ${AWG_INTERFACE_NAME} postrouting { type nat hook postrouting priority 100 \; }
+PostUp = nft add rule inet ${AWG_INTERFACE_NAME} postrouting oifname \"${SERVER_PUBLIC_NETWORK_INTERFACE}\" masquerade
+PostDown = nft delete table inet ${AWG_INTERFACE_NAME}
+
+" >> "/etc/amnezia/amneziawg/${AWG_INTERFACE_NAME}.conf"
+    else
+        echo "PostUp = nft add table ip ${AWG_INTERFACE_NAME}
+PostUp = nft add chain ip ${AWG_INTERFACE_NAME} input { type filter hook input priority 0 \; }
+PostUp = nft add rule ip ${AWG_INTERFACE_NAME} input udp dport ${AWG_INTERFACE_PORT} accept
+PostUp = nft add chain ip ${AWG_INTERFACE_NAME} forward { type filter hook forward priority 0 \; }
+PostUp = nft add rule ip ${AWG_INTERFACE_NAME} forward iifname \"${SERVER_PUBLIC_NETWORK_INTERFACE}\" oifname \"${AWG_INTERFACE_NAME}\" accept
+PostUp = nft add rule ip ${AWG_INTERFACE_NAME} forward iifname \"${SERVER_PUBLIC_NETWORK_INTERFACE}\" accept
+PostUp = nft add chain ip ${AWG_INTERFACE_NAME} postrouting { type nat hook postrouting priority 100 \; }
+PostUp = nft add rule ip ${AWG_INTERFACE_NAME} postrouting oifname \"${SERVER_PUBLIC_NETWORK_INTERFACE}\" masquerade
+PostDown = nft delete table ip ${AWG_INTERFACE_NAME}
+
+" >> "/etc/amnezia/amneziawg/${AWG_INTERFACE_NAME}.conf"
+    fi
+}
+
+
+ask_use_ipv6_for_interface() {
+    AWG_INTERFACE_USE_IPV6=""
+
+    while :; do
+        printf 'Use IPv6 for this interface (y/n): '
+
+        handle_user_input
+
+        case "$USER_INPUT" in
+            "n" | "no" | "N" | "NO") AWG_INTERFACE_USE_IPV6="n" ;;
+            "y" | "yes" | "Y" | "YES") AWG_INTERFACE_USE_IPV6="y" ;;
+            *) continue ;;
+        esac
+
+        break
+    done
+}
 
 get_awg_interface_name() {
     generate_awg_interface_name
@@ -1016,9 +1088,15 @@ create_awg_interface_key_pair() {
 }
 
 save_awg_interface() {
+    AWG_INTERFACE_ADDRESS="${AWG_INTERFACE_IPV4}/24"
+
+    if [ "$AWG_INTERFACE_USE_IPV6" = "y" ]; then
+        AWG_INTERFACE_ADDRESS="${AWG_INTERFACE_ADDRESS}, ${AWG_INTERFACE_IPV6}/64"
+    fi
+
     echo "[Interface]
 ListenPort = ${AWG_INTERFACE_PORT}
-Address = ${AWG_INTERFACE_IPV4}/24, ${AWG_INTERFACE_IPV6}/64
+Address = ${AWG_INTERFACE_ADDRESS}
 PrivateKey = ${AWG_INTERFACE_PRIVATE_KEY}
 Jc = ${AWG_JC}
 Jmin = ${AWG_JMIN}
@@ -1033,36 +1111,9 @@ MTU = ${AWG_INTERFACE_MTU}
 " > "/etc/amnezia/amneziawg/${AWG_INTERFACE_NAME}.conf"
 
     if ps -e | grep '[f]irewalld' > /dev/null 2>&1; then
-        echo "PostUp = firewall-cmd --zone=trusted --add-interface=${AWG_INTERFACE_NAME}
-PostUp = firewall-cmd --zone=public --add-port=${AWG_INTERFACE_PORT}/udp
-PostUp = firewall-cmd --direct --add-rule ipv4 filter FORWARD 0 -i ${SERVER_PUBLIC_NETWORK_INTERFACE} -o ${AWG_INTERFACE_NAME} -j ACCEPT
-PostUp = firewall-cmd --direct --add-rule ipv4 filter FORWARD 0 -i ${AWG_INTERFACE_NAME} -o ${SERVER_PUBLIC_NETWORK_INTERFACE} -j ACCEPT
-PostUp = firewall-cmd --direct --add-rule ipv4 nat POSTROUTING 0 -o ${SERVER_PUBLIC_NETWORK_INTERFACE} -j MASQUERADE
-PostUp = firewall-cmd --direct --add-rule ipv6 filter FORWARD 0 -i ${SERVER_PUBLIC_NETWORK_INTERFACE} -o ${AWG_INTERFACE_NAME} -j ACCEPT
-PostUp = firewall-cmd --direct --add-rule ipv6 filter FORWARD 0 -i ${AWG_INTERFACE_NAME} -o ${SERVER_PUBLIC_NETWORK_INTERFACE} -j ACCEPT
-PostUp = firewall-cmd --direct --add-rule ipv6 nat POSTROUTING 0 -o ${SERVER_PUBLIC_NETWORK_INTERFACE} -j MASQUERADE
-PostDown = firewall-cmd --direct --remove-rule ipv6 nat POSTROUTING 0 -o ${SERVER_PUBLIC_NETWORK_INTERFACE} -j MASQUERADE
-PostDown = firewall-cmd --direct --remove-rule ipv6 filter FORWARD 0 -i ${AWG_INTERFACE_NAME} -o ${SERVER_PUBLIC_NETWORK_INTERFACE} -j ACCEPT
-PostDown = firewall-cmd --direct --remove-rule ipv6 filter FORWARD 0 -i ${SERVER_PUBLIC_NETWORK_INTERFACE} -o ${AWG_INTERFACE_NAME} -j ACCEPT
-PostDown = firewall-cmd --direct --remove-rule ipv4 nat POSTROUTING 0 -o ${SERVER_PUBLIC_NETWORK_INTERFACE} -j MASQUERADE
-PostDown = firewall-cmd --direct --remove-rule ipv4 filter FORWARD 0 -i ${AWG_INTERFACE_NAME} -o ${SERVER_PUBLIC_NETWORK_INTERFACE} -j ACCEPT
-PostDown = firewall-cmd --direct --remove-rule ipv4 filter FORWARD 0 -i ${SERVER_PUBLIC_NETWORK_INTERFACE} -o ${AWG_INTERFACE_NAME} -j ACCEPT
-PostDown = firewall-cmd --zone=public --remove-port=${AWG_INTERFACE_PORT}/udp
-PostDown = firewall-cmd --zone=trusted --remove-interface=${AWG_INTERFACE_NAME}
-
-" >> "/etc/amnezia/amneziawg/${AWG_INTERFACE_NAME}.conf"
+        add_awg_interface_firewalld_rules
     else
-        echo "PostUp = nft add table inet ${AWG_INTERFACE_NAME}
-PostUp = nft add chain inet ${AWG_INTERFACE_NAME} input { type filter hook input priority 0 \; }
-PostUp = nft add rule inet ${AWG_INTERFACE_NAME} input udp dport ${AWG_INTERFACE_PORT} accept
-PostUp = nft add chain inet ${AWG_INTERFACE_NAME} forward { type filter hook forward priority 0 \; }
-PostUp = nft add rule inet ${AWG_INTERFACE_NAME} forward iifname \"${SERVER_PUBLIC_NETWORK_INTERFACE}\" oifname \"${AWG_INTERFACE_NAME}\" accept
-PostUp = nft add rule inet ${AWG_INTERFACE_NAME} forward iifname \"${SERVER_PUBLIC_NETWORK_INTERFACE}\" accept
-PostUp = nft add chain inet ${AWG_INTERFACE_NAME} postrouting { type nat hook postrouting priority 100 \; }
-PostUp = nft add rule inet ${AWG_INTERFACE_NAME} postrouting oifname \"${SERVER_PUBLIC_NETWORK_INTERFACE}\" masquerade
-PostDown = nft delete table inet ${AWG_INTERFACE_NAME}
-
-" >> "/etc/amnezia/amneziawg/${AWG_INTERFACE_NAME}.conf"
+        add_awg_interface_nftables_rules
     fi
 }
 
@@ -1071,9 +1122,15 @@ save_awg_interface_data() {
 
     mkdir -p "$AWG_INTERFACE_FOLDER_PATH"
 
-    echo "AWG_INTERFACE_PORT=${AWG_INTERFACE_PORT}
-AWG_INTERFACE_IPV4=${AWG_INTERFACE_IPV4}
-AWG_INTERFACE_IPV6=${AWG_INTERFACE_IPV6}
+    AWG_INTERFACE_IPS="AWG_INTERFACE_IPV4=${AWG_INTERFACE_IPV4}"
+
+    if [ "$AWG_INTERFACE_USE_IPV6" = "y" ]; then
+        AWG_INTERFACE_IPS="${AWG_INTERFACE_IPS}\nAWG_INTERFACE_IPV6=${AWG_INTERFACE_IPV6}"
+    fi
+
+    printf "AWG_INTERFACE_USE_IPV6=${AWG_INTERFACE_USE_IPV6}
+
+${AWG_INTERFACE_IPS}
 AWG_INTERFACE_PUBLIC_KEY=${AWG_INTERFACE_PUBLIC_KEY}
 AWG_INTERFACE_PRIVATE_KEY=${AWG_INTERFACE_PRIVATE_KEY}
 AWG_JC=${AWG_JC}
@@ -1085,13 +1142,16 @@ AWG_H1=${AWG_H1}
 AWG_H2=${AWG_H2}
 AWG_H3=${AWG_H3}
 AWG_H4=${AWG_H4}
-AWG_INTERFACE_MTU=${AWG_INTERFACE_MTU}" > "${AWG_INTERFACE_FOLDER_PATH}/${AWG_INTERFACE_NAME}.data"
+AWG_INTERFACE_MTU=${AWG_INTERFACE_MTU}
+AWG_INTERFACE_PORT=${AWG_INTERFACE_PORT}\n" >> "${AWG_INTERFACE_FOLDER_PATH}/${AWG_INTERFACE_NAME}.data"
 
     reserve_awg_interface_port
 
     reserve_awg_interface_ipv4
 
-    reserve_awg_interface_ipv6
+    if [ "$AWG_INTERFACE_USE_IPV6" = "y" ]; then
+        reserve_awg_interface_ipv6
+    fi
 }
 
 reserve_awg_interface_port() {
@@ -1181,6 +1241,12 @@ create_awg_interface() {
     echo "------------------"
     echo ""
 
+    if [ "$IPV6_SUPPORT_ENABLED" = "y" ]; then
+        ask_use_ipv6_for_interface
+    else
+        AWG_INTERFACE_USE_IPV6="n"
+    fi
+
     get_awg_interface_name
 
     get_awg_interface_port
@@ -1189,7 +1255,9 @@ create_awg_interface() {
 
     get_awg_interface_ipv4
 
-    get_awg_interface_ipv6
+    if [ "$AWG_INTERFACE_USE_IPV6" = "y" ]; then
+        get_awg_interface_ipv6
+    fi
 
     get_awg_interface_jc
 

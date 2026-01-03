@@ -21,6 +21,24 @@ confirm_installation() {
 }
 
 
+ask_server_has_ipv6() {
+    IPV6_SUPPORT_ENABLED=""
+
+    while :; do
+        printf 'Enable IPv6 support (y/n): '
+
+        handle_user_input
+
+        case "$USER_INPUT" in
+            "n" | "no" | "N" | "NO") IPV6_SUPPORT_ENABLED="n" ;;
+            "y" | "yes" | "Y" | "YES") IPV6_SUPPORT_ENABLED="y" ;;
+            *) continue ;;
+        esac
+
+        break
+    done
+}
+
 get_server_public_network_interface() {
     SERVER_PUBLIC_NETWORK_INTERFACE=$(ip -4 route 2>/dev/null | awk '/^default/ { for (i=1; i<=NF; i++) if ($i=="dev") { print $(i+1); exit 0 } }')
 
@@ -68,8 +86,11 @@ get_server_public_network_interface() {
 
 get_server_public_ip_or_domain() {
     SERVER_PUBLIC_IP_OR_DOMAIN=$(ip -4 addr 2>/dev/null | awk '/scope global/ { sub(/\/.*/, "", $2); print $2; exit }')
-    if [ -z "$SERVER_PUBLIC_IP_OR_DOMAIN" ]; then
-        SERVER_PUBLIC_IP_OR_DOMAIN=$(ip -6 addr 2>/dev/null | awk '/scope global/ { sub(/\/.*/, "", $2); print $2; exit }')
+
+    if [ "$IPV6_SUPPORT_ENABLED" = "y" ]; then
+        if [ -z "$SERVER_PUBLIC_IP_OR_DOMAIN" ]; then
+            SERVER_PUBLIC_IP_OR_DOMAIN=$(ip -6 addr 2>/dev/null | awk '/scope global/ { sub(/\/.*/, "", $2); print $2; exit }')
+        fi
     fi
 
     while :; do
@@ -186,9 +207,11 @@ prepare_to_install() {
 
     echo ""
     printf "Options require input. Default value is shown in [brackets] — press ${BOLD_FS}Enter${DEFAULT_FS} to ${GREEN}accept${DEFAULT_COLOR} it.\n"
-    echo ""
 
+    echo ""
     printf "${BOLD_FS}Server settings${DEFAULT_FS}\n"
+
+    ask_server_has_ipv6
 
     get_server_public_network_interface
 
