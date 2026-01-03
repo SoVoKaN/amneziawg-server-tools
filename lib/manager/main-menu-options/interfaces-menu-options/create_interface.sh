@@ -279,29 +279,33 @@ generate_awg_interface_ipv6() {
 }
 
 add_awg_interface_firewalld_rules() {
-    echo "PostUp = firewall-cmd --direct --add-rule ipv4 filter INPUT 0 -p udp --dport ${AWG_INTERFACE_PORT} -j ACCEPT
-PostUp = firewall-cmd --direct --add-rule ipv4 filter FORWARD 0 -i "${SERVER_PUBLIC_NETWORK_INTERFACE}" -o "${AWG_INTERFACE_NAME}" -j ACCEPT
-PostUp = firewall-cmd --direct --add-rule ipv4 filter FORWARD 0 -i "${SERVER_PUBLIC_NETWORK_INTERFACE}" -j ACCEPT
-PostUp = firewall-cmd --direct --add-rule ipv4 nat POSTROUTING 0 -o "${SERVER_PUBLIC_NETWORK_INTERFACE}" -j MASQUERADE" >> "/etc/amnezia/amneziawg/${AWG_INTERFACE_NAME}.conf"
+    echo "PostUp = firewall-cmd --zone=public --add-interface=${AWG_INTERFACE_NAME}
+PostUp = firewall-cmd --zone=public --add-port=${AWG_INTERFACE_PORT}/udp" >> "/etc/amnezia/amneziawg/${AWG_INTERFACE_NAME}.conf"
+
+    echo "PostUp = firewall-cmd --direct --add-rule ipv4 filter FORWARD 0 -i ${SERVER_PUBLIC_NETWORK_INTERFACE} -o ${AWG_INTERFACE_NAME} -j ACCEPT
+PostUp = firewall-cmd --direct --add-rule ipv4 filter FORWARD 0 -i ${AWG_INTERFACE_NAME} -o ${SERVER_PUBLIC_NETWORK_INTERFACE} -j ACCEPT
+PostUp = firewall-cmd --direct --add-rule ipv4 nat POSTROUTING 0 -o ${SERVER_PUBLIC_NETWORK_INTERFACE} -j MASQUERADE" >> "/etc/amnezia/amneziawg/${AWG_INTERFACE_NAME}.conf"
 
     if [ "$AWG_INTERFACE_USE_IPV6" = "y" ]; then
-        echo "PostUp = firewall-cmd --direct --add-rule ipv6 filter INPUT 0 -p udp --dport ${AWG_INTERFACE_PORT} -j ACCEPT
-PostUp = firewall-cmd --direct --add-rule ipv6 filter FORWARD 0 -i "${SERVER_PUBLIC_NETWORK_INTERFACE}" -o "${AWG_INTERFACE_NAME}" -j ACCEPT
-PostUp = firewall-cmd --direct --add-rule ipv6 filter FORWARD 0 -i "${SERVER_PUBLIC_NETWORK_INTERFACE}" -j ACCEPT" >> "/etc/amnezia/amneziawg/${AWG_INTERFACE_NAME}.conf"
+        echo "PostUp = firewall-cmd --direct --add-rule ipv6 filter FORWARD 0 -i ${SERVER_PUBLIC_NETWORK_INTERFACE} -o ${AWG_INTERFACE_NAME} -j ACCEPT
+PostUp = firewall-cmd --direct --add-rule ipv6 filter FORWARD 0 -i ${AWG_INTERFACE_NAME} -o ${SERVER_PUBLIC_NETWORK_INTERFACE} -j ACCEPT
+PostUp = firewall-cmd --direct --add-rule ipv6 nat POSTROUTING 0 -o ${SERVER_PUBLIC_NETWORK_INTERFACE} -j MASQUERADE" >> "/etc/amnezia/amneziawg/${AWG_INTERFACE_NAME}.conf"
     fi
 
-    echo "PostDown = firewall-cmd --direct --remove-rule ipv4 filter INPUT 0 -p udp --dport ${AWG_INTERFACE_PORT} -j ACCEPT
-PostDown = firewall-cmd --direct --remove-rule ipv4 filter FORWARD 0 -i "${SERVER_PUBLIC_NETWORK_INTERFACE}" -o "${AWG_INTERFACE_NAME}" -j ACCEPT
-PostDown = firewall-cmd --direct --remove-rule ipv4 filter FORWARD 0 -i "${SERVER_PUBLIC_NETWORK_INTERFACE}" -j ACCEPT
-PostDown = firewall-cmd --direct --remove-rule ipv4 nat POSTROUTING 0 -o "${SERVER_PUBLIC_NETWORK_INTERFACE}" -j MASQUERADE" >> "/etc/amnezia/amneziawg/${AWG_INTERFACE_NAME}.conf"
+    echo "PostDown = firewall-cmd --direct --remove-rule ipv4 nat POSTROUTING 0 -o ${SERVER_PUBLIC_NETWORK_INTERFACE} -j MASQUERADE
+PostDown = firewall-cmd --direct --remove-rule ipv4 filter FORWARD 0 -i ${AWG_INTERFACE_NAME} -o ${SERVER_PUBLIC_NETWORK_INTERFACE} -j ACCEPT
+PostDown = firewall-cmd --direct --remove-rule ipv4 filter FORWARD 0 -i ${SERVER_PUBLIC_NETWORK_INTERFACE} -o ${AWG_INTERFACE_NAME} -j ACCEPT" >> "/etc/amnezia/amneziawg/${AWG_INTERFACE_NAME}.conf"
 
     if [ "$AWG_INTERFACE_USE_IPV6" = "y" ]; then
-        echo "PostDown = firewall-cmd --direct --remove-rule ipv6 filter INPUT 0 -p udp --dport ${AWG_INTERFACE_PORT} -j ACCEPT
-PostDown = firewall-cmd --direct --remove-rule ipv6 filter FORWARD 0 -i "${SERVER_PUBLIC_NETWORK_INTERFACE}" -o "${AWG_INTERFACE_NAME}" -j ACCEPT
-PostDown = firewall-cmd --direct --remove-rule ipv6 filter FORWARD 0 -i "${SERVER_PUBLIC_NETWORK_INTERFACE}" -j ACCEPT" >> "/etc/amnezia/amneziawg/${AWG_INTERFACE_NAME}.conf"
+        echo "PostDown = firewall-cmd --direct --remove-rule ipv6 nat POSTROUTING 0 -o ${SERVER_PUBLIC_NETWORK_INTERFACE} -j MASQUERADE
+PostDown = firewall-cmd --direct --remove-rule ipv6 filter FORWARD 0 -i ${AWG_INTERFACE_NAME} -o ${SERVER_PUBLIC_NETWORK_INTERFACE} -j ACCEPT
+PostDown = firewall-cmd --direct --remove-rule ipv6 filter FORWARD 0 -i ${SERVER_PUBLIC_NETWORK_INTERFACE} -o ${AWG_INTERFACE_NAME} -j ACCEPT" >> "/etc/amnezia/amneziawg/${AWG_INTERFACE_NAME}.conf"
     fi
 
-    echo "" >> "/etc/amnezia/amneziawg/${AWG_INTERFACE_NAME}.conf"
+    echo "PostDown = firewall-cmd --zone=public --remove-port=${AWG_INTERFACE_PORT}/udp
+PostDown = firewall-cmd --zone=public --remove-interface=${AWG_INTERFACE_NAME}
+
+" >> "/etc/amnezia/amneziawg/${AWG_INTERFACE_NAME}.conf"
 }
 
 add_awg_interface_nftables_rules() {
