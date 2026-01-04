@@ -44,6 +44,12 @@ show_awg_client_qr() {
 
     load_client_data
 
+    AWG_CLIENT_ADDRESS="${AWG_CLIENT_IPV4}/32"
+
+    if [ "$AWG_INTERFACE_USE_IPV6" = "y" ]; then
+        AWG_CLIENT_ADDRESS="${AWG_CLIENT_ADDRESS}, ${AWG_CLIENT_IPV6}/128"
+    fi
+
     echo "[Interface]
 PrivateKey = ${AWG_CLIENT_PRIVATE_KEY}
 Jc = ${AWG_JC}
@@ -55,7 +61,7 @@ H1 = ${AWG_H1}
 H2 = ${AWG_H2}
 H3 = ${AWG_H3}
 H4 = ${AWG_H4}
-Address = ${AWG_CLIENT_IPV4}/32, ${AWG_CLIENT_IPV6}/128
+Address = ${AWG_CLIENT_ADDRESS}
 DNS = ${AWG_CLIENT_FIRST_DNS}, ${AWG_CLIENT_SECOND_DNS}
 MTU = ${AWG_INTERFACE_MTU}
 
