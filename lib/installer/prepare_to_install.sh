@@ -164,12 +164,10 @@ ask_to_install_qrencode() {
 
         if [ -n "$USER_INPUT" ]; then
             case "$USER_INPUT" in
-                "n" | "no" | "N" | "NO") ;;
-                "y" | "yes" | "Y" | "YES") ;;
+                "n" | "no" | "N" | "NO") INSTALL_QRENCODE="n" ;;
+                "y" | "yes" | "Y" | "YES") INSTALL_QRENCODE="y" ;;
                 *) continue ;;
             esac
-
-            INSTALL_QRENCODE="$USER_INPUT"
         else
             default_value_autocomplete "$INSTALL_QRENCODE" "$QUESTION"
         fi
