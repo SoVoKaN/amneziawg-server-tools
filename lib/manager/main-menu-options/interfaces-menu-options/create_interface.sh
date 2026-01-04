@@ -336,25 +336,6 @@ PostDown = nft delete table ip ${AWG_INTERFACE_NAME}
     fi
 }
 
-
-ask_use_ipv6_for_interface() {
-    AWG_INTERFACE_USE_IPV6=""
-
-    while :; do
-        printf 'Use IPv6 for this interface (y/n): '
-
-        handle_user_input
-
-        case "$USER_INPUT" in
-            "n" | "no" | "N" | "NO") AWG_INTERFACE_USE_IPV6="n" ;;
-            "y" | "yes" | "Y" | "YES") AWG_INTERFACE_USE_IPV6="y" ;;
-            *) continue ;;
-        esac
-
-        break
-    done
-}
-
 get_awg_interface_name() {
     generate_awg_interface_name
 
@@ -526,6 +507,30 @@ get_awg_interface_ipv4() {
             AWG_INTERFACE_IPV4="$USER_INPUT"
         else
             default_value_autocomplete "$AWG_INTERFACE_IPV4" "$QUESTION"
+        fi
+
+        break
+    done
+}
+
+ask_use_ipv6_for_interface() {
+    AWG_INTERFACE_USE_IPV6="y"
+
+    QUESTION=$(printf 'Use IPv6 for interface (y/n) [%s]: ' "$AWG_INTERFACE_USE_IPV6")
+
+    while :; do
+        printf "$QUESTION"
+
+        handle_user_input
+
+        if [ -n "$USER_INPUT" ]; then
+            case "$USER_INPUT" in
+                "n" | "no" | "N" | "NO") AWG_INTERFACE_USE_IPV6="n" ;;
+                "y" | "yes" | "Y" | "YES") AWG_INTERFACE_USE_IPV6="y" ;;
+                *) continue ;;
+            esac
+        else
+            default_value_autocomplete "$AWG_INTERFACE_USE_IPV6" "$QUESTION"
         fi
 
         break
@@ -1245,12 +1250,6 @@ create_awg_interface() {
     echo "------------------"
     echo ""
 
-    if [ "$IPV6_SUPPORT_ENABLED" = "y" ]; then
-        ask_use_ipv6_for_interface
-    else
-        AWG_INTERFACE_USE_IPV6="n"
-    fi
-
     get_awg_interface_name
 
     get_awg_interface_port
@@ -1258,6 +1257,12 @@ create_awg_interface() {
     get_awg_interface_mtu
 
     get_awg_interface_ipv4
+
+    if [ "$IPV6_SUPPORT_ENABLED" = "y" ]; then
+        ask_use_ipv6_for_interface
+    else
+        AWG_INTERFACE_USE_IPV6="n"
+    fi
 
     if [ "$AWG_INTERFACE_USE_IPV6" = "y" ]; then
         get_awg_interface_ipv6
