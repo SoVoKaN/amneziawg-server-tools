@@ -10,7 +10,11 @@ install_packages() {
         apt-get install -y gnupg
     fi
 
-    mkdir -p /etc/apt/keyrings
+    if [ ! -d "/etc/apt/keyrings" ]; then
+        mkdir -p /etc/apt/keyrings
+
+        chmod 755 /etc/apt/keyrings
+    fi
 
     curl -fsSL "https://keyserver.ubuntu.com/pks/lookup?op=get&search=0x57290828" | gpg --dearmor --output "/etc/apt/keyrings/amneziawg-keyring.gpg"
 
