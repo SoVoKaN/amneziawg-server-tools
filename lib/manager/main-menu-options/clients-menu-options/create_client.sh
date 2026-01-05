@@ -211,10 +211,10 @@ get_awg_client_ipv6() {
     done
 }
 
-get_awg_client_first_dns() {
-    AWG_CLIENT_FIRST_DNS="1.1.1.1"
+get_awg_client_ipv4_first_dns() {
+    AWG_CLIENT_IPV4_FIRST_DNS="1.1.1.1"
 
-    QUESTION=$(printf 'First DNS [%s]: ' "$AWG_CLIENT_FIRST_DNS")
+    QUESTION=$(printf 'First IPv4 DNS [%s]: ' "$AWG_CLIENT_IPV4_FIRST_DNS")
 
     while :; do
         printf "$QUESTION"
@@ -230,19 +230,19 @@ get_awg_client_first_dns() {
                 continue
             fi
 
-            AWG_CLIENT_FIRST_DNS="$USER_INPUT"
+            AWG_CLIENT_IPV4_FIRST_DNS="$USER_INPUT"
         else
-            default_value_autocomplete "$AWG_CLIENT_FIRST_DNS" "$QUESTION"
+            default_value_autocomplete "$AWG_CLIENT_IPV4_FIRST_DNS" "$QUESTION"
         fi
 
         break
     done
 }
 
-get_awg_client_second_dns() {
-    AWG_CLIENT_SECOND_DNS="1.0.0.1"
+get_awg_client_ipv4_second_dns() {
+    AWG_CLIENT_IPV4_SECOND_DNS="1.0.0.1"
 
-    QUESTION=$(printf 'Second DNS [%s]: ' "$AWG_CLIENT_SECOND_DNS")
+    QUESTION=$(printf 'Second IPv4 DNS [%s]: ' "$AWG_CLIENT_IPV4_SECOND_DNS")
 
     while :; do
         printf "$QUESTION"
@@ -258,9 +258,57 @@ get_awg_client_second_dns() {
                 continue
             fi
 
-            AWG_CLIENT_SECOND_DNS="$USER_INPUT"
+            AWG_CLIENT_IPV4_SECOND_DNS="$USER_INPUT"
         else
-            default_value_autocomplete "$AWG_CLIENT_SECOND_DNS" "$QUESTION"
+            default_value_autocomplete "$AWG_CLIENT_IPV4_SECOND_DNS" "$QUESTION"
+        fi
+
+        break
+    done
+}
+
+get_awg_client_ipv6_first_dns() {
+    AWG_CLIENT_IPV6_FIRST_DNS="2606:4700:4700::1111"
+
+    QUESTION=$(printf 'First IPv6 DNS [%s]: ' "$AWG_CLIENT_IPV6_FIRST_DNS")
+
+    while :; do
+        printf "$QUESTION"
+
+        handle_user_input
+
+        if [ -n "$USER_INPUT" ]; then
+            if ! validate_ipv6 "$USER_INPUT"; then
+                continue
+            fi
+
+            AWG_CLIENT_IPV6_FIRST_DNS="$USER_INPUT"
+        else
+            default_value_autocomplete "$AWG_CLIENT_IPV6_FIRST_DNS" "$QUESTION"
+        fi
+
+        break
+    done
+}
+
+get_awg_client_ipv6_second_dns() {
+    AWG_CLIENT_IPV6_SECOND_DNS="2606:4700:4700::1001"
+
+    QUESTION=$(printf 'Second IPv6 DNS [%s]: ' "$AWG_CLIENT_IPV6_SECOND_DNS")
+
+    while :; do
+        printf "$QUESTION"
+
+        handle_user_input
+
+        if [ -n "$USER_INPUT" ]; then
+            if ! validate_ipv6 "$USER_INPUT"; then
+                continue
+            fi
+
+            AWG_CLIENT_IPV6_SECOND_DNS="$USER_INPUT"
+        else
+            default_value_autocomplete "$AWG_CLIENT_IPV6_SECOND_DNS" "$QUESTION"
         fi
 
         break
@@ -338,7 +386,11 @@ save_awg_client_config() {
         AWG_CLIENT_ADDRESS="${AWG_CLIENT_ADDRESS}, ${AWG_CLIENT_IPV6}/128"
     fi
 
-    AWG_CLIENT_DNS="${AWG_CLIENT_FIRST_DNS}, ${AWG_CLIENT_SECOND_DNS}"
+    AWG_CLIENT_DNS="${AWG_CLIENT_IPV4_FIRST_DNS}, ${AWG_CLIENT_IPV4_SECOND_DNS}"
+
+    if [ "$AWG_INTERFACE_USE_IPV6" = "y" ]; then
+        AWG_CLIENT_DNS="${AWG_CLIENT_DNS}, ${AWG_CLIENT_IPV6_FIRST_DNS}, ${AWG_CLIENT_IPV6_SECOND_DNS}"
+    fi
 
     echo "[Interface]
 PrivateKey = ${AWG_CLIENT_PRIVATE_KEY}
@@ -371,7 +423,11 @@ save_awg_client_data() {
         AWG_CLIENT_IPS="${AWG_CLIENT_IPS}\nAWG_CLIENT_IPV6=\"${AWG_CLIENT_IPV6}\""
     fi
 
-    AWG_CLIENT_DNS="${AWG_CLIENT_FIRST_DNS}, ${AWG_CLIENT_SECOND_DNS}"
+    AWG_CLIENT_DNS="${AWG_CLIENT_IPV4_FIRST_DNS}, ${AWG_CLIENT_IPV4_SECOND_DNS}"
+
+    if [ "$AWG_INTERFACE_USE_IPV6" = "y" ]; then
+        AWG_CLIENT_DNS="${AWG_CLIENT_DNS}, ${AWG_CLIENT_IPV6_FIRST_DNS}, ${AWG_CLIENT_IPV6_SECOND_DNS}"
+    fi
 
     printf "${AWG_CLIENT_IPS}
 AWG_CLIENT_DNS=\"${AWG_CLIENT_DNS}\"
@@ -433,9 +489,15 @@ create_awg_client() {
         get_awg_client_ipv6
     fi
 
-    get_awg_client_first_dns
+    get_awg_client_ipv4_first_dns
 
-    get_awg_client_second_dns
+    get_awg_client_ipv4_second_dns
+
+    if [ "$AWG_INTERFACE_USE_IPV6" = "y" ]; then
+        get_awg_client_ipv6_first_dns
+
+        get_awg_client_ipv6_second_dns
+    fi
 
     get_awg_client_allowed_ips
 
