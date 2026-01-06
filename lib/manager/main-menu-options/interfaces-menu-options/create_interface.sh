@@ -309,31 +309,27 @@ PostDown = firewall-cmd --zone=public --remove-interface=${AWG_INTERFACE_NAME}
 }
 
 add_awg_interface_nftables_rules() {
-    if [ "$AWG_INTERFACE_USE_IPV6" = "y" ]; then
-        echo "PostUp = nft add table inet ${AWG_INTERFACE_NAME}
-PostUp = nft add chain inet ${AWG_INTERFACE_NAME} input { type filter hook input priority 0 \; }
-PostUp = nft add rule inet ${AWG_INTERFACE_NAME} input udp dport ${AWG_INTERFACE_PORT} accept
-PostUp = nft add chain inet ${AWG_INTERFACE_NAME} forward { type filter hook forward priority 0 \; }
-PostUp = nft add rule inet ${AWG_INTERFACE_NAME} forward iifname \"${SERVER_PUBLIC_NETWORK_INTERFACE}\" oifname \"${AWG_INTERFACE_NAME}\" accept
-PostUp = nft add rule inet ${AWG_INTERFACE_NAME} forward iifname \"${SERVER_PUBLIC_NETWORK_INTERFACE}\" accept
-PostUp = nft add chain inet ${AWG_INTERFACE_NAME} postrouting { type nat hook postrouting priority 100 \; }
-PostUp = nft add rule inet ${AWG_INTERFACE_NAME} postrouting oifname \"${SERVER_PUBLIC_NETWORK_INTERFACE}\" masquerade
-PostDown = nft delete table inet ${AWG_INTERFACE_NAME}
+    echo "PostUp = nft list table inet filter 2>/dev/null || nft add table inet filter
+PostUp = nft list chain inet filter input 2>/dev/null || nft add chain inet filter input { type filter hook input priority filter \; }
+PostUp = nft list chain inet filter forward 2>/dev/null || nft add chain inet filter forward { type filter hook forward priority filter \; }
+PostUp = nft list chain inet filter postrouting 2>/dev/null || nft add chain inet filter postrouting { type nat hook postrouting priority srcnat \; }
+PostUp = nft list map inet filter amneziawg_ports 2>/dev/null || nft add map inet filter amneziawg_ports { type ifname . inet_service : verdict \; }
+PostUp = nft list set inet filter amneziawg_interfaces 2>/dev/null || nft add set inet filter amneziawg_interfaces { type ifname \; }
+PostUp = nft list chain inet filter input | grep \"iifname . udp dport vmap @amneziawg_ports\" 2>/dev/null || nft add rule inet filter input iifname . udp dport vmap @amneziawg_ports
+PostUp = nft list chain inet filter forward | grep \"ct state established,related accept\" 2>/dev/null || nft add rule inet filter forward ct state established,related accept
+PostUp = nft list chain inet filter forward | grep \"iifname @amneziawg_interfaces oifname \\\"${SERVER_PUBLIC_NETWORK_INTERFACE}\\\" accept\" 2>/dev/null || nft add rule inet filter forward iifname @amneziawg_interfaces oifname \"${SERVER_PUBLIC_NETWORK_INTERFACE}\" accept
+PostUp = nft list chain inet filter postrouting | grep \"iifname @amneziawg_interfaces oifname \\\"${SERVER_PUBLIC_NETWORK_INTERFACE}\\\" masquerade\" || nft add rule inet filter postrouting iifname @amneziawg_interfaces oifname \"${SERVER_PUBLIC_NETWORK_INTERFACE}\" masquerade
+PostUp = nft add element inet filter amneziawg_ports { \"${SERVER_PUBLIC_NETWORK_INTERFACE}\" . ${AWG_INTERFACE_PORT} : accept }
+PostUp = nft add element inet filter amneziawg_interfaces { \"${AWG_INTERFACE_NAME}\" }
+PostDown = nft delete element inet filter amneziawg_interfaces { \"${AWG_INTERFACE_NAME}\" }
+PostDown = nft delete element inet filter amneziawg_ports { \"${SERVER_PUBLIC_NETWORK_INTERFACE}\" . ${AWG_INTERFACE_PORT} : accept }
+PostDown = nft list set inet filter amneziawg_interfaces | awk 'NR == 4 { exit !(/\"/) }' || nft -a list chain inet filter postrouting | grep \"iifname @amneziawg_interfaces oifname \\\"${SERVER_PUBLIC_NETWORK_INTERFACE}\\\" masquerade\" | awk '{ print \$NF }' | xargs nft delete rule inet filter postrouting handle
+PostDown = nft list set inet filter amneziawg_interfaces | awk 'NR == 4 { exit !(/\"/) }' || nft -a list chain inet filter forward | grep \"iifname @amneziawg_interfaces oifname \\\"${SERVER_PUBLIC_NETWORK_INTERFACE}\\\" accept\" | awk '{ print \$NF }' | xargs nft delete rule inet filter forward handle
+PostDown = nft list map inet filter amneziawg_ports | awk 'NR == 4 { exit !(/\"/) }' || nft -a list chain inet filter input | grep \"iifname . udp dport vmap @amneziawg_ports\" | awk '{ print \$NF }' | xargs nft delete rule inet filter input handle
+PostDown = nft list set inet filter amneziawg_interfaces | awk 'NR == 4 { exit !(/\"/) }' || nft delete set inet filter amneziawg_interfaces
+PostDown = nft list map inet filter amneziawg_ports | awk 'NR == 4 { exit !(/\"/) }' || nft delete map inet filter amneziawg_ports
 
 " >> "/etc/amnezia/amneziawg/${AWG_INTERFACE_NAME}.conf"
-    else
-        echo "PostUp = nft add table ip ${AWG_INTERFACE_NAME}
-PostUp = nft add chain ip ${AWG_INTERFACE_NAME} input { type filter hook input priority 0 \; }
-PostUp = nft add rule ip ${AWG_INTERFACE_NAME} input udp dport ${AWG_INTERFACE_PORT} accept
-PostUp = nft add chain ip ${AWG_INTERFACE_NAME} forward { type filter hook forward priority 0 \; }
-PostUp = nft add rule ip ${AWG_INTERFACE_NAME} forward iifname \"${SERVER_PUBLIC_NETWORK_INTERFACE}\" oifname \"${AWG_INTERFACE_NAME}\" accept
-PostUp = nft add rule ip ${AWG_INTERFACE_NAME} forward iifname \"${SERVER_PUBLIC_NETWORK_INTERFACE}\" accept
-PostUp = nft add chain ip ${AWG_INTERFACE_NAME} postrouting { type nat hook postrouting priority 100 \; }
-PostUp = nft add rule ip ${AWG_INTERFACE_NAME} postrouting oifname \"${SERVER_PUBLIC_NETWORK_INTERFACE}\" masquerade
-PostDown = nft delete table ip ${AWG_INTERFACE_NAME}
-
-" >> "/etc/amnezia/amneziawg/${AWG_INTERFACE_NAME}.conf"
-    fi
 }
 
 get_awg_interface_name() {
