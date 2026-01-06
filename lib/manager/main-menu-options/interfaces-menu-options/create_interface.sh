@@ -610,7 +610,7 @@ get_awg_interface_jc() {
     done
 }
 
-get_awg_jmin() {
+get_awg_interface_jmin() {
     AWG_JMIN="8"
 
     QUESTION=$(printf 'Jmin (Required: 1-1280) [%s]: ' "$AWG_JMIN")
@@ -655,7 +655,7 @@ get_awg_jmin() {
     done
 }
 
-get_awg_jmax() {
+get_awg_interface_jmax() {
     AWG_JMAX="80"
 
     QUESTION=$(printf 'Jmax (Required: 1-1280) [%s]: ' "$AWG_JMAX")
@@ -700,7 +700,7 @@ get_awg_jmax() {
     done
 }
 
-get_awg_s1() {
+get_awg_interface_s1() {
     QUESTION=$(printf 'S1 (Required: 1-1132) [%s]: ' "$AWG_S1")
 
     while :; do
@@ -743,7 +743,7 @@ get_awg_s1() {
     done
 }
 
-get_awg_s2() {
+get_awg_interface_s2() {
     QUESTION=$(printf 'S2 (Required: 1-1188) [%s]: ' "$AWG_S2")
 
     while :; do
@@ -786,7 +786,7 @@ get_awg_s2() {
     done
 }
 
-get_awg_h1() {
+get_awg_interface_h1() {
     AWG_H1=$(awk '
     function random_num(min, max) {
         srand(systime() + 1)
@@ -838,7 +838,7 @@ get_awg_h1() {
     done
 }
 
-get_awg_h2() {
+get_awg_interface_h2() {
     AWG_H2=$(awk '
     function random_num(min, max) {
         srand(systime() + 2)
@@ -890,7 +890,7 @@ get_awg_h2() {
     done
 }
 
-get_awg_h3() {
+get_awg_interface_h3() {
     AWG_H3=$(awk '
     function random_num(min, max) {
         srand(systime() + 3)
@@ -942,7 +942,7 @@ get_awg_h3() {
     done
 }
 
-get_awg_h4() {
+get_awg_interface_h4() {
     AWG_H4=$(awk '
     function random_num(min, max) {
         srand(systime() + 4)
@@ -1000,9 +1000,9 @@ get_awg_interface_jmin_jmax() {
         echo ""
         printf "${BOLD_FS}Required Jmin < Jmax. Recommended values Jmin = 8, Jmax = 80.${DEFAULT_FS}\n"
 
-        get_awg_jmin
+        get_awg_interface_jmin
 
-        get_awg_jmax
+        get_awg_interface_jmax
 
         if [ "$AWG_JMAX" -le "$AWG_JMIN" ]; then
             echo ""
@@ -1014,7 +1014,7 @@ get_awg_interface_jmin_jmax() {
     done
 }
 
-generate_s1_s2() {
+generate_awg_interface_s_params() {
     while :; do
         AWG_S1=$(awk '
         function random_num(min, max) {
@@ -1043,15 +1043,15 @@ generate_s1_s2() {
 }
 
 get_awg_interface_s_params() {
-    generate_s1_s2
+    generate_awg_interface_s_params
 
     while :; do
         echo ""
         printf "${BOLD_FS}Required S1 + 56 ≠ S2. Recommended range for S1 and S2 is from 15 to 150 inclusive.${DEFAULT_FS}\n"
 
-        get_awg_s1
+        get_awg_interface_s1
 
-        get_awg_s2
+        get_awg_interface_s2
 
         if [ $((AWG_S1 + 56)) -eq "$AWG_S2" ]; then
             echo ""
@@ -1068,13 +1068,13 @@ get_awg_interface_h_params() {
         echo ""
         printf "${BOLD_FS}Each H parameter must be unique.${DEFAULT_FS}\n"
 
-        get_awg_h1
+        get_awg_interface_h1
 
-        get_awg_h2
+        get_awg_interface_h2
 
-        get_awg_h3
+        get_awg_interface_h3
 
-        get_awg_h4
+        get_awg_interface_h4
 
         if [ "$AWG_H1" = "$AWG_H2" ] || [ "$AWG_H1" = "$AWG_H3" ] || [ "$AWG_H1" = "$AWG_H4" ] || [ "$AWG_H2" = "$AWG_H3" ] || [ "$AWG_H2" = "$AWG_H4" ] || [ "$AWG_H3" = "$AWG_H4" ]; then
             echo ""
