@@ -50,7 +50,8 @@ show_awg_client_qr() {
         AWG_CLIENT_ADDRESS="${AWG_CLIENT_ADDRESS}, ${AWG_CLIENT_IPV6}/128"
     fi
 
-    echo "[Interface]
+    {
+        echo "[Interface]
 PrivateKey = ${AWG_CLIENT_PRIVATE_KEY}
 Jc = ${AWG_JC}
 Jmin = ${AWG_JMIN}
@@ -69,7 +70,12 @@ MTU = ${AWG_INTERFACE_MTU}
 PublicKey = ${AWG_INTERFACE_PUBLIC_KEY}
 PresharedKey = ${AWG_PRESHARED_KEY}
 AllowedIPs = ${AWG_CLIENT_ALLOWED_IPS}
-Endpoint = "${SERVER_PUBLIC_IP_OR_DOMAIN}:${AWG_INTERFACE_PORT}"" | qrencode -t ansiutf8 -l L
+Endpoint = "${SERVER_PUBLIC_IP_OR_DOMAIN}:${AWG_INTERFACE_PORT}""
+
+        if [ "$AWG_CLIENT_PERSISTENT_KEEPALIVE" != "0" ]; then
+            echo "PersistentKeepalive = ${AWG_CLIENT_PERSISTENT_KEEPALIVE}"
+        fi
+    } | qrencode -t ansiutf8 -l L
 
     echo ""
     printf "Here is your ${BOLD_FS}\"${AWG_CLIENT_NAME}\"${DEFAULT_FS} client as a QR code.\n"

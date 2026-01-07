@@ -315,6 +315,51 @@ get_awg_client_ipv6_second_dns() {
     done
 }
 
+get_awg_client_persistent_keepalive() {
+    AWG_CLIENT_PERSISTENT_KEEPALIVE="25"
+    
+    QUESTION=$(printf 'Persistent Keepalive [%s]: ' "$AWG_CLIENT_PERSISTENT_KEEPALIVE")
+
+    while :; do
+        printf "$QUESTION"
+
+        handle_user_input
+
+        if [ -n "$USER_INPUT" ]; then
+            TEMP="$USER_INPUT"
+
+            ALL_CHARS_CORRECT="1"
+
+            while [ -n "$TEMP" ]; do
+                CHAR=${TEMP%${TEMP#?}}
+
+                case "$CHAR" in
+                    [!0-9])
+                        ALL_CHARS_CORRECT="0"
+                        break
+                        ;;
+                esac
+
+                TEMP=${TEMP#?}
+            done
+
+            if [ "$ALL_CHARS_CORRECT" != "1" ]; then
+                continue
+            fi
+
+            if [ "$AWG_CLIENT_PERSISTENT_KEEPALIVE" -gt 9999 ]; then
+                continue
+            fi
+
+            AWG_CLIENT_PERSISTENT_KEEPALIVE="$USER_INPUT"
+        else
+            default_value_autocomplete "$AWG_CLIENT_PERSISTENT_KEEPALIVE" "$QUESTION"
+        fi
+
+        break
+    done
+}
+
 get_awg_client_allowed_ips() {
     AWG_CLIENT_ALLOWED_IPS="0.0.0.0/1, 128.0.0.0/1"
 
@@ -412,6 +457,10 @@ PublicKey = ${AWG_INTERFACE_PUBLIC_KEY}
 PresharedKey = ${AWG_PRESHARED_KEY}
 AllowedIPs = ${AWG_CLIENT_ALLOWED_IPS}
 Endpoint = "${SERVER_PUBLIC_IP_OR_DOMAIN}:${AWG_INTERFACE_PORT}"" > "${AWG_CLIENT_CONFIGS_PATH}/${AWG_INTERFACE_NAME}/${AWG_CLIENT_NAME}.conf"
+
+    if [ "$AWG_CLIENT_PERSISTENT_KEEPALIVE" != "0" ]; then
+        echo "PersistentKeepalive = ${AWG_CLIENT_PERSISTENT_KEEPALIVE}" >> "${AWG_CLIENT_CONFIGS_PATH}/${AWG_INTERFACE_NAME}/${AWG_CLIENT_NAME}.conf"
+    fi
 }
 
 save_awg_client_data() {
@@ -434,6 +483,7 @@ AWG_CLIENT_DNS=\"${AWG_CLIENT_DNS}\"
 AWG_PRESHARED_KEY=\"${AWG_PRESHARED_KEY}\"
 AWG_CLIENT_PUBLIC_KEY=\"${AWG_CLIENT_PUBLIC_KEY}\"
 AWG_CLIENT_PRIVATE_KEY=\"${AWG_CLIENT_PRIVATE_KEY}\"
+AWG_CLIENT_PERSISTENT_KEEPALIVE=\"${AWG_CLIENT_PERSISTENT_KEEPALIVE}\"
 AWG_CLIENT_ALLOWED_IPS=\"${AWG_CLIENT_ALLOWED_IPS}\"\n" > "${AWG_SERVER_TOOLS_PATH}/interfaces/${AWG_INTERFACE_NAME}/clients/${AWG_CLIENT_NAME}.data"
 }
 
@@ -498,6 +548,8 @@ create_awg_client() {
 
         get_awg_client_ipv6_second_dns
     fi
+
+    get_awg_client_persistent_keepalive
 
     get_awg_client_allowed_ips
 
