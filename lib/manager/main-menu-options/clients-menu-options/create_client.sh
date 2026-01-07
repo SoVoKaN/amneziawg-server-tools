@@ -392,6 +392,16 @@ get_awg_client_allowed_ips() {
                 TEMP=${TEMP#?}
             done
 
+            if [ "$ALL_CHARS_CORRECT" != "1" ]; then
+                continue
+            fi
+
+            case "${USER_INPUT##${USER_INPUT%?}}" in
+                [/:,.[:space:]])
+                    continue
+                    ;;
+            esac
+
             AWG_CLIENT_ALLOWED_IPS="$USER_INPUT"
         else
             default_value_autocomplete "$AWG_CLIENT_ALLOWED_IPS" "$QUESTION"
