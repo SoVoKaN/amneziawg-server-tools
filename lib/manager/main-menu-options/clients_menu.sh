@@ -1,8 +1,4 @@
 get_interface_name_for_clients_menu() {
-    echo "------------------"
-    printf "${BOLD_FS}  Manage clients ${DEFAULT_FS}\n"
-    echo "------------------"
-    echo ""
     printf "${BOLD_FS}Enter interface name to manage its clients.${DEFAULT_FS}\n"
     printf '%s' "Name: "
 
@@ -27,11 +23,7 @@ get_interface_name_for_clients_menu() {
 
     AWG_INTERFACE_NAME="$USER_INPUT"
 
-    clean_lines "7"
-}
-
-load_interface_data() {
-    . "${AWG_SERVER_TOOLS_PATH}/interfaces/${AWG_INTERFACE_NAME}/${AWG_INTERFACE_NAME}.data"
+    clean_lines "3"
 }
 
 load_client_data() {
@@ -40,7 +32,23 @@ load_client_data() {
 
 
 clients_menu() {
-    get_interface_name_for_clients_menu
+    get_awg_interfaces_count
+
+    echo "----------------"
+    printf "${BOLD_FS} Manage clients ${DEFAULT_FS}\n"
+    echo "----------------"
+    echo ""
+
+    if [ "$AWG_INTERFACES_COUNT" -lt 1 ] || [ "$AWG_INTERFACES_COUNT" -gt 15 ]; then
+        get_interface_name_for_clients_menu
+    else
+        if ! choose_awg_interface_submenu; then
+            clean_lines "4"
+            return
+        fi
+    fi
+
+    clean_lines "4"
 
     load_interface_data
 
