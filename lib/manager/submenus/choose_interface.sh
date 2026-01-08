@@ -17,8 +17,6 @@ generate_choose_awg_interface_submenu() {
 }
 
 choose_awg_interface() {
-    ASD="$1"
-
     NUM="0"
     for CURRENT_INTERFACE_NAME in $CHOOSE_AWG_INTERFACES_LIST; do
         NUM="$((NUM + 1))"
