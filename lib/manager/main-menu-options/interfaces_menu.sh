@@ -1,15 +1,3 @@
-get_awg_interfaces_count() {
-    AWG_INTERFACES_COUNT="0"
-
-    if [ ! -d "${AWG_SERVER_TOOLS_PATH}/interfaces/"*/ ]; then
-        return
-    fi
-
-    for DIR in "${AWG_SERVER_TOOLS_PATH}/interfaces/"*/; do
-        AWG_INTERFACES_COUNT="$((AWG_INTERFACES_COUNT + 1))"
-    done
-}
-
 check_awg_interface_exists() {
     for DIR in "/etc/amnezia/amneziawg"/*.conf; do
         CURRENT_INTERFACE_NAME="${DIR##*/}"

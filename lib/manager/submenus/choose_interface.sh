@@ -1,3 +1,13 @@
+get_awg_interfaces_count() {
+    AWG_INTERFACES_COUNT="0"
+
+    for DIR in "${AWG_SERVER_TOOLS_PATH}/interfaces/"*/; do
+        if [ -d "$DIR" ]; then
+            AWG_INTERFACES_COUNT="$((AWG_INTERFACES_COUNT + 1))"
+        fi
+    done
+}
+
 generate_choose_awg_interface_submenu() {
     CHOOSE_AWG_INTERFACES_LIST=""
     CHOOSE_AWG_INTERFACE_SUBMENU=""
@@ -14,14 +24,16 @@ generate_choose_awg_interface_submenu() {
     done
 
     CHOOSE_AWG_INTERFACE_SUBMENU="${CHOOSE_AWG_INTERFACE_SUBMENU}0) Back\n\n"
+
+    LAST_INTERFACE_NUMBER="$CURRENT_INTERFACE_NUMBER"
 }
 
-choose_awg_interface() {
+choose_awg_interface_name() {
     NUM="0"
     for CURRENT_INTERFACE_NAME in $CHOOSE_AWG_INTERFACES_LIST; do
         NUM="$((NUM + 1))"
 
-        if [ "$NUM" = "$USER_INPUT" ]; then
+        if [ "$NUM" = "$1" ]; then
             AWG_INTERFACE_NAME="$CURRENT_INTERFACE_NAME"
             break
         fi
@@ -30,24 +42,33 @@ choose_awg_interface() {
 
 
 choose_awg_interface_submenu() {
+    LIMIT_AWG_INTERFACE_EXCEEDED_HANDLER="$1"
+
+    get_awg_interfaces_count
+
+    if [ "$AWG_INTERFACES_COUNT" -gt 15 ]; then
+        "$LIMIT_AWG_INTERFACE_EXCEEDED_HANDLER"
+        return
+    fi
+
     generate_choose_awg_interface_submenu
 
     while :; do
         printf "${CHOOSE_AWG_INTERFACE_SUBMENU}"
 
-        printf 'Select interface [0-%s]: ' "$CURRENT_INTERFACE_NUMBER"
+        printf 'Select interface [0-%s]: ' "$LAST_INTERFACE_NUMBER"
 
         handle_user_input
 
-        clean_lines "$((CURRENT_INTERFACE_NUMBER + 3))"
+        clean_lines "$((LAST_INTERFACE_NUMBER + 3))"
 
         case "$USER_INPUT" in
             [1-9] | [1-9][0-9])
-                if [ "$USER_INPUT" -gt "$CURRENT_INTERFACE_NUMBER" ]; then
+                if [ "$USER_INPUT" -gt "$LAST_INTERFACE_NUMBER" ]; then
                     continue
                 fi
 
-                choose_awg_interface "$USER_INPUT"
+                choose_awg_interface_name "$USER_INPUT"
                 break
                 ;;
             "0")

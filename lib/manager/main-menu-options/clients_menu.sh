@@ -1,4 +1,4 @@
-get_interface_name_for_clients_menu() {
+get_interface_name_clients_menu() {
     printf "${BOLD_FS}Enter interface name to manage its clients.${DEFAULT_FS}\n"
     printf '%s' "Name: "
 
@@ -30,25 +30,23 @@ load_client_data() {
     . "${AWG_SERVER_TOOLS_PATH}/interfaces/${AWG_INTERFACE_NAME}/clients/${AWG_CLIENT_NAME}.data"
 }
 
-
 clients_menu() {
-    get_awg_interfaces_count
-
     echo "----------------"
     printf "${BOLD_FS} Manage clients ${DEFAULT_FS}\n"
     echo "----------------"
     echo ""
 
-    if [ "$AWG_INTERFACES_COUNT" -lt 1 ] || [ "$AWG_INTERFACES_COUNT" -gt 15 ]; then
-        get_interface_name_for_clients_menu
+    if ! choose_awg_interface_submenu "get_interface_name_clients_menu"; then
+        SUBMENU_RETURN_CODE="1"
     else
-        if ! choose_awg_interface_submenu; then
-            clean_lines "4"
-            return
-        fi
+        SUBMENU_RETURN_CODE="0"
     fi
 
     clean_lines "4"
+
+    if [ "$SUBMENU_RETURN_CODE" = "1" ]; then
+        return
+    fi
 
     load_interface_data
 
