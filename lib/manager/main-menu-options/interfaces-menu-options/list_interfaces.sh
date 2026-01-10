@@ -1,23 +1,16 @@
 set_awg_list_interfaces_pager() {
-    IFS=":"
-
     LIST_INTERFACES_PAGER=""
 
     if command -v less > /dev/null 2>&1; then
         LIST_INTERFACES_PAGER="less"
-        return 0
+        return
     fi
 
     if command -v more > /dev/null 2>&1; then
         LIST_INTERFACES_PAGER="more"
-        return 0
+        return
     fi
-
-    unset IFS
-
-    return 1
 }
-
 
 check_awg_has_interfaces() {
     for DIR in "${AWG_SERVER_TOOLS_PATH}/interfaces/"*/; do
@@ -26,7 +19,7 @@ check_awg_has_interfaces() {
         fi
     done
 
-    echo "No interfaces have been created yet."
+    return 1
 }
 
 create_awg_interfaces_list() {
@@ -79,16 +72,25 @@ create_awg_interfaces_list() {
 }
 
 print_awg_interfaces() {
-    if set_awg_list_interfaces_pager; then
+    if [ -n "$LIST_INTERFACES_PAGER" ]; then
         printf "$INTERFACES_LIST" | "$LIST_INTERFACES_PAGER"
-        return
+    else
+        printf "$INTERFACES_LIST"
     fi
-
-    printf "$INTERFACES_LIST"
 }
 
 list_awg_interfaces() {
-    check_awg_has_interfaces
+    set_awg_list_interfaces_pager
+
+    if ! check_awg_has_interfaces; then
+        if [ -n "$LIST_INTERFACES_PAGER" ]; then
+            printf "No interfaces have been created yet." | "$LIST_INTERFACES_PAGER"
+        else
+            echo "No interfaces have been created yet."
+        fi
+
+        return
+    fi
 
     create_awg_interfaces_list
 
