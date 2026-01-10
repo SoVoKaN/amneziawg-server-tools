@@ -1,18 +1,3 @@
-set_awg_list_clients_pager() {
-    LIST_CLIENTS_PAGER=""
-
-    if command -v less > /dev/null 2>&1; then
-        LIST_CLIENTS_PAGER="less"
-        return
-    fi
-
-    if command -v more > /dev/null 2>&1; then
-        LIST_CLIENTS_PAGER="more"
-        return
-    fi
-}
-
-
 check_has_awg_interface_clients() {
     for FILE in "${AWG_SERVER_TOOLS_PATH}/interfaces/${AWG_INTERFACE_NAME}/clients/"*.data; do
         if [ -f "$FILE" ]; then
@@ -43,8 +28,8 @@ create_clients_list() {
 }
 
 print_clients() {
-    if [ -n "$LIST_CLIENTS_PAGER" ]; then
-        printf "$CLIENTS_LIST" | "$LIST_CLIENTS_PAGER"
+    if [ -n "$AWG_SERVER_TOOLS_PAGER" ]; then
+        printf "$CLIENTS_LIST" | "$AWG_SERVER_TOOLS_PAGER"
     else
         printf "$CLIENTS_LIST"
     fi
@@ -52,11 +37,11 @@ print_clients() {
 
 
 list_awg_clients() {
-    set_awg_list_clients_pager
+    set_awg_server_tools_pager
 
     if ! check_has_awg_interface_clients; then
-        if [ -n "$LIST_CLIENTS_PAGER" ]; then
-            printf "No clients have been created yet." | "$LIST_CLIENTS_PAGER"
+        if [ -n "$AWG_SERVER_TOOLS_PAGER" ]; then
+            printf "No clients have been created yet." | "$AWG_SERVER_TOOLS_PAGER"
         else
             echo "No clients have been created yet."
         fi
