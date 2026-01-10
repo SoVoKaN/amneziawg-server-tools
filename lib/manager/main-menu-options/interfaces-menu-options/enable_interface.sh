@@ -1,8 +1,9 @@
 check_awg_interface_already_enabled() {
     ACTIVE_INTERFACES=$(awg show interfaces)
+    ACTIVE_INTERFACES=" ${ACTIVE_INTERFACES} "
 
     case "$ACTIVE_INTERFACES" in
-        *"$1"*)
+        *" ${1} "*)
             return 0
     esac
 
