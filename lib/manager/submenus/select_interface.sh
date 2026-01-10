@@ -8,7 +8,67 @@ get_awg_interfaces_count() {
     done
 }
 
-generate_select_awg_interface_submenu() {
+generate_select_awg_active_interface_submenu() {
+    ACTIVE_AWG_INTERFACES=$(awg show interfaces)
+    ACTIVE_AWG_INTERFACES=" ${ACTIVE_AWG_INTERFACES} "
+
+    SELECT_AWG_INTERFACES_LIST=""
+    SELECT_AWG_INTERFACE_SUBMENU=""
+
+    CURRENT_INTERFACE_NUMBER="0"
+    for DIR in "${AWG_SERVER_TOOLS_PATH}/interfaces/"*/; do
+        CURRENT_INTERFACE_NAME="${DIR%/}"
+        CURRENT_INTERFACE_NAME="${CURRENT_INTERFACE_NAME##*/}"
+
+        case "$ACTIVE_AWG_INTERFACES" in
+            *" ${CURRENT_INTERFACE_NAME} "*)
+                CURRENT_INTERFACE_NUMBER="$((CURRENT_INTERFACE_NUMBER + 1))"
+
+                SELECT_AWG_INTERFACES_LIST="${SELECT_AWG_INTERFACES_LIST}${CURRENT_INTERFACE_NAME} "
+
+                SELECT_AWG_INTERFACE_SUBMENU="${SELECT_AWG_INTERFACE_SUBMENU}${CURRENT_INTERFACE_NUMBER}) ${CURRENT_INTERFACE_NAME}\n"
+                ;;
+        esac
+    done
+
+    LAST_INTERFACE_NUMBER="$CURRENT_INTERFACE_NUMBER"
+
+    SELECT_AWG_INTERFACE_SUBMENU="${SELECT_AWG_INTERFACE_SUBMENU}0) Back\n\n"
+
+    SELECT_AWG_INTERFACE_SUBMENU="${SELECT_AWG_INTERFACE_SUBMENU}Select interface [0-${LAST_INTERFACE_NUMBER}]: "
+}
+
+generate_select_awg_inactive_interface_submenu() {
+    ACTIVE_AWG_INTERFACES=$(awg show interfaces)
+    ACTIVE_AWG_INTERFACES=" ${ACTIVE_AWG_INTERFACES} "
+
+    SELECT_AWG_INTERFACES_LIST=""
+    SELECT_AWG_INTERFACE_SUBMENU=""
+
+    CURRENT_INTERFACE_NUMBER="0"
+    for DIR in "${AWG_SERVER_TOOLS_PATH}/interfaces/"*/; do
+        CURRENT_INTERFACE_NAME="${DIR%/}"
+        CURRENT_INTERFACE_NAME="${CURRENT_INTERFACE_NAME##*/}"
+
+        case "$ACTIVE_AWG_INTERFACES" in
+            *" ${CURRENT_INTERFACE_NAME} "*) continue ;;
+        esac
+
+        CURRENT_INTERFACE_NUMBER="$((CURRENT_INTERFACE_NUMBER + 1))"
+
+        SELECT_AWG_INTERFACES_LIST="${SELECT_AWG_INTERFACES_LIST}${CURRENT_INTERFACE_NAME} "
+
+        SELECT_AWG_INTERFACE_SUBMENU="${SELECT_AWG_INTERFACE_SUBMENU}${CURRENT_INTERFACE_NUMBER}) ${CURRENT_INTERFACE_NAME}\n"
+    done
+
+    LAST_INTERFACE_NUMBER="$CURRENT_INTERFACE_NUMBER"
+
+    SELECT_AWG_INTERFACE_SUBMENU="${SELECT_AWG_INTERFACE_SUBMENU}0) Back\n\n"
+
+    SELECT_AWG_INTERFACE_SUBMENU="${SELECT_AWG_INTERFACE_SUBMENU}Select interface [0-${LAST_INTERFACE_NUMBER}]: "
+}
+
+generate_select_awg_all_interface_submenu() {
     SELECT_AWG_INTERFACES_LIST=""
     SELECT_AWG_INTERFACE_SUBMENU=""
 
@@ -30,6 +90,21 @@ generate_select_awg_interface_submenu() {
     SELECT_AWG_INTERFACE_SUBMENU="${SELECT_AWG_INTERFACE_SUBMENU}Select interface [0-${LAST_INTERFACE_NUMBER}]: "
 }
 
+
+generate_select_awg_interface_submenu() {
+    case "$SUBMENU_MODE" in
+        "active")
+            generate_select_awg_active_interface_submenu
+            ;;
+        "inactive")
+            generate_select_awg_inactive_interface_submenu
+            ;;
+        "all")
+            generate_select_awg_all_interface_submenu
+            ;;
+    esac
+}
+
 set_awg_interface_name() {
     NUM="0"
     for CURRENT_INTERFACE_NAME in $SELECT_AWG_INTERFACES_LIST; do
@@ -45,6 +120,7 @@ set_awg_interface_name() {
 
 select_awg_interface_submenu() {
     LIMIT_AWG_INTERFACE_EXCEEDED_HANDLER="$1"
+    SUBMENU_MODE="$2"
 
     get_awg_interfaces_count
 

@@ -36,7 +36,7 @@ clients_menu() {
     echo "----------------"
     echo ""
 
-    if ! select_awg_interface_submenu "get_awg_interface_name_clients_menu"; then
+    if ! select_awg_interface_submenu "get_awg_interface_name_clients_menu" "all"; then
         SUBMENU_RETURN_CODE="1"
     else
         SUBMENU_RETURN_CODE="0"
