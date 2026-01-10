@@ -8,9 +8,9 @@ get_awg_interfaces_count() {
     done
 }
 
-generate_choose_awg_interface_submenu() {
-    CHOOSE_AWG_INTERFACES_LIST=""
-    CHOOSE_AWG_INTERFACE_SUBMENU=""
+generate_select_awg_interface_submenu() {
+    SELECT_AWG_INTERFACES_LIST=""
+    SELECT_AWG_INTERFACE_SUBMENU=""
 
     CURRENT_INTERFACE_NUMBER="0"
     for DIR in "${AWG_SERVER_TOOLS_PATH}/interfaces/"*/; do
@@ -18,19 +18,21 @@ generate_choose_awg_interface_submenu() {
         CURRENT_INTERFACE_NAME="${DIR%/}"
         CURRENT_INTERFACE_NAME="${CURRENT_INTERFACE_NAME##*/}"
 
-        CHOOSE_AWG_INTERFACES_LIST="${CHOOSE_AWG_INTERFACES_LIST}${CURRENT_INTERFACE_NAME} "
+        SELECT_AWG_INTERFACES_LIST="${SELECT_AWG_INTERFACES_LIST}${CURRENT_INTERFACE_NAME} "
 
-        CHOOSE_AWG_INTERFACE_SUBMENU="${CHOOSE_AWG_INTERFACE_SUBMENU}${CURRENT_INTERFACE_NUMBER}) ${CURRENT_INTERFACE_NAME}\n"
+        SELECT_AWG_INTERFACE_SUBMENU="${SELECT_AWG_INTERFACE_SUBMENU}${CURRENT_INTERFACE_NUMBER}) ${CURRENT_INTERFACE_NAME}\n"
     done
 
-    CHOOSE_AWG_INTERFACE_SUBMENU="${CHOOSE_AWG_INTERFACE_SUBMENU}0) Back\n\n"
-
     LAST_INTERFACE_NUMBER="$CURRENT_INTERFACE_NUMBER"
+
+    SELECT_AWG_INTERFACE_SUBMENU="${SELECT_AWG_INTERFACE_SUBMENU}0) Back\n\n"
+
+    SELECT_AWG_INTERFACE_SUBMENU="${SELECT_AWG_INTERFACE_SUBMENU}Select interface [0-${LAST_INTERFACE_NUMBER}]: "
 }
 
-choose_awg_interface_name() {
+set_awg_interface_name() {
     NUM="0"
-    for CURRENT_INTERFACE_NAME in $CHOOSE_AWG_INTERFACES_LIST; do
+    for CURRENT_INTERFACE_NAME in $SELECT_AWG_INTERFACES_LIST; do
         NUM="$((NUM + 1))"
 
         if [ "$NUM" = "$1" ]; then
@@ -41,7 +43,7 @@ choose_awg_interface_name() {
 }
 
 
-choose_awg_interface_submenu() {
+select_awg_interface_submenu() {
     LIMIT_AWG_INTERFACE_EXCEEDED_HANDLER="$1"
 
     get_awg_interfaces_count
@@ -51,12 +53,10 @@ choose_awg_interface_submenu() {
         return
     fi
 
-    generate_choose_awg_interface_submenu
+    generate_select_awg_interface_submenu
 
     while :; do
-        printf "${CHOOSE_AWG_INTERFACE_SUBMENU}"
-
-        printf 'Select interface [0-%s]: ' "$LAST_INTERFACE_NUMBER"
+        printf "${SELECT_AWG_INTERFACE_SUBMENU}"
 
         handle_user_input
 
@@ -68,7 +68,7 @@ choose_awg_interface_submenu() {
                     continue
                 fi
 
-                choose_awg_interface_name "$USER_INPUT"
+                set_awg_interface_name "$USER_INPUT"
                 break
                 ;;
             "0")

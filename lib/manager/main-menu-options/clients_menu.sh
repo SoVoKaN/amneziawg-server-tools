@@ -1,4 +1,4 @@
-get_interface_name_clients_menu() {
+get_awg_interface_name_clients_menu() {
     printf "${BOLD_FS}Enter interface name to manage its clients.${DEFAULT_FS}\n"
     printf '%s' "Name: "
 
@@ -36,7 +36,7 @@ clients_menu() {
     echo "----------------"
     echo ""
 
-    if ! choose_awg_interface_submenu "get_interface_name_clients_menu"; then
+    if ! select_awg_interface_submenu "get_awg_interface_name_clients_menu"; then
         SUBMENU_RETURN_CODE="1"
     else
         SUBMENU_RETURN_CODE="0"
