@@ -9,7 +9,7 @@ check_awg_interface_already_disabled() {
     return 0
 }
 
-get_awg_interface_name_to_disable() {
+get_awg_interface_name_disable() {
     while :; do
         printf "${BOLD_FS}Enter interface name to delete.${DEFAULT_FS}\n"
         printf '%s' "Name: "
@@ -45,7 +45,7 @@ get_awg_interface_name_to_disable() {
 }
 
 confirm_awg_interface_disable() {
-    QUESTION=$(printf '%s' "This will disable ${AWG_INTERFACE_NAME} interface. Continue? (y/n): ")
+    QUESTION=$(printf '%s' "This will disable \"${AWG_INTERFACE_NAME}\" interface. Continue? (y/n): ")
 
     printf '%s' "$QUESTION"
 
@@ -67,12 +67,21 @@ confirm_awg_interface_disable() {
 
 
 disable_awg_interface() {
-    echo "------------------"
+    echo "-------------------"
     printf "${BOLD_FS} Disable Interface ${DEFAULT_FS}\n"
-    echo "------------------"
+    echo "-------------------"
     echo ""
 
-    get_awg_interface_name_to_disable
+    if ! select_awg_interface_submenu "get_awg_interface_name_disable" "active"; then
+        SUBMENU_RETURN_CODE="1"
+    else
+        SUBMENU_RETURN_CODE="0"
+    fi
+
+    if [ "$SUBMENU_RETURN_CODE" = "1" ]; then
+        clean_lines "4"
+        return
+    fi
 
     confirm_awg_interface_disable
 
