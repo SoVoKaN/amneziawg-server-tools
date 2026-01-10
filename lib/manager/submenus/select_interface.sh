@@ -1,11 +1,85 @@
-get_awg_interfaces_count() {
+get_awg_active_interfaces_count() {
     AWG_INTERFACES_COUNT="0"
 
     for DIR in "${AWG_SERVER_TOOLS_PATH}/interfaces/"*/; do
-        if [ -d "$DIR" ]; then
-            AWG_INTERFACES_COUNT="$((AWG_INTERFACES_COUNT + 1))"
+        if [ ! -d "$DIR" ]; then
+            return
         fi
     done
+
+    ACTIVE_AWG_INTERFACES=$(awg show interfaces)
+    ACTIVE_AWG_INTERFACES=" ${ACTIVE_AWG_INTERFACES} "
+
+    for DIR in "${AWG_SERVER_TOOLS_PATH}/interfaces/"*/; do
+        CURRENT_INTERFACE_NAME="${DIR%/}"
+        CURRENT_INTERFACE_NAME="${CURRENT_INTERFACE_NAME##*/}"
+
+        case "$ACTIVE_AWG_INTERFACES" in
+            *" ${CURRENT_INTERFACE_NAME} "*) AWG_INTERFACES_COUNT="$((AWG_INTERFACES_COUNT + 1))" ;;
+        esac
+    done
+}
+
+get_awg_inactive_interfaces_count() {
+    AWG_INTERFACES_COUNT="0"
+
+    for DIR in "${AWG_SERVER_TOOLS_PATH}/interfaces/"*/; do
+        if [ ! -d "$DIR" ]; then
+            return
+        fi
+    done
+
+    ACTIVE_AWG_INTERFACES=$(awg show interfaces)
+    ACTIVE_AWG_INTERFACES=" ${ACTIVE_AWG_INTERFACES} "
+
+    for DIR in "${AWG_SERVER_TOOLS_PATH}/interfaces/"*/; do
+        CURRENT_INTERFACE_NAME="${DIR%/}"
+        CURRENT_INTERFACE_NAME="${CURRENT_INTERFACE_NAME##*/}"
+
+        case "$ACTIVE_AWG_INTERFACES" in
+            *" ${CURRENT_INTERFACE_NAME} "*) continue ;;
+        esac
+
+        AWG_INTERFACES_COUNT="$((AWG_INTERFACES_COUNT + 1))"
+    done
+}
+
+get_awg_all_interfaces_count() {
+    AWG_INTERFACES_COUNT="0"
+
+    for DIR in "${AWG_SERVER_TOOLS_PATH}/interfaces/"*/; do
+        if [ ! -d "$DIR" ]; then
+            return
+        fi
+    done
+
+    for DIR in "${AWG_SERVER_TOOLS_PATH}/interfaces/"*/; do
+        AWG_INTERFACES_COUNT="$((AWG_INTERFACES_COUNT + 1))"
+    done
+}
+
+show_awg_no_active_interfaces_message() {
+    if [ -n "$AWG_SERVER_TOOLS_PAGER" ]; then
+        printf "There are no active interfaces." | "$AWG_SERVER_TOOLS_PAGER"
+    else
+        echo "There are no active interfaces."
+    fi
+}
+
+show_awg_no_inactive_interfaces_message() {
+    if [ -n "$AWG_SERVER_TOOLS_PAGER" ]; then
+        printf "There are no inactive interfaces." | "$AWG_SERVER_TOOLS_PAGER"
+    else
+        echo "There are no inactive interfaces."
+    fi
+}
+
+show_awg_no_all_interfaces_message() {
+    if [ -n "$AWG_SERVER_TOOLS_PAGER" ]; then
+        printf "No interfaces have been created yet." | "$AWG_SERVER_TOOLS_PAGER"
+    else
+        echo "No interfaces have been created yet."
+    fi
 }
 
 generate_select_awg_active_interface_submenu() {
@@ -91,6 +165,34 @@ generate_select_awg_all_interface_submenu() {
 }
 
 
+get_awg_interfaces_count() {
+    case "$SUBMENU_MODE" in
+        "active")
+            get_awg_active_interfaces_count
+            ;;
+        "inactive")
+            get_awg_inactive_interfaces_count
+            ;;
+        "all")
+            get_awg_all_interfaces_count
+            ;;
+    esac
+}
+
+show_awg_no_interfaces_message() {
+    case "$SUBMENU_MODE" in
+        "active")
+            show_awg_no_active_interfaces_message
+            ;;
+        "inactive")
+            show_awg_no_inactive_interfaces_message
+            ;;
+        "all")
+            show_awg_no_all_interfaces_message
+            ;;
+    esac
+}
+
 generate_select_awg_interface_submenu() {
     case "$SUBMENU_MODE" in
         "active")
@@ -127,11 +229,7 @@ select_awg_interface_submenu() {
     if [ "$AWG_INTERFACES_COUNT" = "0" ]; then
         set_awg_server_tools_pager
 
-        if [ -n "$AWG_SERVER_TOOLS_PAGER" ]; then
-            printf "No interfaces have been created yet." | "$AWG_SERVER_TOOLS_PAGER"
-        else
-            echo "No interfaces have been created yet."
-        fi
+        show_awg_no_interfaces_message
 
         return 1
     fi
