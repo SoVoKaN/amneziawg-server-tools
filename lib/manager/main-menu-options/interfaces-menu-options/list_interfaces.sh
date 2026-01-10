@@ -10,6 +10,7 @@ check_awg_has_interfaces() {
 
 create_awg_interfaces_list() {
     ACTIVE_INTERFACES=$(awg show interfaces)
+    ACTIVE_INTERFACES=" ${ACTIVE_INTERFACES} "
 
     ACTIVE_INTERFACES_LIST=""
 
@@ -24,7 +25,7 @@ create_awg_interfaces_list() {
         INTERFACE_IS_ACTIVE="Inactive"
 
         case "$ACTIVE_INTERFACES" in
-            *"$CURRENT_INTERFACE_NAME"*)
+            *" ${CURRENT_INTERFACE_NAME} "*)
                 INTERFACE_IS_ACTIVE="Active"
 
                 if INTERFACE_COUNT_CLIENTS_GREP_OUTPUT=$(grep '^\[Peer\]$' /etc/amnezia/amneziawg/${CURRENT_INTERFACE_NAME}.conf); then
