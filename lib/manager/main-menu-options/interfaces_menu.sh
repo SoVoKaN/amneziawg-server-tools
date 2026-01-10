@@ -59,11 +59,9 @@ interfaces_menu() {
         case "$USER_INPUT" in
             "1")
                 enable_awg_interface
-                exit 0
                 ;;
             "2")
                 disable_awg_interface
-                exit 0
                 ;;
             "3")
                 list_awg_interfaces
@@ -74,7 +72,6 @@ interfaces_menu() {
                 ;;
             "5")
                 delete_awg_interface
-                exit 0
                 ;;
             "0")
                 break

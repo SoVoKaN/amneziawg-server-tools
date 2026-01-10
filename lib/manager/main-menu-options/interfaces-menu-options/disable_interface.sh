@@ -90,4 +90,5 @@ disable_awg_interface() {
 
     echo ""
     printf "${GREEN}Interface ${BOLD_FS}\"${AWG_INTERFACE_NAME}\"${DEFAULT_FS} is succesfuly disabled.${DEFAULT_COLOR}\n"
+    exit 0
 }
