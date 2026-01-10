@@ -80,7 +80,7 @@ free_awg_interface_ipv6() {
 }
 
 
-get_awg_interface_name_to_delete() {
+get_awg_interface_name_delete() {
     while :; do
         printf "${BOLD_FS}Enter interface name to delete.${DEFAULT_FS}\n"
         printf '%s' "Name: "
@@ -154,7 +154,16 @@ delete_awg_interface() {
     echo "------------------"
     echo ""
 
-    get_awg_interface_name_to_delete
+    if ! select_awg_interface_submenu "get_awg_interface_name_delete" "all"; then
+        SUBMENU_RETURN_CODE="1"
+    else
+        SUBMENU_RETURN_CODE="0"
+    fi
+
+    if [ "$SUBMENU_RETURN_CODE" = "1" ]; then
+        clean_lines "4"
+        return
+    fi
 
     confirm_awg_interface_deletion
 
