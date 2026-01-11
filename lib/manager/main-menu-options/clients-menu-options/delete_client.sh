@@ -96,4 +96,5 @@ delete_awg_client() {
 
     echo ""
     printf "${GREEN}Client ${BOLD_FS}\"${AWG_CLIENT_NAME}\"${DEFAULT_FS} is succesfuly deleted.${DEFAULT_COLOR}\n"
+    exit 0
 }

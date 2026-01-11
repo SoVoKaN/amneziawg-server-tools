@@ -80,4 +80,5 @@ Endpoint = "${SERVER_PUBLIC_IP_OR_DOMAIN}:${AWG_INTERFACE_PORT}""
 
     echo ""
     printf "${GREEN}Here is your ${BOLD_FS}\"${AWG_CLIENT_NAME}\"${DEFAULT_FS} client config as a QR code.${DEFAULT_COLOR}\n"
+    exit 0
 }

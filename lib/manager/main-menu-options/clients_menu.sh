@@ -95,14 +95,12 @@ clients_menu() {
                 ;;
             "2")
                 delete_awg_client
-                exit 0
                 ;;
             "3")
                 list_awg_clients
                 ;;
             "4")
                 show_awg_client_qr
-                exit 0
                 ;;
             "0")
                 break
