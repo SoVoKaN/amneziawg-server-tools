@@ -361,10 +361,10 @@ get_awg_client_persistent_keepalive() {
 }
 
 get_awg_client_allowed_ips() {
-    AWG_CLIENT_ALLOWED_IPS="0.0.0.0/1, 128.0.0.0/1"
+    AWG_CLIENT_ALLOWED_IPS="0.0.0.0/0"
 
     if [ "$AWG_INTERFACE_USE_IPV6" = "y" ]; then
-        AWG_CLIENT_ALLOWED_IPS="${AWG_CLIENT_ALLOWED_IPS}, ::/1, 8000::/1"
+        AWG_CLIENT_ALLOWED_IPS="${AWG_CLIENT_ALLOWED_IPS}, ::/0"
     fi
 
     QUESTION=$(printf 'Allowed IPs [%s]: ' "$AWG_CLIENT_ALLOWED_IPS")
