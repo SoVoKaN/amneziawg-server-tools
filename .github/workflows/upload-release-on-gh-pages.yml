@@ -2,7 +2,7 @@ name: Upload latest release on gh-pages
 
 on:
   release:
-    types: [published]
+    types: [released]
 
 permissions:
   contents: write
@@ -11,7 +11,7 @@ jobs:
   Update-Latest-Release:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repo
+      - name: Checkout repository
         uses: actions/checkout@v4
         with:
           ref: gh-pages
