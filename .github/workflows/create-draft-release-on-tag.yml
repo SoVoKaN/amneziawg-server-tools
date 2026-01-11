@@ -1,0 +1,45 @@
+name: Create draft release on tag
+
+on:
+  push:
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+'
+
+permissions:
+  contents: write
+
+jobs:
+  Create-Draft-Release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Prepare files for archiving
+        run: |
+          mkdir amneziawg-server-tools
+
+          cp -r lib/ amneziawg-server-tools/
+
+          cp amneziawg-install.sh amneziawg-server-tools/
+
+          cp amneziawg-manager.sh amneziawg-server-tools/
+
+          cp amneziawg-uninstall.sh amneziawg-server-tools/
+
+      - name: Prepare zip for draft release
+        run: zip -r amneziawg-server-tools-${{ github.ref_name }}.zip amneziawg-server-tools/
+
+      - name: Prepare tar.gz for draft release
+        run: tar -czf amneziawg-server-tools-${{ github.ref_name }}.tar.gz amneziawg-server-tools/
+
+      - name: Create draft release
+        uses: ncipollo/release-action@v1
+        with:
+          draft: true
+          tag: ${{ github.ref_name }}
+          name: ${{ github.ref_name }}
+          artifacts: "amneziawg-server-tools-${{ github.ref_name }}.zip, amneziawg-server-tools-${{ github.ref_name }}.tar.gz"
