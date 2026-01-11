@@ -22,17 +22,17 @@ Before installation, it is strongly recommended to upgrade your system to the la
 Use wget or curl to download:
 
 ```sh
-wget https://sovokan.github.io/amneziawg-server-tools/amneziawg-server-tools-latest.zip
+wget https://sovokan.github.io/amneziawg-server-tools/amneziawg-server-tools-latest.tar.gz
 ```
 
 ```sh
-curl -O https://sovokan.github.io/amneziawg-server-tools/amneziawg-server-tools-latest.zip
+curl -O https://sovokan.github.io/amneziawg-server-tools/amneziawg-server-tools-latest.tar.gz
 ```
 
 Extract archive:
 
 ```sh
-unzip amneziawg-server-tools-latest.zip
+tar -xzf amneziawg-server-tools-latest.tar.gz
 ```
 
 Run installer:
