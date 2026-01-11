@@ -1,15 +1,14 @@
 name: Upload latest release on gh-pages
 
 on:
-  workflow_run:
-    workflows: ["Create release on tag"]
-    types: [completed]
+  release:
+    types: [published]
 
 permissions:
   contents: write
 
 jobs:
-  Update:
+  Update-Latest-Release:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repo
@@ -23,16 +22,22 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
-      - name: Download latest release zip
-        run: wget https://github.com/sovokan/amneziawg-server-tools/releases/download/${{ github.event.workflow_run.head_branch }}/amneziawg-server-tools-${{ github.event.workflow_run.head_branch }}.zip
+      - name: Download release zip
+        run: wget https://github.com/sovokan/amneziawg-server-tools/releases/download/${{ github.event.release.tag_name }}/amneziawg-server-tools-${{ github.event.release.tag_name }}.zip
 
-      - name: Rename zip
-        run: mv -f amneziawg-server-tools-${{ github.event.workflow_run.head_branch }}.zip amneziawg-server-tools-latest.zip
+      - name: Download release tar.gz
+        run: wget https://github.com/sovokan/amneziawg-server-tools/releases/download/${{ github.event.release.tag_name }}/amneziawg-server-tools-${{ github.event.release.tag_name }}.tar.gz
 
-      - name: Commit
+      - name: Rename release zip
+        run: mv -f amneziawg-server-tools-${{ github.event.release.tag_name }}.zip amneziawg-server-tools-latest.zip
+
+      - name: Rename release tar.gz
+        run: mv -f amneziawg-server-tools-${{ github.event.release.tag_name }}.tar.gz amneziawg-server-tools-latest.tar.gz
+
+      - name: Create commit
         run: |
-          git add amneziawg-server-tools-latest.zip
-          git commit -m "Update latest release zip to ${{ github.event.workflow_run.head_branch }}"
+          git add amneziawg-server-tools-latest.zip amneziawg-server-tools-latest.tar.gz
+          git commit -m "Update latest release to ${{ github.event.release.tag_name }}"
 
-      - name: Upload release
+      - name: Upload
         run: git push origin gh-pages
