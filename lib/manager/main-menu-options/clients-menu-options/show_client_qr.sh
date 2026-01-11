@@ -41,7 +41,16 @@ show_awg_client_qr() {
     print_dashes "$((19 + ${#AWG_INTERFACE_NAME}))"
     echo ""
 
-    get_awg_client_name_to_display_qr
+    if ! select_awg_client_submenu "get_awg_client_name_to_display_qr" "all"; then
+        SUBMENU_RETURN_CODE="1"
+    else
+        SUBMENU_RETURN_CODE="0"
+    fi
+
+    if [ "$SUBMENU_RETURN_CODE" = "1" ]; then
+        clean_lines "4"
+        return
+    fi
 
     load_client_data
 
