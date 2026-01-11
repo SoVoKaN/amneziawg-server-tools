@@ -1,21 +1,3 @@
-check_awg_client_exists() {
-    for FILE in "${AWG_SERVER_TOOLS_PATH}/interfaces/${AWG_INTERFACE_NAME}/clients/"*.data; do
-        if [ ! -f "$FILE" ]; then
-            continue
-        fi
-
-        CLIENT_NAME="${FILE##*/}"
-        CLIENT_NAME="${CLIENT_NAME%.data}"
-
-        if [ "$1" = "$CLIENT_NAME" ]; then
-            return 0
-        fi
-    done
-
-    return 1
-}
-
-
 get_awg_client_name_to_delete() {
     while :; do
         printf "${BOLD_FS}Enter client name to delete.${DEFAULT_FS}\n"
