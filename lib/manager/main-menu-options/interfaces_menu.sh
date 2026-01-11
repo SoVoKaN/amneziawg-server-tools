@@ -1,21 +1,11 @@
 check_awg_interface_exists() {
-    for DIR in "/etc/amnezia/amneziawg"/*.conf; do
-        CURRENT_INTERFACE_NAME="${DIR##*/}"
-        CURRENT_INTERFACE_NAME="${CURRENT_INTERFACE_NAME%.conf}"
+    if [ -f "/etc/amnezia/amneziawg/${1}.conf" ]; then
+        return 0
+    fi
 
-        if [ "$1" = "$CURRENT_INTERFACE_NAME" ]; then
-            return 0
-        fi
-    done
-
-    for DIR in "${AWG_SERVER_TOOLS_PATH}/interfaces/"*/; do
-        CURRENT_INTERFACE_NAME="${DIR%/}"
-        CURRENT_INTERFACE_NAME="${CURRENT_INTERFACE_NAME##*/}"
-
-        if [ "$1" = "$CURRENT_INTERFACE_NAME" ]; then
-            return 0
-        fi
-    done
+    if [ -d "${AWG_SERVER_TOOLS_PATH}/interfaces/${1}/" ]; then
+        return 0
+    fi
 
     return 1
 }
