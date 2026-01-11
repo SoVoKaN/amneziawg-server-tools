@@ -31,6 +31,7 @@ get_awg_client_name_to_display_qr() {
 show_awg_client_qr() {
     if ! command -v qrencode > /dev/null 2>&1; then
         echo "To use this option, \"qrencode\" must be installed. Please install it and try again."
+        return
     fi
 
     print_dashes "$((19 + ${#AWG_INTERFACE_NAME}))"
@@ -78,5 +79,5 @@ Endpoint = "${SERVER_PUBLIC_IP_OR_DOMAIN}:${AWG_INTERFACE_PORT}""
     } | qrencode -t ansiutf8 -l L
 
     echo ""
-    printf "Here is your ${BOLD_FS}\"${AWG_CLIENT_NAME}\"${DEFAULT_FS} client as a QR code.\n"
+    printf "${GREEN}Here is your ${BOLD_FS}\"${AWG_CLIENT_NAME}\"${DEFAULT_FS} client config as a QR code.${DEFAULT_COLOR}\n"
 }
