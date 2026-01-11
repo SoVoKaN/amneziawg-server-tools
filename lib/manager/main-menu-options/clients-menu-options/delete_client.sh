@@ -29,7 +29,7 @@ get_awg_client_name_to_delete() {
 }
 
 confirm_awg_client_deletion() {
-    QUESTION=$(printf '%s' "This will permanently delete ${AWG_CLIENT_NAME} client. Continue? (y/n): ")
+    QUESTION=$(printf '%s' "This will permanently delete \"${AWG_CLIENT_NAME}\" client. Continue? (y/n): ")
 
     printf '%s' "$QUESTION"
 
@@ -84,7 +84,16 @@ delete_awg_client() {
     print_dashes "$((18 + ${#AWG_INTERFACE_NAME}))"
     echo ""
 
-    get_awg_client_name_to_delete
+    if ! select_awg_client_submenu "get_awg_client_name_to_delete" "all"; then
+        SUBMENU_RETURN_CODE="1"
+    else
+        SUBMENU_RETURN_CODE="0"
+    fi
+
+    if [ "$SUBMENU_RETURN_CODE" = "1" ]; then
+        clean_lines "4"
+        return
+    fi
 
     confirm_awg_client_deletion
 
