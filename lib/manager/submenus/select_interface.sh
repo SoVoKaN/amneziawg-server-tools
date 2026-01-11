@@ -4,6 +4,8 @@ get_awg_active_interfaces_count() {
     for DIR in "${AWG_SERVER_TOOLS_PATH}/interfaces/"*/; do
         if [ ! -d "$DIR" ]; then
             return
+        else
+            break
         fi
     done
 
@@ -26,6 +28,8 @@ get_awg_inactive_interfaces_count() {
     for DIR in "${AWG_SERVER_TOOLS_PATH}/interfaces/"*/; do
         if [ ! -d "$DIR" ]; then
             return
+        else
+            break
         fi
     done
 
@@ -50,6 +54,8 @@ get_awg_all_interfaces_count() {
     for DIR in "${AWG_SERVER_TOOLS_PATH}/interfaces/"*/; do
         if [ ! -d "$DIR" ]; then
             return
+        else
+            break
         fi
     done
 
