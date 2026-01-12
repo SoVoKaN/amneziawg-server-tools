@@ -73,7 +73,7 @@ list_awg_interfaces() {
         if [ -n "$AWG_SERVER_TOOLS_PAGER" ]; then
             printf "No interfaces have been created yet." | "$AWG_SERVER_TOOLS_PAGER"
         else
-            echo "No interfaces have been created yet."
+            printf "\n${BOLD_FS}No interfaces have been created yet.${DEFAULT_FS}\n\n"
         fi
 
         return
