@@ -5,12 +5,8 @@ set_awg_server_tools_pager() {
         AWG_SERVER_TOOLS_PAGER="less"
         return
     fi
-
-    if command -v more > /dev/null 2>&1; then
-        AWG_SERVER_TOOLS_PAGER="more"
-        return
-    fi
 }
+
 
 main_menu() {
     while :; do
