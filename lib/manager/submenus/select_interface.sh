@@ -64,28 +64,16 @@ get_awg_all_interfaces_count() {
     done
 }
 
-show_awg_no_active_interfaces_message() {
-    if [ -n "$AWG_SERVER_TOOLS_PAGER" ]; then
-        printf "There are no active interfaces." | "$AWG_SERVER_TOOLS_PAGER"
-    else
-        echo "There are no active interfaces."
-    fi
+set_awg_no_active_interfaces_message() {
+    AWG_FAILURE_RETURN_MESSAGE="There are no active interfaces."
 }
 
-show_awg_no_inactive_interfaces_message() {
-    if [ -n "$AWG_SERVER_TOOLS_PAGER" ]; then
-        printf "There are no inactive interfaces." | "$AWG_SERVER_TOOLS_PAGER"
-    else
-        echo "There are no inactive interfaces."
-    fi
+set_awg_no_inactive_interfaces_message() {
+    AWG_FAILURE_RETURN_MESSAGE="There are no inactive interfaces."
 }
 
-show_awg_no_all_interfaces_message() {
-    if [ -n "$AWG_SERVER_TOOLS_PAGER" ]; then
-        printf "No interfaces have been created yet." | "$AWG_SERVER_TOOLS_PAGER"
-    else
-        echo "No interfaces have been created yet."
-    fi
+set_awg_no_all_interfaces_message() {
+    AWG_FAILURE_RETURN_MESSAGE="No interfaces have been created yet."
 }
 
 generate_select_awg_active_interface_submenu() {
@@ -185,16 +173,16 @@ get_awg_interfaces_count() {
     esac
 }
 
-show_awg_no_interfaces_message() {
+set_awg_no_interfaces_message() {
     case "$SUBMENU_MODE" in
         "active")
-            show_awg_no_active_interfaces_message
+            set_awg_no_active_interfaces_message
             ;;
         "inactive")
-            show_awg_no_inactive_interfaces_message
+            set_awg_no_inactive_interfaces_message
             ;;
         "all")
-            show_awg_no_all_interfaces_message
+            set_awg_no_all_interfaces_message
             ;;
     esac
 }
@@ -233,11 +221,9 @@ select_awg_interface_submenu() {
     get_awg_interfaces_count
 
     if [ "$AWG_INTERFACES_COUNT" = "0" ]; then
-        set_awg_server_tools_pager
+        set_awg_no_interfaces_message
 
-        show_awg_no_interfaces_message
-
-        return 1
+        return 2
     fi
 
     if [ "$AWG_INTERFACES_COUNT" -gt 15 ]; then

@@ -73,14 +73,27 @@ enable_awg_interface() {
     echo "------------------"
     echo ""
 
-    if ! select_awg_interface_submenu "get_awg_interface_name_enable" "inactive"; then
-        SUBMENU_RETURN_CODE="1"
-    else
+    if select_awg_interface_submenu "get_awg_interface_name_enable" "inactive"; then
         SUBMENU_RETURN_CODE="0"
+    else
+        SUBMENU_RETURN_CODE="$?"
     fi
 
     if [ "$SUBMENU_RETURN_CODE" = "1" ]; then
         clean_lines "4"
+
+        return
+    elif [ "$SUBMENU_RETURN_CODE" = "2" ]; then
+        set_awg_server_tools_pager
+
+        clean_lines "4"
+
+        if [ -n "$AWG_SERVER_TOOLS_PAGER" ]; then
+            printf "$AWG_FAILURE_RETURN_MESSAGE" | "$AWG_SERVER_TOOLS_PAGER"
+        else
+            printf "\n${BOLD_FS}${AWG_FAILURE_RETURN_MESSAGE}${DEFAULT_FS}\n\n"
+        fi
+
         return
     fi
 

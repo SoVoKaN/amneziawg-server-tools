@@ -44,15 +44,25 @@ clients_menu() {
     echo "----------------"
     echo ""
 
-    if ! select_awg_interface_submenu "get_awg_interface_name_clients_menu" "all"; then
-        SUBMENU_RETURN_CODE="1"
-    else
+    if select_awg_interface_submenu "get_awg_interface_name_clients_menu" "all"; then
         SUBMENU_RETURN_CODE="0"
+    else
+        SUBMENU_RETURN_CODE="$?"
     fi
 
     clean_lines "4"
 
     if [ "$SUBMENU_RETURN_CODE" = "1" ]; then
+        return
+    elif [ "$SUBMENU_RETURN_CODE" = "2" ]; then
+        set_awg_server_tools_pager
+
+        if [ -n "$AWG_SERVER_TOOLS_PAGER" ]; then
+            printf "$AWG_FAILURE_RETURN_MESSAGE" | "$AWG_SERVER_TOOLS_PAGER"
+        else
+            printf "\n${BOLD_FS}${AWG_FAILURE_RETURN_MESSAGE}${DEFAULT_FS}\n\n"
+        fi
+
         return
     fi
 
