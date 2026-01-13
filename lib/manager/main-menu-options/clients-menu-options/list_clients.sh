@@ -43,7 +43,7 @@ list_awg_clients() {
         if [ -n "$AWG_SERVER_TOOLS_PAGER" ]; then
             printf "No clients have been created yet." | "$AWG_SERVER_TOOLS_PAGER"
         else
-            echo "No clients have been created yet."
+            printf "\n${BOLD_FS}No clients have been created yet.${DEFAULT_FS}\n\n"
         fi
 
         return
