@@ -170,9 +170,9 @@ delete_awg_interface() {
         clean_lines "4"
 
         if [ -n "$AWG_SERVER_TOOLS_PAGER" ]; then
-            printf "$AWG_FAILURE_RETURN_MESSAGE" | "$AWG_SERVER_TOOLS_PAGER"
+            printf "$SELECT_INTERFACE_SUBMENU_FAILURE_RETURN_MESSAGE" | "$AWG_SERVER_TOOLS_PAGER"
         else
-            printf "\n${BOLD_FS}${AWG_FAILURE_RETURN_MESSAGE}${DEFAULT_FS}\n\n"
+            printf "\n${BOLD_FS}${SELECT_INTERFACE_SUBMENU_FAILURE_RETURN_MESSAGE}${DEFAULT_FS}\n\n"
         fi
 
         return

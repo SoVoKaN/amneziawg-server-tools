@@ -65,15 +65,15 @@ get_awg_all_interfaces_count() {
 }
 
 set_awg_no_active_interfaces_message() {
-    AWG_FAILURE_RETURN_MESSAGE="There are no active interfaces."
+    SELECT_INTERFACE_SUBMENU_FAILURE_RETURN_MESSAGE="There are no active interfaces."
 }
 
 set_awg_no_inactive_interfaces_message() {
-    AWG_FAILURE_RETURN_MESSAGE="There are no inactive interfaces."
+    SELECT_INTERFACE_SUBMENU_FAILURE_RETURN_MESSAGE="There are no inactive interfaces."
 }
 
 set_awg_no_all_interfaces_message() {
-    AWG_FAILURE_RETURN_MESSAGE="No interfaces have been created yet."
+    SELECT_INTERFACE_SUBMENU_FAILURE_RETURN_MESSAGE="No interfaces have been created yet."
 }
 
 generate_select_awg_active_interface_submenu() {
