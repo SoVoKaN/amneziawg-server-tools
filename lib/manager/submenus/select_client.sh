@@ -14,12 +14,8 @@ get_awg_all_clients_count() {
     done
 }
 
-show_awg_no_all_clients_message() {
-    if [ -n "$AWG_SERVER_TOOLS_PAGER" ]; then
-        printf "No clients have been created yet." | "$AWG_SERVER_TOOLS_PAGER"
-    else
-        echo "No clients have been created yet."
-    fi
+set_awg_no_all_clients_message() {
+    SELECT_CLIENT_SUBMENU_FAILURE_RETURN_MESSAGE="No clients have been created yet."
 }
 
 generate_select_awg_all_clients_submenu() {
@@ -53,10 +49,10 @@ get_awg_clients_count() {
     esac
 }
 
-show_awg_no_clients_message() {
+set_awg_no_clients_message() {
     case "$SUBMENU_MODE" in
         "all")
-            show_awg_no_all_clients_message
+            set_awg_no_all_clients_message
             ;;
     esac
 }
@@ -89,11 +85,9 @@ select_awg_client_submenu() {
     get_awg_clients_count
 
     if [ "$AWG_CLIENTS_COUNT" = "0" ]; then
-        set_awg_server_tools_pager
+        set_awg_no_clients_message
 
-        show_awg_no_clients_message
-
-        return 1
+        return 2
     fi
 
     if [ "$AWG_CLIENTS_COUNT" -gt 15 ]; then

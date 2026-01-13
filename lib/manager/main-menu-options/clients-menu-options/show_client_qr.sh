@@ -1,4 +1,4 @@
-get_awg_client_name_to_display_qr() {
+get_awg_client_name_display_qr() {
     while :; do
         printf "${BOLD_FS}Enter client name to display QR code.${DEFAULT_FS}\n"
         printf '%s' "Name: "
@@ -41,14 +41,27 @@ show_awg_client_qr() {
     print_dashes "$((19 + ${#AWG_INTERFACE_NAME}))"
     echo ""
 
-    if ! select_awg_client_submenu "get_awg_client_name_to_display_qr" "all"; then
-        SUBMENU_RETURN_CODE="1"
-    else
+    if select_awg_client_submenu "get_awg_client_name_display_qr" "all"; then
         SUBMENU_RETURN_CODE="0"
+    else
+        SUBMENU_RETURN_CODE="$?"
     fi
 
     if [ "$SUBMENU_RETURN_CODE" = "1" ]; then
         clean_lines "4"
+
+        return
+    elif [ "$SUBMENU_RETURN_CODE" = "2" ]; then
+        set_awg_server_tools_pager
+
+        clean_lines "4"
+
+        if [ -n "$AWG_SERVER_TOOLS_PAGER" ]; then
+            printf "$SELECT_CLIENT_SUBMENU_FAILURE_RETURN_MESSAGE" | "$AWG_SERVER_TOOLS_PAGER"
+        else
+            printf "\n${BOLD_FS}${SELECT_CLIENT_SUBMENU_FAILURE_RETURN_MESSAGE}${DEFAULT_FS}\n\n"
+        fi
+
         return
     fi
 

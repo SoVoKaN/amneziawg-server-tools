@@ -1,4 +1,4 @@
-get_awg_client_name_to_delete() {
+get_awg_client_name_delete() {
     while :; do
         printf "${BOLD_FS}Enter client name to delete.${DEFAULT_FS}\n"
         printf '%s' "Name: "
@@ -84,14 +84,27 @@ delete_awg_client() {
     print_dashes "$((18 + ${#AWG_INTERFACE_NAME}))"
     echo ""
 
-    if ! select_awg_client_submenu "get_awg_client_name_to_delete" "all"; then
-        SUBMENU_RETURN_CODE="1"
-    else
+    if select_awg_client_submenu "get_awg_client_name_delete" "all"; then
         SUBMENU_RETURN_CODE="0"
+    else
+        SUBMENU_RETURN_CODE="$?"
     fi
 
     if [ "$SUBMENU_RETURN_CODE" = "1" ]; then
         clean_lines "4"
+
+        return
+    elif [ "$SUBMENU_RETURN_CODE" = "2" ]; then
+        set_awg_server_tools_pager
+
+        clean_lines "4"
+
+        if [ -n "$AWG_SERVER_TOOLS_PAGER" ]; then
+            printf "$SELECT_CLIENT_SUBMENU_FAILURE_RETURN_MESSAGE" | "$AWG_SERVER_TOOLS_PAGER"
+        else
+            printf "\n${BOLD_FS}${SELECT_CLIENT_SUBMENU_FAILURE_RETURN_MESSAGE}${DEFAULT_FS}\n\n"
+        fi
+
         return
     fi
 
