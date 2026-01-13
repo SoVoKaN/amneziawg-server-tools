@@ -215,7 +215,7 @@ set_awg_interface_name() {
 
 
 select_awg_interface_submenu() {
-    LIMIT_AWG_INTERFACE_EXCEEDED_HANDLER="$1"
+    LIMIT_AWG_INTERFACES_EXCEEDED_HANDLER="$1"
     SUBMENU_MODE="$2"
 
     get_awg_interfaces_count
@@ -227,7 +227,7 @@ select_awg_interface_submenu() {
     fi
 
     if [ "$AWG_INTERFACES_COUNT" -gt 15 ]; then
-        "$LIMIT_AWG_INTERFACE_EXCEEDED_HANDLER"
+        "$LIMIT_AWG_INTERFACES_EXCEEDED_HANDLER"
         return
     fi
 
