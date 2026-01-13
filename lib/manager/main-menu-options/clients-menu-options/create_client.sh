@@ -508,26 +508,31 @@ bring_up_awg_client() {
 }
 
 ask_to_show_qr() {
-    if command -v qrencode > /dev/null 2>&1; then
-        echo ""
+    if ! command -v qrencode > /dev/null 2>&1; then
+        return
+    fi
 
-        QUESTION=$(printf 'Do you want to show client config as QR code (y/n): ')
+    echo ""
 
-        printf '%s' "$QUESTION"
+    QUESTION=$(printf 'Do you want to show client config as QR code (y/n) [y]: ')
 
-        handle_user_input
+    printf '%s' "$QUESTION"
 
-        if [ -z "$USER_INPUT" ]; then
-            default_value_autocomplete "n" "$QUESTION"
-        fi
+    handle_user_input
 
-        if [ "$USER_INPUT" = "y" ]; then
-            echo ""
-            printf "${BOLD_FS}Here is your client config file as a QR code: ${DEFAULT_FS}\n"
-            qrencode -t ansiutf8 -l L < "${AWG_CLIENT_CONFIGS_PATH}/${AWG_INTERFACE_NAME}/${AWG_CLIENT_NAME}.conf"
-            echo ""
-        fi
-	fi
+    if [ -n "$USER_INPUT" ]; then
+        case "$USER_INPUT" in
+            "y" | "yes" | "Y" | "YES") ;;
+            *) return ;;
+        esac
+    else
+        default_value_autocomplete "y" "$QUESTION"
+    fi
+
+    echo ""
+    printf "${BOLD_FS}Here is your client config file as a QR code: ${DEFAULT_FS}\n"
+    qrencode -t ansiutf8 -l L < "${AWG_CLIENT_CONFIGS_PATH}/${AWG_INTERFACE_NAME}/${AWG_CLIENT_NAME}.conf"
+    echo ""
 }
 
 
