@@ -11,24 +11,6 @@ check_awg_interface_has_free_clients() {
     fi
 }
 
-check_awg_client_name_free() {
-    for FILE in "${AWG_SERVER_TOOLS_PATH}/interfaces/${AWG_INTERFACE_NAME}/clients/"*.data; do
-        if [ ! -f "$FILE" ]; then
-            continue
-        fi
-
-        CLIENT_NAME="${FILE##*/}"
-        CLIENT_NAME="${CLIENT_NAME%.data}"
-
-        if [ "$1" = "$CLIENT_NAME" ]; then
-            return 1
-        fi
-    done
-
-    return 0
-}
-
-
 check_awg_client_ipv4_free() {
     if grep "${1}" "/etc/amnezia/amneziawg/${AWG_INTERFACE_NAME}.conf" > /dev/null 2>&1; then
         return 1
@@ -116,7 +98,7 @@ get_awg_client_name() {
             continue
         fi
 
-        if ! check_awg_client_name_free "$USER_INPUT"; then
+        if check_awg_client_exists "$USER_INPUT"; then
             continue
         fi
 
