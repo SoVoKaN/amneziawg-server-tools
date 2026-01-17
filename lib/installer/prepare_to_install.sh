@@ -20,8 +20,18 @@ confirm_installation() {
     esac
 }
 
+check_has_server_public_ipv6() {
+    POSSIBLE_SERVER_PUBLIC_IPV6=$(ip -6 addr 2>/dev/null | awk '/scope global/ { sub(/\/.*/, "", $2); print $2; exit }')
 
-ask_server_has_ipv6() {
+    if [ -n "$POSSIBLE_SERVER_PUBLIC_IPV6" ]; then
+        return 0
+    fi
+
+    return 1
+}
+
+
+ask_enable_ipv6_support() {
     IPV6_SUPPORT_ENABLED=""
 
     while :; do
@@ -209,7 +219,11 @@ prepare_to_install() {
     echo ""
     printf "${BOLD_FS}Server settings${DEFAULT_FS}\n"
 
-    ask_server_has_ipv6
+    if check_has_server_public_ipv6; then
+        ask_enable_ipv6_support
+    else
+        IPV6_SUPPORT_ENABLED="n"
+    fi
 
     get_server_public_network_interface
 
