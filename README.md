@@ -40,7 +40,7 @@ Run installer:
 ```sh
 cd amneziawg-server-tools
 
-./amneziawg-install.sh
+./install.sh
 ```
 
 <br>
