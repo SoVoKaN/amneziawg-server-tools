@@ -152,6 +152,10 @@ get_awg_client_configs_path() {
                 continue
             fi
 
+            if [ ! -d "$USER_INPUT" ]; then
+                continue
+            fi
+
             AWG_CLIENT_CONFIGS_PATH="$USER_INPUT"
         else
             default_value_autocomplete "$AWG_CLIENT_CONFIGS_PATH" "$QUESTION"
