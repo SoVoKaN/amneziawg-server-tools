@@ -18,15 +18,16 @@ main_menu() {
         echo ""
         echo "1) Manage clients"
         echo "2) Manage interfaces"
+        echo "3) Settings"
         echo ""
         echo "0) Exit"
         echo ""
 
-        printf "Select option [0-2]: "
+        printf "Select option [0-3]: "
 
         handle_user_input
 
-        clean_lines "10"
+        clean_lines "11"
 
         case "$USER_INPUT" in
             "1")
@@ -34,6 +35,9 @@ main_menu() {
                 ;;
             "2")
                 interfaces_menu
+                ;;
+            "3")
+                settings_menu
                 ;;
             "0")
                 break
