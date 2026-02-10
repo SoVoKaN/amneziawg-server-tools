@@ -2,11 +2,11 @@ install_packages() {
     apt-get update
     apt-get install -y linux-headers-$(uname -r)
 
-    if ! command -v curl > /dev/null; then
+    if ! command -v curl > /dev/null 2>&1; then
         apt-get install -y curl
     fi
 
-    if ! command -v gpg > /dev/null; then
+    if ! command -v gpg > /dev/null 2>&1; then
         apt-get install -y gnupg
     fi
 
