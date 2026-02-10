@@ -24,11 +24,11 @@ jobs:
 
           cp -r lib/ amneziawg-server-tools/
 
-          cp amneziawg-install.sh amneziawg-server-tools/
+          cp install.sh amneziawg-server-tools/
 
-          cp amneziawg-manager.sh amneziawg-server-tools/
+          cp manager.sh amneziawg-server-tools/
 
-          cp amneziawg-uninstall.sh amneziawg-server-tools/
+          cp uninstall.sh amneziawg-server-tools/
 
       - name: Prepare zip for draft release
         run: zip -r amneziawg-server-tools-${{ github.ref_name }}.zip amneziawg-server-tools/
