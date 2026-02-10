@@ -6,7 +6,7 @@ This guide will help you create an awg interface and add a client to it.
 Run amneziawg-manager:
 
 ```sh
-./amneziawg-manager.sh
+./manager.sh
 ```
 
 You will see the menu. 
@@ -24,7 +24,7 @@ After all actions, the interface will be ready.
 Run amneziawg-manager:
 
 ```sh
-./amneziawg-manager.sh
+./manager.sh
 ```
 
 In the menu, select "Manage Clients".
