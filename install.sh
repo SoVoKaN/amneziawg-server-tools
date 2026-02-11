@@ -90,15 +90,9 @@ validate_os_ver() {
                 exit 1
             fi
             ;;
-        "fedora")
-            if [ "$VERSION_ID" -ne 41 ]; then
-                echo "Your version of Fedora ${VERSION_ID} is not supported. Please use Fedora 41."
-                exit 1
-            fi
-            ;;
-            *)
-                echo "Your Linux distribution is not supported."
-                exit 1
+        *)
+            echo "Your Linux distribution is not supported."
+            exit 1
             ;;
     esac
 }

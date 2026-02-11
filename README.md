@@ -11,7 +11,6 @@ Allows you to create unlimited awg interfaces, toggle them, manage clients, and 
 ![Alma 9+](https://img.shields.io/badge/Alma_9%2B-dbaf12?logo=almalinux&logoColor=white)
 ![Rocky 9+](https://img.shields.io/badge/Rocky_9%2B-10B981?logo=rockylinux&logoColor=white)
 ![CentOS 9+](https://img.shields.io/badge/CentOS_9%2B-A14F8C?logo=centos&logoColor=white)
-![Fedora 41](https://img.shields.io/badge/Fedora_41-51A2DA?logo=fedora&logoColor=white)
 
 ## Download &amp; Install
 
