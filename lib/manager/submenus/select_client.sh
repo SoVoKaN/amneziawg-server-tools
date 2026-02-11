@@ -90,7 +90,9 @@ select_awg_client_submenu() {
         return 2
     fi
 
-    if [ "$AWG_CLIENTS_COUNT" -gt 15 ]; then
+    get_terminal_rows
+
+    if [ "$((AWG_CLIENTS_COUNT + 7))" -gt "$TERMINAL_ROWS" ]; then
         "$LIMIT_AWG_CLIENTS_EXCEEDED_HANDLER"
         return
     fi
