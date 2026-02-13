@@ -1321,7 +1321,7 @@ reserve_awg_interface_ipv6() {
 }
 
 check_awg_interface_service() {
-    if SYSTEMD_PAGER="" systemctl --no-ask-password status "awg-quick@${AWG_INTERFACE_NAME}" > /dev/null 2>&1; then
+    if systemctl --no-pager --no-ask-password status "awg-quick@${AWG_INTERFACE_NAME}" > /dev/null 2>&1; then
         echo ""
         printf "${GREEN}Interface ${BOLD_FS}\"${AWG_INTERFACE_NAME}\"${DEFAULT_FS} is succesfuly created.${DEFAULT_COLOR}\n"
     else
