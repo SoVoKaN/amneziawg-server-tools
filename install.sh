@@ -141,7 +141,7 @@ main() {
 
     echo ""
     printf "${GREEN}AmneziaWG is succesfuly installed.${DEFAULT_COLOR}\n"
-    printf "You can now add an interface and then add clients using the ${CYAN}amneziawg-manager${DEFAULT_COLOR} tool.\n"
+    printf "You can now add an interface and then add clients using the ${CYAN}manager${DEFAULT_COLOR} tool.\n"
 }
 
 main "$@"
