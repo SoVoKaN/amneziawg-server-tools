@@ -34,11 +34,19 @@ create_awg_interfaces_list() {
                     INTERFACE_COUNT_CLIENTS="0"
                 fi
 
-                ACTIVE_INTERFACES_LIST="${ACTIVE_INTERFACES_LIST}${CURRENT_INTERFACE_NAME} (${INTERFACE_IS_ACTIVE}, Clients: ${INTERFACE_COUNT_CLIENTS}, IPv4: ${AWG_INTERFACE_IPV4}"
+                ACTIVE_INTERFACES_LIST="${ACTIVE_INTERFACES_LIST}${CURRENT_INTERFACE_NAME} (${INTERFACE_IS_ACTIVE}, Clients: ${INTERFACE_COUNT_CLIENTS},"
 
-                if [ "$AWG_INTERFACE_USE_IPV6" = "y" ]; then
-                    ACTIVE_INTERFACES_LIST="${ACTIVE_INTERFACES_LIST}, IPv6: ${AWG_INTERFACE_IPV6}"
-                fi
+                case "$AWG_INTERFACE_IP_VERSION_USE" in
+                    "ipv4")
+                        ACTIVE_INTERFACES_LIST="${ACTIVE_INTERFACES_LIST} IPv4: ${AWG_INTERFACE_IPV4}"
+                        ;;
+                    "ipv6")
+                        ACTIVE_INTERFACES_LIST="${ACTIVE_INTERFACES_LIST} IPv6: ${AWG_INTERFACE_IPV6}"
+                        ;;
+                    "both")
+                        ACTIVE_INTERFACES_LIST="${ACTIVE_INTERFACES_LIST} IPv4: ${AWG_INTERFACE_IPV4}, IPv6: ${AWG_INTERFACE_IPV6}"
+                        ;;
+                esac
 
                 ACTIVE_INTERFACES_LIST="${ACTIVE_INTERFACES_LIST})\n"
 
@@ -46,11 +54,19 @@ create_awg_interfaces_list() {
                 ;;
         esac
 
-        INACTIVE_INTERFACES_LIST="${INACTIVE_INTERFACES_LIST}${CURRENT_INTERFACE_NAME} (${INTERFACE_IS_ACTIVE}, IPv4: ${AWG_INTERFACE_IPV4}"
+        INACTIVE_INTERFACES_LIST="${INACTIVE_INTERFACES_LIST}${CURRENT_INTERFACE_NAME} (${INTERFACE_IS_ACTIVE},"
 
-        if [ "$AWG_INTERFACE_USE_IPV6" = "y" ]; then
-            INACTIVE_INTERFACES_LIST="${INACTIVE_INTERFACES_LIST}, IPv6: ${AWG_INTERFACE_IPV6}"
-        fi
+        case "$AWG_INTERFACE_IP_VERSION_USE" in
+            "ipv4")
+                INACTIVE_INTERFACES_LIST="${INACTIVE_INTERFACES_LIST} IPv4: ${AWG_INTERFACE_IPV4}"
+                ;;
+            "ipv6")
+                INACTIVE_INTERFACES_LIST="${INACTIVE_INTERFACES_LIST} IPv6: ${AWG_INTERFACE_IPV6}"
+                ;;
+            "both")
+                INACTIVE_INTERFACES_LIST="${INACTIVE_INTERFACES_LIST} IPv4: ${AWG_INTERFACE_IPV4}, IPv6: ${AWG_INTERFACE_IPV6}"
+                ;;
+        esac
 
         INACTIVE_INTERFACES_LIST="${INACTIVE_INTERFACES_LIST})\n"
     done

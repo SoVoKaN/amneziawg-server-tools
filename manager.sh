@@ -65,7 +65,7 @@ main() {
 
     check_required_params
 
-    . /etc/amnezia/amneziawg/server-tools/server-tools.conf
+    . /etc/amnezia/amneziawg/server-tools/.server-tools.conf
 
     add_lib "utils" "manager"
 

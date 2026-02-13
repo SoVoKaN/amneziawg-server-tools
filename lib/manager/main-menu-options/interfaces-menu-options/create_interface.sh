@@ -148,7 +148,6 @@ generate_awg_interface_ipv4() {
     AWG_INTERFACE_IPV4="$AWG_INTERFACE_POSSIBLE_IPV4"
 }
 
-
 check_awg_interface_ipv6_free() {
     AWG_CHECK_INTERFACE_IPV6="$1"
 
@@ -278,29 +277,48 @@ generate_awg_interface_ipv6() {
     AWG_INTERFACE_IPV6="$AWG_POSSIBLE_INTERFACE_IPV6"
 }
 
+
 add_awg_interface_firewalld_rules() {
     echo "PostUp = firewall-cmd --zone=public --add-interface=${AWG_INTERFACE_NAME}
 PostUp = firewall-cmd --zone=public --add-port=${AWG_INTERFACE_PORT}/udp" >> "/etc/amnezia/amneziawg/${AWG_INTERFACE_NAME}.conf"
 
-    echo "PostUp = firewall-cmd --direct --add-rule ipv4 filter FORWARD 0 -i ${SERVER_PUBLIC_NETWORK_INTERFACE} -o ${AWG_INTERFACE_NAME} -j ACCEPT
+    case "$AWG_INTERFACE_IP_VERSION_USE" in
+        "ipv4")
+            echo "PostUp = firewall-cmd --direct --add-rule ipv4 filter FORWARD 0 -i ${SERVER_PUBLIC_NETWORK_INTERFACE} -o ${AWG_INTERFACE_NAME} -j ACCEPT
 PostUp = firewall-cmd --direct --add-rule ipv4 filter FORWARD 0 -i ${AWG_INTERFACE_NAME} -o ${SERVER_PUBLIC_NETWORK_INTERFACE} -j ACCEPT
 PostUp = firewall-cmd --direct --add-rule ipv4 nat POSTROUTING 0 -o ${SERVER_PUBLIC_NETWORK_INTERFACE} -j MASQUERADE" >> "/etc/amnezia/amneziawg/${AWG_INTERFACE_NAME}.conf"
 
-    if [ "$AWG_INTERFACE_USE_IPV6" = "y" ]; then
-        echo "PostUp = firewall-cmd --direct --add-rule ipv6 filter FORWARD 0 -i ${SERVER_PUBLIC_NETWORK_INTERFACE} -o ${AWG_INTERFACE_NAME} -j ACCEPT
-PostUp = firewall-cmd --direct --add-rule ipv6 filter FORWARD 0 -i ${AWG_INTERFACE_NAME} -o ${SERVER_PUBLIC_NETWORK_INTERFACE} -j ACCEPT
-PostUp = firewall-cmd --direct --add-rule ipv6 nat POSTROUTING 0 -o ${SERVER_PUBLIC_NETWORK_INTERFACE} -j MASQUERADE" >> "/etc/amnezia/amneziawg/${AWG_INTERFACE_NAME}.conf"
-    fi
-
-    echo "PostDown = firewall-cmd --direct --remove-rule ipv4 nat POSTROUTING 0 -o ${SERVER_PUBLIC_NETWORK_INTERFACE} -j MASQUERADE
+            echo "PostDown = firewall-cmd --direct --remove-rule ipv4 nat POSTROUTING 0 -o ${SERVER_PUBLIC_NETWORK_INTERFACE} -j MASQUERADE
 PostDown = firewall-cmd --direct --remove-rule ipv4 filter FORWARD 0 -i ${AWG_INTERFACE_NAME} -o ${SERVER_PUBLIC_NETWORK_INTERFACE} -j ACCEPT
 PostDown = firewall-cmd --direct --remove-rule ipv4 filter FORWARD 0 -i ${SERVER_PUBLIC_NETWORK_INTERFACE} -o ${AWG_INTERFACE_NAME} -j ACCEPT" >> "/etc/amnezia/amneziawg/${AWG_INTERFACE_NAME}.conf"
+            ;;
+        "ipv6")
+            echo "PostUp = firewall-cmd --direct --add-rule ipv6 filter FORWARD 0 -i ${SERVER_PUBLIC_NETWORK_INTERFACE} -o ${AWG_INTERFACE_NAME} -j ACCEPT
+PostUp = firewall-cmd --direct --add-rule ipv6 filter FORWARD 0 -i ${AWG_INTERFACE_NAME} -o ${SERVER_PUBLIC_NETWORK_INTERFACE} -j ACCEPT
+PostUp = firewall-cmd --direct --add-rule ipv6 nat POSTROUTING 0 -o ${SERVER_PUBLIC_NETWORK_INTERFACE} -j MASQUERADE" >> "/etc/amnezia/amneziawg/${AWG_INTERFACE_NAME}.conf"
 
-    if [ "$AWG_INTERFACE_USE_IPV6" = "y" ]; then
-        echo "PostDown = firewall-cmd --direct --remove-rule ipv6 nat POSTROUTING 0 -o ${SERVER_PUBLIC_NETWORK_INTERFACE} -j MASQUERADE
+            echo "PostDown = firewall-cmd --direct --remove-rule ipv6 nat POSTROUTING 0 -o ${SERVER_PUBLIC_NETWORK_INTERFACE} -j MASQUERADE
 PostDown = firewall-cmd --direct --remove-rule ipv6 filter FORWARD 0 -i ${AWG_INTERFACE_NAME} -o ${SERVER_PUBLIC_NETWORK_INTERFACE} -j ACCEPT
 PostDown = firewall-cmd --direct --remove-rule ipv6 filter FORWARD 0 -i ${SERVER_PUBLIC_NETWORK_INTERFACE} -o ${AWG_INTERFACE_NAME} -j ACCEPT" >> "/etc/amnezia/amneziawg/${AWG_INTERFACE_NAME}.conf"
-    fi
+            ;;
+        "both")
+            echo "PostUp = firewall-cmd --direct --add-rule ipv4 filter FORWARD 0 -i ${SERVER_PUBLIC_NETWORK_INTERFACE} -o ${AWG_INTERFACE_NAME} -j ACCEPT
+PostUp = firewall-cmd --direct --add-rule ipv4 filter FORWARD 0 -i ${AWG_INTERFACE_NAME} -o ${SERVER_PUBLIC_NETWORK_INTERFACE} -j ACCEPT
+PostUp = firewall-cmd --direct --add-rule ipv4 nat POSTROUTING 0 -o ${SERVER_PUBLIC_NETWORK_INTERFACE} -j MASQUERADE" >> "/etc/amnezia/amneziawg/${AWG_INTERFACE_NAME}.conf"
+
+            echo "PostUp = firewall-cmd --direct --add-rule ipv6 filter FORWARD 0 -i ${SERVER_PUBLIC_NETWORK_INTERFACE} -o ${AWG_INTERFACE_NAME} -j ACCEPT
+PostUp = firewall-cmd --direct --add-rule ipv6 filter FORWARD 0 -i ${AWG_INTERFACE_NAME} -o ${SERVER_PUBLIC_NETWORK_INTERFACE} -j ACCEPT
+PostUp = firewall-cmd --direct --add-rule ipv6 nat POSTROUTING 0 -o ${SERVER_PUBLIC_NETWORK_INTERFACE} -j MASQUERADE" >> "/etc/amnezia/amneziawg/${AWG_INTERFACE_NAME}.conf"
+
+            echo "PostDown = firewall-cmd --direct --remove-rule ipv6 nat POSTROUTING 0 -o ${SERVER_PUBLIC_NETWORK_INTERFACE} -j MASQUERADE
+PostDown = firewall-cmd --direct --remove-rule ipv6 filter FORWARD 0 -i ${AWG_INTERFACE_NAME} -o ${SERVER_PUBLIC_NETWORK_INTERFACE} -j ACCEPT
+PostDown = firewall-cmd --direct --remove-rule ipv6 filter FORWARD 0 -i ${SERVER_PUBLIC_NETWORK_INTERFACE} -o ${AWG_INTERFACE_NAME} -j ACCEPT" >> "/etc/amnezia/amneziawg/${AWG_INTERFACE_NAME}.conf"
+
+            echo "PostDown = firewall-cmd --direct --remove-rule ipv4 nat POSTROUTING 0 -o ${SERVER_PUBLIC_NETWORK_INTERFACE} -j MASQUERADE
+PostDown = firewall-cmd --direct --remove-rule ipv4 filter FORWARD 0 -i ${AWG_INTERFACE_NAME} -o ${SERVER_PUBLIC_NETWORK_INTERFACE} -j ACCEPT
+PostDown = firewall-cmd --direct --remove-rule ipv4 filter FORWARD 0 -i ${SERVER_PUBLIC_NETWORK_INTERFACE} -o ${AWG_INTERFACE_NAME} -j ACCEPT" >> "/etc/amnezia/amneziawg/${AWG_INTERFACE_NAME}.conf"
+            ;;
+    esac
 
     echo "PostDown = firewall-cmd --zone=public --remove-port=${AWG_INTERFACE_PORT}/udp
 PostDown = firewall-cmd --zone=public --remove-interface=${AWG_INTERFACE_NAME}
@@ -331,6 +349,7 @@ PostDown = nft list map inet filter amneziawg_ports | awk 'NR == 4 { exit !(/\"/
 
 " >> "/etc/amnezia/amneziawg/${AWG_INTERFACE_NAME}.conf"
 }
+
 
 get_awg_interface_name() {
     generate_awg_interface_name
@@ -375,6 +394,191 @@ get_awg_interface_name() {
             AWG_INTERFACE_NAME="$USER_INPUT"
         else
             default_value_autocomplete "$AWG_INTERFACE_NAME" "$QUESTION"
+        fi
+
+        break
+    done
+}
+
+ask_which_ip_version_use_awg_interface() {
+    AWG_INTERFACE_IP_VERSION_USE="both"
+
+    QUESTION=$(printf 'Which IP version use for interface (ipv4/ipv6/both): [%s]: ' "$AWG_INTERFACE_IP_VERSION_USE")
+
+    while :; do
+        printf "$QUESTION"
+
+        handle_user_input
+
+        if [ -n "$USER_INPUT" ]; then
+            case "$USER_INPUT" in
+                "ipv4" | "IPv4" | "IPV4")
+                    AWG_INTERFACE_IP_VERSION_USE="ipv4"
+                    ;;
+                "ipv6" | "IPv6" | "IPV6")
+                    AWG_INTERFACE_IP_VERSION_USE="ipv6"
+                    ;;
+                "both" | "BOTH")
+                    AWG_INTERFACE_IP_VERSION_USE="both"
+                    ;;
+                *) continue ;;
+            esac
+        else
+            default_value_autocomplete "$AWG_INTERFACE_IP_VERSION_USE" "$QUESTION"
+        fi
+
+        break
+    done
+}
+
+get_awg_interface_ipv4() {
+    generate_awg_interface_ipv4
+
+    QUESTION=$(printf 'IPv4: [%s]: ' "$AWG_INTERFACE_IPV4")
+
+    while :; do
+        printf "$QUESTION"
+
+        handle_user_input
+
+        if [ -n "$USER_INPUT" ]; then
+            if ! validate_ipv4 "$USER_INPUT"; then
+                continue
+            fi
+
+            if [ ${USER_INPUT%%.*} = "0" ]; then
+                continue
+            fi
+
+            if ! check_awg_interface_ipv4_free "$USER_INPUT"; then
+                continue
+            fi
+
+            AWG_INTERFACE_IPV4="$USER_INPUT"
+        else
+            default_value_autocomplete "$AWG_INTERFACE_IPV4" "$QUESTION"
+        fi
+
+        break
+    done
+}
+
+get_awg_interface_ipv6() {
+    generate_awg_interface_ipv6
+
+    QUESTION=$(printf 'IPv6: [%s]: ' "$AWG_INTERFACE_IPV6")
+
+    while :; do
+        printf "$QUESTION"
+
+        handle_user_input
+
+        if [ -n "$USER_INPUT" ]; then
+            if ! validate_ipv6 "$USER_INPUT"; then
+                continue
+            fi
+
+            if ! check_awg_interface_ipv6_free "$USER_INPUT"; then
+                continue
+            fi
+
+            AWG_INTERFACE_IPV6="$USER_INPUT"
+        else
+            default_value_autocomplete "$AWG_INTERFACE_IPV6" "$QUESTION"
+        fi
+
+        break
+    done
+}
+
+get_awg_interface_ip() {
+    case "$AWG_IP_VERSION_SUPPORT_MODE" in
+        "ipv4")
+            AWG_INTERFACE_IP_VERSION_USE="ipv4"
+            ;;
+        "ipv6")
+            AWG_INTERFACE_IP_VERSION_USE="ipv6"
+            ;;
+        "both")
+            ask_which_ip_version_use_awg_interface
+            ;;
+    esac
+
+    case "$AWG_INTERFACE_IP_VERSION_USE" in
+        "ipv4")
+            get_awg_interface_ipv4
+            ;;
+        "ipv6")
+            get_awg_interface_ipv6
+            ;;
+        "both")
+            get_awg_interface_ipv4
+            get_awg_interface_ipv6
+            ;;
+    esac
+}
+
+get_awg_interface_mtu() {
+    SERVER_PUBLIC_NETWORK_INTERFACE_MTU=$(cat /sys/class/net/${SERVER_PUBLIC_NETWORK_INTERFACE}/mtu)
+
+    case "$AWG_INTERFACE_IP_VERSION_USE" in
+        "ipv4")
+            AWG_INTERFACE_MTU=$((SERVER_PUBLIC_NETWORK_INTERFACE_MTU - 100))
+            ;;
+        "ipv6" | "both")
+            AWG_INTERFACE_MTU=$((SERVER_PUBLIC_NETWORK_INTERFACE_MTU - 120))
+            ;;
+    esac
+
+    QUESTION=$(printf 'MTU [%s]: ' "$AWG_INTERFACE_MTU")
+
+    while :; do
+        printf "$QUESTION"
+
+        handle_user_input
+
+        if [ -n "$USER_INPUT" ]; then
+            TEMP="$USER_INPUT"
+
+            ALL_CHARS_CORRECT="1"
+
+            while [ -n "$TEMP" ]; do
+                CHAR=${TEMP%${TEMP#?}}
+
+                case "$CHAR" in
+                    [!0-9])
+                        ALL_CHARS_CORRECT="0"
+                        break
+                        ;;
+                esac
+
+                TEMP=${TEMP#?}
+            done
+
+            if [ "$ALL_CHARS_CORRECT" != "1" ]; then
+                continue
+            fi
+
+            case "$AWG_INTERFACE_IP_VERSION_USE" in
+                "ipv4")
+                    if [ "$USER_INPUT" -lt 576 ]; then
+                        continue
+                    fi
+                    ;;
+                "ipv6" | "both")
+                    if [ "$USER_INPUT" -lt 1280 ]; then
+                        continue
+                    fi
+                    ;;
+            esac
+
+            if [ "$USER_INPUT" -gt 1500 ]; then
+                continue
+            fi
+
+            AWG_INTERFACE_MTU="$USER_INPUT"
+        else
+            default_value_autocomplete "$AWG_INTERFACE_MTU" "$QUESTION"
         fi
 
         break
@@ -429,138 +633,6 @@ get_awg_interface_port() {
         break
     done
 }
-
-get_awg_interface_mtu() {
-    SERVER_PUBLIC_NETWORK_INTERFACE_MTU=$(cat /sys/class/net/${SERVER_PUBLIC_NETWORK_INTERFACE}/mtu)
-    
-    AWG_INTERFACE_MTU=$((SERVER_PUBLIC_NETWORK_INTERFACE_MTU - 120))
-
-    QUESTION=$(printf 'MTU [%s]: ' "$AWG_INTERFACE_MTU")
-
-    while :; do
-        printf "$QUESTION"
-
-        handle_user_input
-
-        if [ -n "$USER_INPUT" ]; then
-            TEMP="$USER_INPUT"
-
-            ALL_CHARS_CORRECT="1"
-
-            while [ -n "$TEMP" ]; do
-                CHAR=${TEMP%${TEMP#?}}
-
-                case "$CHAR" in
-                    [!0-9])
-                        ALL_CHARS_CORRECT="0"
-                        break
-                        ;;
-                esac
-
-                TEMP=${TEMP#?}
-            done
-
-            if [ "$ALL_CHARS_CORRECT" != "1" ]; then
-                continue
-            fi
-
-            if [ "$USER_INPUT" -gt 1500 ]; then
-                continue
-            fi
-
-            AWG_INTERFACE_MTU="$USER_INPUT"
-        else
-            default_value_autocomplete "$AWG_INTERFACE_MTU" "$QUESTION"
-        fi
-
-        break
-    done
-}
-
-get_awg_interface_ipv4() {
-    generate_awg_interface_ipv4
-
-    QUESTION=$(printf 'IPv4: [%s]: ' "$AWG_INTERFACE_IPV4")
-
-    while :; do
-        printf "$QUESTION"
-
-        handle_user_input
-
-        if [ -n "$USER_INPUT" ]; then
-            if ! validate_ipv4 "$USER_INPUT"; then
-                continue
-            fi
-
-            if [ ${USER_INPUT%%.*} = "0" ]; then
-                continue
-            fi
-
-            if ! check_awg_interface_ipv4_free "$USER_INPUT"; then
-                continue
-            fi
-
-            AWG_INTERFACE_IPV4="$USER_INPUT"
-        else
-            default_value_autocomplete "$AWG_INTERFACE_IPV4" "$QUESTION"
-        fi
-
-        break
-    done
-}
-
-ask_use_ipv6_for_interface() {
-    AWG_INTERFACE_USE_IPV6="y"
-
-    QUESTION=$(printf 'Use IPv6 for interface (y/n) [%s]: ' "$AWG_INTERFACE_USE_IPV6")
-
-    while :; do
-        printf "$QUESTION"
-
-        handle_user_input
-
-        if [ -n "$USER_INPUT" ]; then
-            case "$USER_INPUT" in
-                "n" | "no" | "N" | "NO") AWG_INTERFACE_USE_IPV6="n" ;;
-                "y" | "yes" | "Y" | "YES") AWG_INTERFACE_USE_IPV6="y" ;;
-                *) continue ;;
-            esac
-        else
-            default_value_autocomplete "$AWG_INTERFACE_USE_IPV6" "$QUESTION"
-        fi
-
-        break
-    done
-}
-
-get_awg_interface_ipv6() {
-    generate_awg_interface_ipv6
-
-    QUESTION=$(printf 'IPv6: [%s]: ' "$AWG_INTERFACE_IPV6")
-
-    while :; do
-        printf "$QUESTION"
-
-        handle_user_input
-
-        if [ -n "$USER_INPUT" ]; then
-            if ! validate_ipv6 "$USER_INPUT"; then
-                continue
-            fi
-
-            if ! check_awg_interface_ipv6_free "$USER_INPUT"; then
-                continue
-            fi
-
-            AWG_INTERFACE_IPV6="$USER_INPUT"
-        else
-            default_value_autocomplete "$AWG_INTERFACE_IPV6" "$QUESTION"
-        fi
-
-        break
-    done
-}
-
 
 get_awg_interface_jc() {
     AWG_JC=$(awk 'BEGIN { srand(); print int(4 + rand() * (12 - 4 + 1)) }')
@@ -1093,11 +1165,17 @@ create_awg_interface_key_pair() {
 }
 
 save_awg_interface() {
-    AWG_INTERFACE_ADDRESS="${AWG_INTERFACE_IPV4}/24"
-
-    if [ "$AWG_INTERFACE_USE_IPV6" = "y" ]; then
-        AWG_INTERFACE_ADDRESS="${AWG_INTERFACE_ADDRESS}, ${AWG_INTERFACE_IPV6}/64"
-    fi
+    case "$AWG_INTERFACE_IP_VERSION_USE" in
+        "ipv4")
+            AWG_INTERFACE_ADDRESS="${AWG_INTERFACE_IPV4}/24"
+            ;;
+        "ipv6")
+            AWG_INTERFACE_ADDRESS="${AWG_INTERFACE_IPV6}/64"
+            ;;
+        "both")
+            AWG_INTERFACE_ADDRESS="${AWG_INTERFACE_IPV4}/24, ${AWG_INTERFACE_IPV6}/64"
+            ;;
+    esac
 
     echo "[Interface]
 ListenPort = ${AWG_INTERFACE_PORT}
@@ -1127,13 +1205,19 @@ save_awg_interface_data() {
 
     mkdir -p "$AWG_INTERFACE_FOLDER_PATH"
 
-    AWG_INTERFACE_IPS="AWG_INTERFACE_IPV4=\"${AWG_INTERFACE_IPV4}\""
+    case "$AWG_INTERFACE_IP_VERSION_USE" in
+        "ipv4")
+            AWG_INTERFACE_IPS="AWG_INTERFACE_IPV4=\"${AWG_INTERFACE_IPV4}\""
+            ;;
+        "ipv6")
+            AWG_INTERFACE_IPS="AWG_INTERFACE_IPV6=\"${AWG_INTERFACE_IPV6}\""
+            ;;
+        "both")
+            AWG_INTERFACE_IPS="AWG_INTERFACE_IPV4=\"${AWG_INTERFACE_IPV4}\"\nAWG_INTERFACE_IPV6=\"${AWG_INTERFACE_IPV6}\""
+            ;;
+    esac
 
-    if [ "$AWG_INTERFACE_USE_IPV6" = "y" ]; then
-        AWG_INTERFACE_IPS="${AWG_INTERFACE_IPS}\nAWG_INTERFACE_IPV6=\"${AWG_INTERFACE_IPV6}\""
-    fi
-
-    printf "AWG_INTERFACE_USE_IPV6=\"${AWG_INTERFACE_USE_IPV6}\"
+    printf "AWG_INTERFACE_IP_VERSION_USE=\"${AWG_INTERFACE_IP_VERSION_USE}\"
 
 ${AWG_INTERFACE_IPS}
 AWG_INTERFACE_PUBLIC_KEY=\"${AWG_INTERFACE_PUBLIC_KEY}\"
@@ -1148,15 +1232,23 @@ AWG_H2=\"${AWG_H2}\"
 AWG_H3=\"${AWG_H3}\"
 AWG_H4=\"${AWG_H4}\"
 AWG_INTERFACE_MTU=\"${AWG_INTERFACE_MTU}\"
-AWG_INTERFACE_PORT=\"${AWG_INTERFACE_PORT}\"\n" >> "${AWG_INTERFACE_FOLDER_PATH}/${AWG_INTERFACE_NAME}.data"
+AWG_INTERFACE_PORT=\"${AWG_INTERFACE_PORT}\"
+" >> "${AWG_INTERFACE_FOLDER_PATH}/${AWG_INTERFACE_NAME}.data"
 
     reserve_awg_interface_port
 
-    reserve_awg_interface_ipv4
-
-    if [ "$AWG_INTERFACE_USE_IPV6" = "y" ]; then
-        reserve_awg_interface_ipv6
-    fi
+    case "$AWG_INTERFACE_IP_VERSION_USE" in
+        "ipv4")
+            reserve_awg_interface_ipv4
+            ;;
+        "ipv6")
+            reserve_awg_interface_ipv6
+            ;;
+        "both")
+            reserve_awg_interface_ipv4
+            reserve_awg_interface_ipv6
+            ;;
+    esac
 }
 
 reserve_awg_interface_port() {
@@ -1248,21 +1340,11 @@ create_awg_interface() {
 
     get_awg_interface_name
 
-    get_awg_interface_port
+    get_awg_interface_ip
 
     get_awg_interface_mtu
 
-    get_awg_interface_ipv4
-
-    if [ "$IPV6_SUPPORT_ENABLED" = "y" ]; then
-        ask_use_ipv6_for_interface
-    else
-        AWG_INTERFACE_USE_IPV6="n"
-    fi
-
-    if [ "$AWG_INTERFACE_USE_IPV6" = "y" ]; then
-        get_awg_interface_ipv6
-    fi
+    get_awg_interface_port
 
     get_awg_interface_jc
 

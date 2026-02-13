@@ -67,11 +67,17 @@ show_awg_client_qr() {
 
     load_client_data
 
-    AWG_CLIENT_ADDRESS="${AWG_CLIENT_IPV4}/32"
-
-    if [ "$AWG_INTERFACE_USE_IPV6" = "y" ]; then
-        AWG_CLIENT_ADDRESS="${AWG_CLIENT_ADDRESS}, ${AWG_CLIENT_IPV6}/128"
-    fi
+    case "$AWG_INTERFACE_IP_VERSION_USE" in
+        "ipv4")
+            AWG_CLIENT_ADDRESS="${AWG_CLIENT_IPV4}/32"
+            ;;
+        "ipv6")
+            AWG_CLIENT_ADDRESS="${AWG_CLIENT_IPV6}/128"
+            ;;
+        "both")
+            AWG_CLIENT_ADDRESS="${AWG_CLIENT_IPV4}/32, ${AWG_CLIENT_IPV6}/128"
+            ;;
+    esac
 
     {
         echo "[Interface]
@@ -92,8 +98,13 @@ MTU = ${AWG_INTERFACE_MTU}
 [Peer]
 PublicKey = ${AWG_INTERFACE_PUBLIC_KEY}
 PresharedKey = ${AWG_PRESHARED_KEY}
-AllowedIPs = ${AWG_CLIENT_ALLOWED_IPS}
-Endpoint = "${SERVER_PUBLIC_IP_OR_DOMAIN}:${AWG_INTERFACE_PORT}""
+AllowedIPs = ${AWG_CLIENT_ALLOWED_IPS}"
+
+        if validate_ipv4 "$SERVER_PUBLIC_IP_OR_DOMAIN"; then
+            echo "Endpoint = ${SERVER_PUBLIC_IP_OR_DOMAIN}:${AWG_INTERFACE_PORT}"
+        else
+            echo "Endpoint = \[${SERVER_PUBLIC_IP_OR_DOMAIN}\]:${AWG_INTERFACE_PORT}"
+        fi
 
         if [ "$AWG_CLIENT_PERSISTENT_KEEPALIVE" != "0" ]; then
             echo "PersistentKeepalive = ${AWG_CLIENT_PERSISTENT_KEEPALIVE}"

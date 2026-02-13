@@ -20,6 +20,16 @@ confirm_installation() {
     esac
 }
 
+check_has_server_public_ipv4() {
+    POSSIBLE_SERVER_PUBLIC_IPV4=$(ip -4 addr 2>/dev/null | awk '/scope global/ { sub(/\/.*/, "", $2); print $2; exit }')
+
+    if [ -n "$POSSIBLE_SERVER_PUBLIC_IPV4" ]; then
+        return 0
+    fi
+
+    return 1
+}
+
 check_has_server_public_ipv6() {
     POSSIBLE_SERVER_PUBLIC_IPV6=$(ip -6 addr 2>/dev/null | awk '/scope global/ { sub(/\/.*/, "", $2); print $2; exit }')
 
@@ -30,23 +40,51 @@ check_has_server_public_ipv6() {
     return 1
 }
 
-
-ask_enable_ipv6_support() {
-    IPV6_SUPPORT_ENABLED=""
+ask_choose_awg_ip_version_support_mode() {
+    AWG_IP_VERSION_SUPPORT_MODE="both"
 
     while :; do
-        printf 'Enable IPv6 support (y/n): '
+        QUESTION=$(printf 'Choose IP version support mode (ipv4/ipv6/both) [%s]: ' "$AWG_IP_VERSION_SUPPORT_MODE")
+
+        printf '%s' "$QUESTION"
 
         handle_user_input
 
-        case "$USER_INPUT" in
-            "n" | "no" | "N" | "NO") IPV6_SUPPORT_ENABLED="n" ;;
-            "y" | "yes" | "Y" | "YES") IPV6_SUPPORT_ENABLED="y" ;;
-            *) continue ;;
-        esac
+        if [ -n "$USER_INPUT" ]; then
+            case "$USER_INPUT" in
+                "ipv4" | "IPv4" | "IPV4")
+                    AWG_IP_VERSION_SUPPORT_MODE="ipv4"
+                    ;;
+                "ipv6" | "IPv6" | "IPV6")
+                    AWG_IP_VERSION_SUPPORT_MODE="ipv6"
+                    ;;
+                "both" | "BOTH")
+                    AWG_IP_VERSION_SUPPORT_MODE="both"
+                    ;;
+                *) continue ;;
+            esac
+        else
+            default_value_autocomplete "$AWG_IP_VERSION_SUPPORT_MODE" "$QUESTION"
+        fi
 
         break
     done
+}
+
+
+get_awg_ip_version_support_mode() {
+    if check_has_server_public_ipv4; then
+        if check_has_server_public_ipv6; then
+            ask_choose_awg_ip_version_support_mode
+            return
+        fi
+
+        AWG_IP_VERSION_SUPPORT_MODE="ipv4"
+    elif check_has_server_public_ipv6; then
+        AWG_IP_VERSION_SUPPORT_MODE="ipv6"
+    else
+        exit 1
+    fi
 }
 
 get_server_public_network_interface() {
@@ -95,13 +133,21 @@ get_server_public_network_interface() {
 }
 
 get_server_public_ip_or_domain() {
-    SERVER_PUBLIC_IP_OR_DOMAIN=$(ip -4 addr 2>/dev/null | awk '/scope global/ { sub(/\/.*/, "", $2); print $2; exit }')
-
-    if [ "$IPV6_SUPPORT_ENABLED" = "y" ]; then
-        if [ -z "$SERVER_PUBLIC_IP_OR_DOMAIN" ]; then
+    case "$AWG_IP_VERSION_SUPPORT_MODE" in
+        "ipv4")
+            SERVER_PUBLIC_IP_OR_DOMAIN=$(ip -4 addr 2>/dev/null | awk '/scope global/ { sub(/\/.*/, "", $2); print $2; exit }')
+            ;;
+        "ipv6")
             SERVER_PUBLIC_IP_OR_DOMAIN=$(ip -6 addr 2>/dev/null | awk '/scope global/ { sub(/\/.*/, "", $2); print $2; exit }')
-        fi
-    fi
+            ;;
+        "both")
+            SERVER_PUBLIC_IP_OR_DOMAIN=$(ip -4 addr 2>/dev/null | awk '/scope global/ { sub(/\/.*/, "", $2); print $2; exit }')
+
+            if [ -z "$SERVER_PUBLIC_IP_OR_DOMAIN" ]; then
+                SERVER_PUBLIC_IP_OR_DOMAIN=$(ip -6 addr 2>/dev/null | awk '/scope global/ { sub(/\/.*/, "", $2); print $2; exit }')
+            fi
+            ;;
+    esac
 
     while :; do
         QUESTION=$(printf 'Public IPv4/IPv6 address or domain [%s]: ' "$SERVER_PUBLIC_IP_OR_DOMAIN")
@@ -223,11 +269,7 @@ prepare_to_install() {
     echo ""
     printf "${BOLD_FS}Server settings${DEFAULT_FS}\n"
 
-    if check_has_server_public_ipv6; then
-        ask_enable_ipv6_support
-    else
-        IPV6_SUPPORT_ENABLED="n"
-    fi
+    get_awg_ip_version_support_mode
 
     get_server_public_network_interface
 

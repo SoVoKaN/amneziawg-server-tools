@@ -138,11 +138,18 @@ delete_awg_interface_configs() {
 
     free_awg_interface_port "${AWG_INTERFACE_PORT}"
 
-    free_awg_interface_ipv4 "${AWG_INTERFACE_IPV4}"
-
-    if [ "$AWG_INTERFACE_USE_IPV6" = "y" ]; then
-        free_awg_interface_ipv6 "${AWG_INTERFACE_IPV6}"
-    fi
+    case "$AWG_INTERFACE_IP_VERSION_USE" in
+        "ipv4")
+            free_awg_interface_ipv4 "${AWG_INTERFACE_IPV4}"
+            ;;
+        "ipv6")
+            free_awg_interface_ipv6 "${AWG_INTERFACE_IPV6}"
+            ;;
+        "both")
+            free_awg_interface_ipv4 "${AWG_INTERFACE_IPV4}"
+            free_awg_interface_ipv6 "${AWG_INTERFACE_IPV6}"
+            ;;
+    esac
 
     rm -rf "${AWG_SERVER_TOOLS_PATH}/interfaces/${AWG_INTERFACE_NAME}"
 }

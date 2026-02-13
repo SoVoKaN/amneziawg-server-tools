@@ -36,7 +36,6 @@ generate_awg_client_ipv4() {
     AWG_CLIENT_IPV4="$AWG_CLIENT_POSSIBLE_IPV4"
 }
 
-
 check_awg_client_ipv6_free() {
     if grep "${1}" "/etc/amnezia/amneziawg/${AWG_INTERFACE_NAME}.conf" > /dev/null 2>&1; then
         return 1
@@ -193,6 +192,21 @@ get_awg_client_ipv6() {
     done
 }
 
+get_awg_client_ip() {
+    case "$AWG_INTERFACE_IP_VERSION_USE" in
+        "ipv4")
+            get_awg_client_ipv4
+            ;;
+        "ipv6")
+            get_awg_client_ipv6
+            ;;
+        "both")
+            get_awg_client_ipv4
+            get_awg_client_ipv6
+            ;;
+    esac
+}
+
 get_awg_client_ipv4_first_dns() {
     AWG_CLIENT_IPV4_FIRST_DNS="1.1.1.1"
 
@@ -297,6 +311,25 @@ get_awg_client_ipv6_second_dns() {
     done
 }
 
+get_awg_client_dns() {
+    case "$AWG_INTERFACE_IP_VERSION_USE" in
+        "ipv4")
+            get_awg_client_ipv4_first_dns
+            get_awg_client_ipv4_second_dns
+            ;;
+        "ipv6")
+            get_awg_client_ipv6_first_dns
+            get_awg_client_ipv6_second_dns
+            ;;
+        "both")
+            get_awg_client_ipv4_first_dns
+            get_awg_client_ipv4_second_dns
+            get_awg_client_ipv6_first_dns
+            get_awg_client_ipv6_second_dns
+            ;;
+    esac
+}
+
 get_awg_client_persistent_keepalive() {
     AWG_CLIENT_PERSISTENT_KEEPALIVE="25"
     
@@ -343,11 +376,17 @@ get_awg_client_persistent_keepalive() {
 }
 
 get_awg_client_allowed_ips() {
-    AWG_CLIENT_ALLOWED_IPS="0.0.0.0/0"
-
-    if [ "$AWG_INTERFACE_USE_IPV6" = "y" ]; then
-        AWG_CLIENT_ALLOWED_IPS="${AWG_CLIENT_ALLOWED_IPS}, ::/0"
-    fi
+    case "$AWG_INTERFACE_IP_VERSION_USE" in
+        "ipv4")
+            AWG_CLIENT_ALLOWED_IPS="0.0.0.0/0"
+            ;;
+        "ipv6")
+            AWG_CLIENT_ALLOWED_IPS="::/0"
+            ;;
+        "both")
+            AWG_CLIENT_ALLOWED_IPS="0.0.0.0/0, ::/0"
+            ;;
+    esac
 
     QUESTION=$(printf 'Allowed IPs [%s]: ' "$AWG_CLIENT_ALLOWED_IPS")
 
@@ -400,11 +439,17 @@ create_awg_client_key_pair() {
 }
 
 save_awg_client_to_interface_config() {
-    AWG_CLIENT_ADDRESS="${AWG_CLIENT_IPV4}/32"
-
-    if [ "$AWG_INTERFACE_USE_IPV6" = "y" ]; then
-        AWG_CLIENT_ADDRESS="${AWG_CLIENT_ADDRESS}, ${AWG_CLIENT_IPV6}/128"
-    fi
+    case "$AWG_INTERFACE_IP_VERSION_USE" in
+        "ipv4")
+            AWG_CLIENT_ADDRESS="${AWG_CLIENT_IPV4}/32"
+            ;;
+        "ipv6")
+            AWG_CLIENT_ADDRESS="${AWG_CLIENT_IPV6}/128"
+            ;;
+        "both")
+            AWG_CLIENT_ADDRESS="${AWG_CLIENT_IPV4}/32, ${AWG_CLIENT_IPV6}/128"
+            ;;
+    esac
 
     echo "# ${AWG_CLIENT_NAME}
 [Peer]
@@ -417,17 +462,29 @@ AllowedIPs = ${AWG_CLIENT_ADDRESS}
 save_awg_client_config() {
     mkdir -p "${AWG_CLIENT_CONFIGS_PATH}/${AWG_INTERFACE_NAME}"
 
-    AWG_CLIENT_ADDRESS="${AWG_CLIENT_IPV4}/32"
+    case "$AWG_INTERFACE_IP_VERSION_USE" in
+        "ipv4")
+            AWG_CLIENT_ADDRESS="${AWG_CLIENT_IPV4}/32"
+            ;;
+        "ipv6")
+            AWG_CLIENT_ADDRESS="${AWG_CLIENT_IPV6}/128"
+            ;;
+        "both")
+            AWG_CLIENT_ADDRESS="${AWG_CLIENT_IPV4}/32, ${AWG_CLIENT_IPV6}/128"
+            ;;
+    esac
 
-    if [ "$AWG_INTERFACE_USE_IPV6" = "y" ]; then
-        AWG_CLIENT_ADDRESS="${AWG_CLIENT_ADDRESS}, ${AWG_CLIENT_IPV6}/128"
-    fi
-
-    AWG_CLIENT_DNS="${AWG_CLIENT_IPV4_FIRST_DNS}, ${AWG_CLIENT_IPV4_SECOND_DNS}"
-
-    if [ "$AWG_INTERFACE_USE_IPV6" = "y" ]; then
-        AWG_CLIENT_DNS="${AWG_CLIENT_DNS}, ${AWG_CLIENT_IPV6_FIRST_DNS}, ${AWG_CLIENT_IPV6_SECOND_DNS}"
-    fi
+    case "$AWG_INTERFACE_IP_VERSION_USE" in
+        "ipv4")
+            AWG_CLIENT_DNS="${AWG_CLIENT_IPV4_FIRST_DNS}, ${AWG_CLIENT_IPV4_SECOND_DNS}"
+            ;;
+        "ipv6")
+            AWG_CLIENT_DNS="${AWG_CLIENT_IPV6_FIRST_DNS}, ${AWG_CLIENT_IPV6_SECOND_DNS}"
+            ;;
+        "both")
+            AWG_CLIENT_DNS="${AWG_CLIENT_IPV4_FIRST_DNS}, ${AWG_CLIENT_IPV4_SECOND_DNS}, ${AWG_CLIENT_IPV6_FIRST_DNS}, ${AWG_CLIENT_IPV6_SECOND_DNS}"
+            ;;
+    esac
 
     echo "[Interface]
 PrivateKey = ${AWG_CLIENT_PRIVATE_KEY}
@@ -447,8 +504,13 @@ MTU = ${AWG_INTERFACE_MTU}
 [Peer]
 PublicKey = ${AWG_INTERFACE_PUBLIC_KEY}
 PresharedKey = ${AWG_PRESHARED_KEY}
-AllowedIPs = ${AWG_CLIENT_ALLOWED_IPS}
-Endpoint = "${SERVER_PUBLIC_IP_OR_DOMAIN}:${AWG_INTERFACE_PORT}"" > "${AWG_CLIENT_CONFIGS_PATH}/${AWG_INTERFACE_NAME}/${AWG_CLIENT_NAME}.conf"
+AllowedIPs = ${AWG_CLIENT_ALLOWED_IPS}" > "${AWG_CLIENT_CONFIGS_PATH}/${AWG_INTERFACE_NAME}/${AWG_CLIENT_NAME}.conf"
+
+    if validate_ipv4 "$SERVER_PUBLIC_IP_OR_DOMAIN"; then
+        echo "Endpoint = ${SERVER_PUBLIC_IP_OR_DOMAIN}:${AWG_INTERFACE_PORT}" >> "${AWG_CLIENT_CONFIGS_PATH}/${AWG_INTERFACE_NAME}/${AWG_CLIENT_NAME}.conf"
+    else
+        echo "Endpoint = \[${SERVER_PUBLIC_IP_OR_DOMAIN}\]:${AWG_INTERFACE_PORT}" >> "${AWG_CLIENT_CONFIGS_PATH}/${AWG_INTERFACE_NAME}/${AWG_CLIENT_NAME}.conf"
+    fi
 
     if [ "$AWG_CLIENT_PERSISTENT_KEEPALIVE" != "0" ]; then
         echo "PersistentKeepalive = ${AWG_CLIENT_PERSISTENT_KEEPALIVE}" >> "${AWG_CLIENT_CONFIGS_PATH}/${AWG_INTERFACE_NAME}/${AWG_CLIENT_NAME}.conf"
@@ -458,19 +520,31 @@ Endpoint = "${SERVER_PUBLIC_IP_OR_DOMAIN}:${AWG_INTERFACE_PORT}"" > "${AWG_CLIEN
 save_awg_client_data() {
     mkdir -p "${AWG_SERVER_TOOLS_PATH}/interfaces/${AWG_INTERFACE_NAME}/clients"
 
-    AWG_CLIENT_IPS="AWG_CLIENT_IPV4=\"${AWG_CLIENT_IPV4}\""
+    case "$AWG_INTERFACE_IP_VERSION_USE" in
+        "ipv4")
+            AWG_CLIENT_IP="AWG_CLIENT_IPV4=\"${AWG_CLIENT_IPV4}\""
+            ;;
+        "ipv6")
+            AWG_CLIENT_IP="AWG_CLIENT_IPV6=\"${AWG_CLIENT_IPV6}\""
+            ;;
+        "both")
+            AWG_CLIENT_IP="AWG_CLIENT_IPV4=\"${AWG_CLIENT_IPV4}\"\nAWG_CLIENT_IPV6=\"${AWG_CLIENT_IPV6}\""
+            ;;
+    esac
 
-    if [ "$AWG_INTERFACE_USE_IPV6" = "y" ]; then
-        AWG_CLIENT_IPS="${AWG_CLIENT_IPS}\nAWG_CLIENT_IPV6=\"${AWG_CLIENT_IPV6}\""
-    fi
+    case "$AWG_INTERFACE_IP_VERSION_USE" in
+        "ipv4")
+            AWG_CLIENT_DNS="${AWG_CLIENT_IPV4_FIRST_DNS}, ${AWG_CLIENT_IPV4_SECOND_DNS}"
+            ;;
+        "ipv6")
+            AWG_CLIENT_DNS="${AWG_CLIENT_IPV6_FIRST_DNS}, ${AWG_CLIENT_IPV6_SECOND_DNS}"
+            ;;
+        "both")
+            AWG_CLIENT_DNS="${AWG_CLIENT_IPV4_FIRST_DNS}, ${AWG_CLIENT_IPV4_SECOND_DNS}, ${AWG_CLIENT_IPV6_FIRST_DNS}, ${AWG_CLIENT_IPV6_SECOND_DNS}"
+            ;;
+    esac
 
-    AWG_CLIENT_DNS="${AWG_CLIENT_IPV4_FIRST_DNS}, ${AWG_CLIENT_IPV4_SECOND_DNS}"
-
-    if [ "$AWG_INTERFACE_USE_IPV6" = "y" ]; then
-        AWG_CLIENT_DNS="${AWG_CLIENT_DNS}, ${AWG_CLIENT_IPV6_FIRST_DNS}, ${AWG_CLIENT_IPV6_SECOND_DNS}"
-    fi
-
-    printf "${AWG_CLIENT_IPS}
+    printf "${AWG_CLIENT_IP}
 AWG_CLIENT_DNS=\"${AWG_CLIENT_DNS}\"
 AWG_PRESHARED_KEY=\"${AWG_PRESHARED_KEY}\"
 AWG_CLIENT_PUBLIC_KEY=\"${AWG_CLIENT_PUBLIC_KEY}\"
@@ -530,21 +604,9 @@ create_awg_client() {
 
     get_awg_client_name
 
-    get_awg_client_ipv4
+    get_awg_client_ip
 
-    if [ "$AWG_INTERFACE_USE_IPV6" = "y" ]; then
-        get_awg_client_ipv6
-    fi
-
-    get_awg_client_ipv4_first_dns
-
-    get_awg_client_ipv4_second_dns
-
-    if [ "$AWG_INTERFACE_USE_IPV6" = "y" ]; then
-        get_awg_client_ipv6_first_dns
-
-        get_awg_client_ipv6_second_dns
-    fi
+    get_awg_client_dns
 
     get_awg_client_persistent_keepalive
 
