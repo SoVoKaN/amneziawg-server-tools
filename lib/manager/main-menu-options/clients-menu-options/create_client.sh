@@ -147,6 +147,10 @@ get_awg_client_ipv4() {
                 continue
             fi
 
+            if [ ${USER_INPUT##.*} = "255" ]; then
+                continue
+            fi
+
             if ! check_awg_client_ipv4_free "${AWG_CLIENT_IPV4_PREFIX}${USER_INPUT}"; then
                 continue
             fi
