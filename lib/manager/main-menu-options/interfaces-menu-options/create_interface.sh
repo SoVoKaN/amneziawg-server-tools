@@ -277,6 +277,34 @@ generate_awg_interface_ipv6() {
     AWG_INTERFACE_IPV6="$AWG_POSSIBLE_INTERFACE_IPV6"
 }
 
+generate_awg_interface_s_params() {
+    while :; do
+        POSSIBLE_AWG_S1=$(awk '
+        function random_num(min, max) {
+            srand(systime() + 1)
+            return int(rand() * (max - min + 1)) + min
+        }
+        BEGIN {
+            print random_num(15, 150)
+        }')
+
+        POSSIBLE_AWG_S2=$(awk '
+        function random_num(min, max) {
+            srand(systime() + 2)
+            return int(rand() * (max - min + 1)) + min
+        }
+        BEGIN {
+            print random_num(15, 150)
+        }')
+
+        if [ "$((POSSIBLE_AWG_S1 + 56))" -eq "$POSSIBLE_AWG_S2" ]; then
+            continue
+        fi
+
+        break
+    done
+}
+
 
 add_awg_interface_firewalld_rules() {
     echo "PostUp = firewall-cmd --zone=public --add-interface=${AWG_INTERFACE_NAME}
@@ -777,7 +805,7 @@ get_awg_interface_jmax() {
 }
 
 get_awg_interface_s1() {
-    QUESTION=$(printf 'S1 (Required: 1-1132) [%s]: ' "$AWG_S1")
+    QUESTION=$(printf 'S1 (Required: 1-1132) [%s]: ' "$POSSIBLE_AWG_S1")
 
     while :; do
         printf "$QUESTION"
@@ -812,6 +840,7 @@ get_awg_interface_s1() {
 
             AWG_S1="$USER_INPUT"
         else
+            AWG_S1="$POSSIBLE_AWG_S1"
             default_value_autocomplete "$AWG_S1" "$QUESTION"
         fi
 
@@ -820,7 +849,7 @@ get_awg_interface_s1() {
 }
 
 get_awg_interface_s2() {
-    QUESTION=$(printf 'S2 (Required: 1-1188) [%s]: ' "$AWG_S2")
+    QUESTION=$(printf 'S2 (Required: 1-1188) [%s]: ' "$POSSIBLE_AWG_S2")
 
     while :; do
         printf "$QUESTION"
@@ -855,6 +884,7 @@ get_awg_interface_s2() {
 
             AWG_S2="$USER_INPUT"
         else
+            AWG_S2="$POSSIBLE_AWG_S2"
             default_value_autocomplete "$AWG_S2" "$QUESTION"
         fi
 
@@ -1083,34 +1113,6 @@ get_awg_interface_jmin_jmax() {
         if [ "$AWG_JMAX" -le "$AWG_JMIN" ]; then
             echo ""
             printf "${YELLOW}Invalid J values detected — Jmax must be > Jmin. Please re-enter them.${DEFAULT_COLOR}\n"
-            continue
-        fi
-
-        break
-    done
-}
-
-generate_awg_interface_s_params() {
-    while :; do
-        AWG_S1=$(awk '
-        function random_num(min, max) {
-            srand(systime() + 1)
-            return int(rand() * (max - min + 1)) + min
-        }
-        BEGIN {
-            print random_num(15, 150)
-        }')
-
-        AWG_S2=$(awk '
-        function random_num(min, max) {
-            srand(systime() + 2)
-            return int(rand() * (max - min + 1)) + min
-        }
-        BEGIN {
-            print random_num(15, 150)
-        }')
-
-        if [ $((AWG_S1 + 56)) -eq "$AWG_S2" ]; then
             continue
         fi
 
