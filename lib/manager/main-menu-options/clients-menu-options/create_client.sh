@@ -110,7 +110,7 @@ get_awg_client_name() {
 get_awg_client_ipv4() {
     generate_awg_client_ipv4
 
-    QUESTION=$(printf 'IPv4: [%s]: %s' "$AWG_CLIENT_IPV4" "$AWG_CLIENT_IPV4_PREFIX")
+    QUESTION=$(printf 'IPv4 [%s]: %s' "$AWG_CLIENT_IPV4" "$AWG_CLIENT_IPV4_PREFIX")
 
     while :; do
         printf "$QUESTION"
@@ -163,7 +163,7 @@ get_awg_client_ipv4() {
 get_awg_client_ipv6() {
     generate_awg_client_ipv6
 
-    QUESTION=$(printf 'IPv6: [%s]: %s' "$AWG_CLIENT_IPV6" "$AWG_CLIENT_IPV6_PREFIX")
+    QUESTION=$(printf 'IPv6 [%s]: %s' "$AWG_CLIENT_IPV6" "$AWG_CLIENT_IPV6_PREFIX")
 
     while :; do
         printf "$QUESTION"

@@ -403,7 +403,7 @@ get_awg_interface_name() {
 ask_which_ip_version_use_awg_interface() {
     AWG_INTERFACE_IP_VERSION_USE="both"
 
-    QUESTION=$(printf 'Which IP version use for interface (ipv4/ipv6/both): [%s]: ' "$AWG_INTERFACE_IP_VERSION_USE")
+    QUESTION=$(printf 'Which IP version use for interface (ipv4/ipv6/both) [%s]: ' "$AWG_INTERFACE_IP_VERSION_USE")
 
     while :; do
         printf "$QUESTION"
@@ -434,7 +434,7 @@ ask_which_ip_version_use_awg_interface() {
 get_awg_interface_ipv4() {
     generate_awg_interface_ipv4
 
-    QUESTION=$(printf 'IPv4: [%s]: ' "$AWG_INTERFACE_IPV4")
+    QUESTION=$(printf 'IPv4 [%s]: ' "$AWG_INTERFACE_IPV4")
 
     while :; do
         printf "$QUESTION"
@@ -466,7 +466,7 @@ get_awg_interface_ipv4() {
 get_awg_interface_ipv6() {
     generate_awg_interface_ipv6
 
-    QUESTION=$(printf 'IPv6: [%s]: ' "$AWG_INTERFACE_IPV6")
+    QUESTION=$(printf 'IPv6 [%s]: ' "$AWG_INTERFACE_IPV6")
 
     while :; do
         printf "$QUESTION"
