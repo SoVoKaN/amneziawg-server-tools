@@ -557,23 +557,6 @@ AWG_CLIENT_PERSISTENT_KEEPALIVE=\"${AWG_CLIENT_PERSISTENT_KEEPALIVE}\"
 AWG_CLIENT_ALLOWED_IPS=\"${AWG_CLIENT_ALLOWED_IPS}\"\n" > "${AWG_SERVER_TOOLS_PATH}/interfaces/${AWG_INTERFACE_NAME}/clients/${AWG_CLIENT_NAME}.data"
 }
 
-bring_up_awg_client() {
-    ACTIVE_INTERFACES=$(awg show interfaces)
-    ACTIVE_INTERFACES=" ${ACTIVE_INTERFACES} "
-
-    if ! echo "$ACTIVE_INTERFACES" | grep " ${AWG_INTERFACE_NAME} " > /dev/null 2>&1; then
-        return
-    fi
-
-    TEMP_FILE=$(mktemp)
-
-    awg-quick strip "/etc/amnezia/amneziawg/${AWG_INTERFACE_NAME}.conf" > "$TEMP_FILE" 2>/dev/null
-
-    awg syncconf "$AWG_INTERFACE_NAME" "$TEMP_FILE"
-
-    rm "$TEMP_FILE"
-}
-
 ask_to_show_qr() {
     if ! command -v qrencode > /dev/null 2>&1; then
         return
@@ -631,7 +614,7 @@ create_awg_client() {
 
     save_awg_client_data
 
-    bring_up_awg_client
+    awg_sync_clients
 
     ask_to_show_qr
 
