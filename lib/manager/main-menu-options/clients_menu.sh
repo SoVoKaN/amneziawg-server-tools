@@ -34,6 +34,23 @@ get_awg_interface_name_clients_menu() {
     clean_lines "3"
 }
 
+awg_sync_clients() {
+    ACTIVE_INTERFACES=$(awg show interfaces)
+    ACTIVE_INTERFACES=" ${ACTIVE_INTERFACES} "
+
+    if ! echo "$ACTIVE_INTERFACES" | grep " ${AWG_INTERFACE_NAME} " > /dev/null 2>&1; then
+        return
+    fi
+
+    TEMP_FILE=$(mktemp)
+
+    awg-quick strip "/etc/amnezia/amneziawg/${AWG_INTERFACE_NAME}.conf" > "$TEMP_FILE" 2>/dev/null
+
+    awg syncconf "$AWG_INTERFACE_NAME" "$TEMP_FILE"
+
+    rm "$TEMP_FILE"
+}
+
 load_client_data() {
     . "${AWG_SERVER_TOOLS_PATH}/interfaces/${AWG_INTERFACE_NAME}/clients/${AWG_CLIENT_NAME}.data"
 }
