@@ -99,6 +99,7 @@ enable_awg_interface() {
 
     confirm_awg_interface_enable
 
+    echo ""
     start_awg_interface_service
 
     echo ""

@@ -1366,6 +1366,7 @@ create_awg_interface() {
 
     save_awg_interface_data
 
+    echo ""
     start_awg_interface_service
 
     check_awg_interface_service

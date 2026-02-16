@@ -99,6 +99,7 @@ disable_awg_interface() {
 
     confirm_awg_interface_disable
 
+    echo ""
     stop_awg_interface_service
 
     echo ""
