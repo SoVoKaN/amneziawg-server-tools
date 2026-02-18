@@ -12,8 +12,8 @@ get_awg_client_name_delete() {
             exit 1
         fi
 
-        if [ ${#USER_INPUT} -gt 15 ]; then
-            echo "Client name length must be < 16."
+        if [ ${#USER_INPUT} -gt 20 ]; then
+            echo "Client name length must be <= 20."
             exit 1
         fi
 
