@@ -9,30 +9,50 @@ check_has_awg_interface_clients() {
 }
 
 create_clients_list() {
-    CLIENTS_LIST="\"${AWG_INTERFACE_NAME}\" clients\n\n"
+    CLIENTS_LIST=$(awk -v interface_name="$AWG_INTERFACE_NAME" -v ip_version_mode="$AWG_INTERFACE_IP_VERSION_USE" '
+BEGIN {
+    clients_list = "\"" interface_name "\"" " clients" "\\n\\n"
+}
+prev ~ "^###" {
+    if ($0 == "[Peer]") {
+        client_state = "Active"
+    }
+    else if ($0 == "#[Peer]") {
+        client_state = "Inactive"
+    }
+    else { next }
 
-    for CLIENT_DATA_PATH in "${AWG_SERVER_TOOLS_PATH}/interfaces/${AWG_INTERFACE_NAME}/clients/"*.data; do
-        CURRENT_CLIENT_NAME="${CLIENT_DATA_PATH##*/}"
-        CURRENT_CLIENT_NAME="${CURRENT_CLIENT_NAME%.data}"
+    split(prev, name_arr, " ")
 
-        . "$CLIENT_DATA_PATH"
+    clients_list = clients_list name_arr[2] " "
 
-        CLIENTS_LIST="${CLIENTS_LIST}${CURRENT_CLIENT_NAME}"
+    for (i = 0; i < 3; i++) {
+        if (getline <= 0) break
+    }
 
-        case "$AWG_INTERFACE_IP_VERSION_USE" in
-            "ipv4")
-                CLIENTS_LIST="${CLIENTS_LIST} (IPv4: ${AWG_CLIENT_IPV4}"
-                ;;
-            "ipv6")
-                CLIENTS_LIST="${CLIENTS_LIST} (IPv6: ${AWG_CLIENT_IPV6}"
-                ;;
-            "both")
-                CLIENTS_LIST="${CLIENTS_LIST} (IPv4: ${AWG_CLIENT_IPV4}, IPv6: ${AWG_CLIENT_IPV6}"
-                ;;
-        esac
+    if (ip_version_mode == "ipv4") {
+        split($3, ipv4_arr, "/")
 
-        CLIENTS_LIST="${CLIENTS_LIST})\n"
-    done
+        clients_list = clients_list "(" client_state ", IPv4: " ipv4_arr[1] ")" "\\n"
+    }
+    else if (ip_version_mode == "ipv6") {
+        split($3, ipv6_arr, "/")
+
+        clients_list = clients_list "(" client_state ", IPv6: " ipv6_arr[1] ")" "\\n"
+    }
+    else {
+        split($3, ipv4_arr, "/")
+
+        split($4, ipv6_arr, "/")
+
+        clients_list = clients_list "(" client_state ", IPv4: " ipv4_arr[1] ", IPv6: " ipv6_arr[1] ")" "\\n"
+    }
+}
+{ prev = $0 }
+END {
+    print clients_list
+}
+' "/etc/amnezia/amneziawg/${AWG_INTERFACE_NAME}.conf")
 }
 
 print_clients() {

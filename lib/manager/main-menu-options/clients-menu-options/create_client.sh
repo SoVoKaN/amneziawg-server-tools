@@ -455,7 +455,7 @@ save_awg_client_to_interface_config() {
             ;;
     esac
 
-    echo "# ${AWG_CLIENT_NAME}
+    echo "### ${AWG_CLIENT_NAME}
 [Peer]
 PublicKey = ${AWG_CLIENT_PUBLIC_KEY}
 PresharedKey = ${AWG_PRESHARED_KEY}

@@ -1,6 +1,22 @@
-get_awg_client_name_delete() {
+check_awg_client_already_enabled() {
+    awk -v pattern="### ${1}" '
+$0 == pattern {
+    if (getline) {
+        if ($0 == "[Peer]") exit 0
+        else exit 1
+    }
+}' "/etc/amnezia/amneziawg/${AWG_INTERFACE_NAME}.conf"
+
+    if [ "$?" = "1" ]; then
+        return 1
+    fi
+
+    return 0
+}
+
+get_awg_client_name_enable() {
     while :; do
-        printf "${BOLD_FS}Enter client name to delete.${DEFAULT_FS}\n"
+        printf "${BOLD_FS}Enter client name to disable.${DEFAULT_FS}\n"
         printf '%s' "Name: "
 
         handle_user_input
@@ -12,13 +28,18 @@ get_awg_client_name_delete() {
             exit 1
         fi
 
-        if [ ${#USER_INPUT} -gt 15 ]; then
-            echo "Client name length must be < 16."
+        if [ ${#USER_INPUT} -gt 20 ]; then
+            echo "Client name length must be <= 20."
             exit 1
         fi
 
         if ! check_awg_client_exists "$USER_INPUT"; then
             echo "Client \"${USER_INPUT}\" does not exists."
+            exit 1
+        fi
+
+        if check_awg_client_already_enabled "$USER_INPUT"; then
+            echo "Client \"${USER_INPUT}\" is already enabled."
             exit 1
         fi
 
@@ -28,8 +49,8 @@ get_awg_client_name_delete() {
     done
 }
 
-confirm_awg_client_deletion() {
-    QUESTION=$(printf '%s' "This will permanently delete \"${AWG_CLIENT_NAME}\" client. Continue? (y/n): ")
+confirm_awg_client_enable() {
+    QUESTION=$(printf '%s' "This will enable \"${AWG_CLIENT_NAME}\" client. Continue? (y/n): ")
 
     printf '%s' "$QUESTION"
 
@@ -49,42 +70,28 @@ confirm_awg_client_deletion() {
     esac
 }
 
-delete_awg_client_in_interface_config() {
+enable_awg_client_in_config() {
     TEMP_FILE=$(mktemp)
 
-    awk -v n="5" -v pattern="### ${AWG_CLIENT_NAME}" '
-$0 == pattern { skip = n; next }
-skip > 0 { skip--; next }
+    awk -v n="4" -v pattern="### ${AWG_CLIENT_NAME}" '
+$0 == pattern { to_uncomment = n; print; next }
+to_uncomment > 0 { print substr($0, 2); to_uncomment--; next }
 { print }
 ' "/etc/amnezia/amneziawg/${AWG_INTERFACE_NAME}.conf" > "$TEMP_FILE"
 
     mv "$TEMP_FILE" "/etc/amnezia/amneziawg/${AWG_INTERFACE_NAME}.conf"
 }
 
-delete_awg_client_data() {
-    rm -f "${AWG_SERVER_TOOLS_PATH}/interfaces/${AWG_INTERFACE_NAME}/clients/${AWG_CLIENT_NAME}.data"
-}
 
-bring_down_awg_client() {
-    TEMP_FILE=$(mktemp)
-
-    awg-quick strip "/etc/amnezia/amneziawg/${AWG_INTERFACE_NAME}.conf" > "$TEMP_FILE" 2>/dev/null
-
-    awg syncconf "$AWG_INTERFACE_NAME" "$TEMP_FILE"
-
-    rm "$TEMP_FILE"
-}
-
-
-delete_awg_client() {
+enable_awg_client() {
     print_dashes "$((18 + ${#AWG_INTERFACE_NAME}))"
 
-    printf "${BOLD_FS} Delete client [${AWG_INTERFACE_NAME}] ${DEFAULT_FS}\n"
+    printf "${BOLD_FS} Enable Client [${AWG_INTERFACE_NAME}] ${DEFAULT_FS}\n"
 
     print_dashes "$((18 + ${#AWG_INTERFACE_NAME}))"
     echo ""
 
-    if select_awg_client_submenu "get_awg_client_name_delete" "all"; then
+    if select_awg_client_submenu "get_awg_client_name_enable" "inactive"; then
         SUBMENU_RETURN_CODE="0"
     else
         SUBMENU_RETURN_CODE="$?"
@@ -108,15 +115,13 @@ delete_awg_client() {
         return
     fi
 
-    confirm_awg_client_deletion
+    confirm_awg_client_enable
 
-    delete_awg_client_in_interface_config
+    enable_awg_client_in_config
 
-    delete_awg_client_data
-
-    bring_down_awg_client
+    awg_sync_clients
 
     echo ""
-    printf "${GREEN}Client ${BOLD_FS}\"${AWG_CLIENT_NAME}\"${DEFAULT_FS} is succesfuly deleted.${DEFAULT_COLOR}\n"
+    printf "${GREEN}Client ${BOLD_FS}\"${AWG_CLIENT_NAME}\"${DEFAULT_FS} is succesfuly enabled.${DEFAULT_COLOR}\n"
     exit 0
 }

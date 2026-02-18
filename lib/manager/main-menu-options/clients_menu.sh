@@ -92,32 +92,40 @@ clients_menu() {
 
         print_dashes "$((19 + ${#AWG_INTERFACE_NAME}))"
         echo ""
-        echo "1) Create client"
-        echo "2) Delete client"
+        echo "1) Enable client"
+        echo "2) Disable client"
         echo "3) List clients"
-        echo "4) Show client QR"
+        echo "4) Create client"
+        echo "5) Delete client"
+        echo "6) Show client QR"
         echo ""
         echo "0) Back"
         echo ""
 
-        printf "Select option [0-4]: "
+        printf "Select option [0-6]: "
 
         handle_user_input
 
-        clean_lines "12"
+        clean_lines "14"
 
         case "$USER_INPUT" in
             "1")
-                create_awg_client
-                exit 0
+                enable_awg_client
                 ;;
             "2")
-                delete_awg_client
+                disable_awg_client
                 ;;
             "3")
                 list_awg_clients
                 ;;
             "4")
+                create_awg_client
+                exit 0
+                ;;
+            "5")
+                delete_awg_client
+                ;;
+            "6")
                 show_awg_client_qr
                 ;;
             "0")
