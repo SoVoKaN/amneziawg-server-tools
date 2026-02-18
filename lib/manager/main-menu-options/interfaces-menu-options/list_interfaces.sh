@@ -28,7 +28,7 @@ create_awg_interfaces_list() {
             *" ${CURRENT_INTERFACE_NAME} "*)
                 INTERFACE_IS_ACTIVE="Active"
 
-                if INTERFACE_COUNT_CLIENTS_GREP_OUTPUT=$(grep '^\[Peer\]$' /etc/amnezia/amneziawg/${CURRENT_INTERFACE_NAME}.conf); then
+                if INTERFACE_COUNT_CLIENTS_GREP_OUTPUT=$(grep '\[Peer\]' /etc/amnezia/amneziawg/${CURRENT_INTERFACE_NAME}.conf); then
                     INTERFACE_COUNT_CLIENTS=$(echo "$INTERFACE_COUNT_CLIENTS_GREP_OUTPUT" | wc -l)
                 else
                     INTERFACE_COUNT_CLIENTS="0"
