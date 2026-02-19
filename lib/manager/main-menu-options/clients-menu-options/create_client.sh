@@ -11,6 +11,22 @@ check_awg_interface_has_free_clients() {
     fi
 }
 
+generate_awg_client_name() {
+    NUM="1"
+
+    while :; do
+        AWG_POSSIBLE_CLIENT_NAME="${AWG_INTERFACE_NAME}_client${NUM}"
+
+        if check_awg_client_exists "$AWG_POSSIBLE_CLIENT_NAME"; then
+            NUM=$((NUM + 1))
+        else
+            break
+        fi
+    done
+
+    AWG_CLIENT_NAME="$AWG_POSSIBLE_CLIENT_NAME"
+}
+
 check_awg_client_ipv4_free() {
     if grep "${1}" "/etc/amnezia/amneziawg/${AWG_INTERFACE_NAME}.conf" > /dev/null 2>&1; then
         return 1
@@ -63,45 +79,53 @@ generate_awg_client_ipv6() {
 
 
 get_awg_client_name() {
+    generate_awg_client_name
+
+    QUESTION=$(printf 'Name [%s]: ' "$AWG_CLIENT_NAME")
+
     while :; do
-        printf "Name: "
+        printf "$QUESTION"
 
         handle_user_input
 
-        TEMP="$USER_INPUT"
+        if [ -n "$USER_INPUT" ]; then
+            TEMP="$USER_INPUT"
 
-        ALL_CHARS_CORRECT="1"
+            ALL_CHARS_CORRECT="1"
 
-        while [ -n "$TEMP" ]; do
-            CHAR=${TEMP%${TEMP#?}}
+            while [ -n "$TEMP" ]; do
+                CHAR=${TEMP%${TEMP#?}}
 
-            case "$CHAR" in
-                [!a-zA-Z0-9_-])
-                    ALL_CHARS_CORRECT="0"
-                    break
-                    ;;
-            esac
+                case "$CHAR" in
+                    [!a-zA-Z0-9_-])
+                        ALL_CHARS_CORRECT="0"
+                        break
+                        ;;
+                esac
 
-            TEMP=${TEMP#?}
-        done
+                TEMP=${TEMP#?}
+            done
 
-        if [ "$ALL_CHARS_CORRECT" != "1" ]; then
-            continue
+            if [ "$ALL_CHARS_CORRECT" != "1" ]; then
+                continue
+            fi
+
+            if [ ${#USER_INPUT} -lt 1 ]; then
+                continue
+            fi
+
+            if [ ${#USER_INPUT} -gt 20 ]; then
+                continue
+            fi
+
+            if check_awg_client_exists "$USER_INPUT"; then
+                continue
+            fi
+
+            AWG_CLIENT_NAME="$USER_INPUT"
+        else
+            default_value_autocomplete "$AWG_CLIENT_NAME" "$QUESTION"
         fi
-
-        if [ ${#USER_INPUT} -lt 1 ]; then
-            continue
-        fi
-
-        if [ ${#USER_INPUT} -gt 20 ]; then
-            continue
-        fi
-
-        if check_awg_client_exists "$USER_INPUT"; then
-            continue
-        fi
-
-        AWG_CLIENT_NAME="$USER_INPUT"
 
         break
     done
