@@ -52,7 +52,7 @@ handle_common_flags() {
     for ARG in "$@"; do
         case "$ARG" in
             "-v"|"--version")
-                echo "amneziawg-server-tools version ${VERSION}"
+                echo "amneziawg-server-tools version ${AWG_SERVER_TOOLS_VERSION}"
                 exit 0
                 ;;
         esac
