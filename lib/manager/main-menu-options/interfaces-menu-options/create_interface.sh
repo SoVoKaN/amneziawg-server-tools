@@ -669,11 +669,10 @@ get_awg_interface_port() {
 get_awg_interface_jc() {
     AWG_JC=$(awk 'BEGIN { srand(); print int(4 + rand() * (12 - 4 + 1)) }')
 
-    QUESTION=$(printf 'Jc (Required: 1-128) [%s]: ' "$AWG_JC")
+    QUESTION=$(printf 'Jc [%s]: ' "$AWG_JC")
 
     while :; do
         echo ""
-        printf "${BOLD_FS}Recommended range for Jc is from 4 to 12 inclusive.${DEFAULT_FS}\n"
 
         printf "$QUESTION"
 
@@ -717,7 +716,7 @@ get_awg_interface_jc() {
 get_awg_interface_jmin() {
     AWG_JMIN="8"
 
-    QUESTION=$(printf 'Jmin (Required: 1-1280) [%s]: ' "$AWG_JMIN")
+    QUESTION=$(printf 'Jmin [%s]: ' "$AWG_JMIN")
 
     while :; do
         printf "$QUESTION"
@@ -746,7 +745,7 @@ get_awg_interface_jmin() {
                 continue
             fi
 
-            if [ "$USER_INPUT" -lt 1 ] || [ "$USER_INPUT" -gt 1280 ]; then
+            if [ "$USER_INPUT" -lt 1 ] || [ "$USER_INPUT" -gt 1479 ]; then
                 continue
             fi
 
@@ -762,7 +761,7 @@ get_awg_interface_jmin() {
 get_awg_interface_jmax() {
     AWG_JMAX="80"
 
-    QUESTION=$(printf 'Jmax (Required: 1-1280) [%s]: ' "$AWG_JMAX")
+    QUESTION=$(printf 'Jmax [%s]: ' "$AWG_JMAX")
 
     while :; do
         printf "$QUESTION"
@@ -791,7 +790,7 @@ get_awg_interface_jmax() {
                 continue
             fi
 
-            if [ "$USER_INPUT" -lt 1 ] || [ "$USER_INPUT" -gt 1280 ]; then
+            if [ "$USER_INPUT" -lt 1 ] || [ "$USER_INPUT" -gt 1480 ]; then
                 continue
             fi
 
@@ -805,7 +804,7 @@ get_awg_interface_jmax() {
 }
 
 get_awg_interface_s1() {
-    QUESTION=$(printf 'S1 (Required: 1-1132) [%s]: ' "$POSSIBLE_AWG_S1")
+    QUESTION=$(printf 'S1 [%s]: ' "$POSSIBLE_AWG_S1")
 
     while :; do
         printf "$QUESTION"
@@ -834,7 +833,7 @@ get_awg_interface_s1() {
                 continue
             fi
 
-            if [ "$USER_INPUT" -lt 1 ] || [ "$USER_INPUT" -gt 1132 ]; then
+            if [ "$USER_INPUT" -lt 1 ] || [ "$USER_INPUT" -gt 65535 ]; then
                 continue
             fi
 
@@ -849,7 +848,7 @@ get_awg_interface_s1() {
 }
 
 get_awg_interface_s2() {
-    QUESTION=$(printf 'S2 (Required: 1-1188) [%s]: ' "$POSSIBLE_AWG_S2")
+    QUESTION=$(printf 'S2 [%s]: ' "$POSSIBLE_AWG_S2")
 
     while :; do
         printf "$QUESTION"
@@ -878,7 +877,7 @@ get_awg_interface_s2() {
                 continue
             fi
 
-            if [ "$USER_INPUT" -lt 1 ] || [ "$USER_INPUT" -gt 1188 ]; then
+            if [ "$USER_INPUT" -lt 1 ] || [ "$USER_INPUT" -gt 65535 ]; then
                 continue
             fi
 
@@ -902,7 +901,7 @@ get_awg_interface_h1() {
         print random_num(5, 2147483647)
     }')
 
-    QUESTION=$(printf 'H1 (Required: 5-2147483647) [%s]: ' "$AWG_H1")
+    QUESTION=$(printf 'H1 [%s]: ' "$AWG_H1")
 
     while :; do
         printf "$QUESTION"
@@ -954,7 +953,7 @@ get_awg_interface_h2() {
         print random_num(5, 2147483647)
     }')
 
-    QUESTION=$(printf 'H2 (Required: 5-2147483647) [%s]: ' "$AWG_H2")
+    QUESTION=$(printf 'H2 [%s]: ' "$AWG_H2")
 
     while :; do
         printf "$QUESTION"
@@ -1006,7 +1005,7 @@ get_awg_interface_h3() {
         print random_num(5, 2147483647)
     }')
 
-    QUESTION=$(printf 'H3 (Required: 5-2147483647) [%s]: ' "$AWG_H3")
+    QUESTION=$(printf 'H3 [%s]: ' "$AWG_H3")
 
     while :; do
         printf "$QUESTION"
@@ -1058,7 +1057,7 @@ get_awg_interface_h4() {
         print random_num(5, 2147483647)
     }')
 
-    QUESTION=$(printf 'H4 (Required: 5-2147483647) [%s]: ' "$AWG_H4")
+    QUESTION=$(printf 'H4 [%s]: ' "$AWG_H4")
 
     while :; do
         printf "$QUESTION"
@@ -1103,9 +1102,6 @@ get_awg_interface_h4() {
 
 get_awg_interface_jmin_jmax() {
     while :; do
-        echo ""
-        printf "${BOLD_FS}Required Jmin < Jmax. Recommended values Jmin = 8, Jmax = 80.${DEFAULT_FS}\n"
-
         get_awg_interface_jmin
 
         get_awg_interface_jmax
@@ -1124,9 +1120,6 @@ get_awg_interface_s_params() {
     generate_awg_interface_s_params
 
     while :; do
-        echo ""
-        printf "${BOLD_FS}Required S1 + 56 ≠ S2. Recommended range for S1 and S2 is from 15 to 150 inclusive.${DEFAULT_FS}\n"
-
         get_awg_interface_s1
 
         get_awg_interface_s2
@@ -1143,9 +1136,6 @@ get_awg_interface_s_params() {
 
 get_awg_interface_h_params() {
     while :; do
-        echo ""
-        printf "${BOLD_FS}Each H parameter must be unique.${DEFAULT_FS}\n"
-
         get_awg_interface_h1
 
         get_awg_interface_h2
