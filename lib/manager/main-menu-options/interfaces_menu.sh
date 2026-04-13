@@ -23,13 +23,13 @@ load_interface_data() {
 }
 
 start_awg_interface_service() {
-    systemctl start "awg-quick@${AWG_INTERFACE_NAME}"
-    systemctl enable "awg-quick@${AWG_INTERFACE_NAME}"
+    systemctl start "awg-quick@${1}"
+    systemctl enable "awg-quick@${1}"
 }
 
 stop_awg_interface_service() {
-    systemctl stop "awg-quick@${AWG_INTERFACE_NAME}"
-    systemctl disable "awg-quick@${AWG_INTERFACE_NAME}"
+    systemctl stop "awg-quick@${1}"
+    systemctl disable "awg-quick@${1}"
 }
 
 

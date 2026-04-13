@@ -100,7 +100,7 @@ enable_awg_interface() {
     confirm_awg_interface_enable
 
     echo ""
-    start_awg_interface_service
+    start_awg_interface_service "$AWG_INTERFACE_NAME"
 
     echo ""
     printf "${GREEN}Interface ${BOLD_FS}\"${AWG_INTERFACE_NAME}\"${DEFAULT_FS} is succesfuly enabled.${DEFAULT_COLOR}\n"

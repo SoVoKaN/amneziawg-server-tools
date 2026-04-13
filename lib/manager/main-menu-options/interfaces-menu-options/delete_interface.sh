@@ -188,7 +188,7 @@ delete_awg_interface() {
     confirm_awg_interface_deletion
 
     echo ""
-    stop_awg_interface_service
+    stop_awg_interface_service "$AWG_INTERFACE_NAME"
 
     delete_awg_interface_configs
 

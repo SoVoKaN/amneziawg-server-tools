@@ -1335,7 +1335,7 @@ create_awg_interface() {
     save_awg_interface_data
 
     echo ""
-    start_awg_interface_service
+    start_awg_interface_service "$AWG_INTERFACE_NAME"
 
     check_awg_interface_service
 }
