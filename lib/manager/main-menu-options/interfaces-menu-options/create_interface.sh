@@ -1,32 +1,10 @@
-check_awg_interface_name_free() {
-    if grep "${1}:" /proc/net/dev > /dev/null 2>&1; then
-        return 1
-    fi
-
-
-    for DIR in "${AWG_SERVER_TOOLS_PATH}/interfaces"/*/; do
-        if [ ! -d "$DIR" ]; then
-            continue
-        fi
-
-        CURRENT_INTERFACE_NAME="${DIR%/}"
-        CURRENT_INTERFACE_NAME="${CURRENT_INTERFACE_NAME##*/}"
-
-        if [ "$1" = "$CURRENT_INTERFACE_NAME" ]; then
-            return 1
-        fi
-    done
-
-    return 0
-}
-
 generate_awg_interface_name() {
     NUM="0"
 
     while :; do
         AWG_POSSIBLE_INTERFACE_NAME="awg${NUM}"
 
-        if ! check_awg_interface_name_free "$AWG_POSSIBLE_INTERFACE_NAME"; then
+        if ! check_interface_name_free "$AWG_POSSIBLE_INTERFACE_NAME" || check_awg_interface_exists "$USER_INPUT"; then
             NUM=$((NUM + 1))
         else
             break
@@ -415,7 +393,7 @@ get_awg_interface_name() {
                 continue
             fi
 
-            if ! check_awg_interface_name_free "$USER_INPUT"; then
+            if ! check_interface_name_free "$USER_INPUT" || check_awg_interface_exists "$USER_INPUT"; then
                 continue
             fi
 

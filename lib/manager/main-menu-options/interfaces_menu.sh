@@ -1,3 +1,11 @@
+check_interface_name_free() {
+    if grep "${1}:" /proc/net/dev > /dev/null 2>&1; then
+        return 1
+    fi
+
+    return 0
+}
+
 check_awg_interface_exists() {
     if [ -f "/etc/amnezia/amneziawg/${1}.conf" ]; then
         return 0
