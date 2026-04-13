@@ -44,15 +44,16 @@ interfaces_menu() {
         echo "3) List interfaces"
         echo "4) Create interface"
         echo "5) Delete interface"
+        echo "6) Rename interface"
         echo ""
         echo "0) Back"
         echo ""
 
-        printf "Select option [0-5]: "
+        printf "Select option [0-6]: "
 
         handle_user_input
 
-        clean_lines "13"
+        clean_lines "14"
 
         case "$USER_INPUT" in
             "1")
@@ -70,6 +71,9 @@ interfaces_menu() {
                 ;;
             "5")
                 delete_awg_interface
+                ;;
+            "6")
+                rename_interface
                 ;;
             "0")
                 break
