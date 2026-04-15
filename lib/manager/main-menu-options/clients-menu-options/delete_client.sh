@@ -65,16 +65,6 @@ delete_awg_client_data() {
     rm -f "${AWG_SERVER_TOOLS_PATH}/interfaces/${AWG_INTERFACE_NAME}/clients/${AWG_CLIENT_NAME}.data"
 }
 
-bring_down_awg_client() {
-    TEMP_FILE=$(mktemp)
-
-    awg-quick strip "/etc/amnezia/amneziawg/${AWG_INTERFACE_NAME}.conf" > "$TEMP_FILE" 2>/dev/null
-
-    awg syncconf "$AWG_INTERFACE_NAME" "$TEMP_FILE"
-
-    rm "$TEMP_FILE"
-}
-
 
 delete_awg_client() {
     print_dashes "$((18 + ${#AWG_INTERFACE_NAME}))"
@@ -114,7 +104,7 @@ delete_awg_client() {
 
     delete_awg_client_data
 
-    bring_down_awg_client
+    awg_sync_clients
 
     echo ""
     printf "${GREEN}Client ${BOLD_FS}\"${AWG_CLIENT_NAME}\"${DEFAULT_FS} is succesfuly deleted.${DEFAULT_COLOR}\n"
