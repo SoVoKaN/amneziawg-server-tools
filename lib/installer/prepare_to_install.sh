@@ -1,25 +1,3 @@
-confirm_installation() {
-    QUESTION=$(printf '%s' "Do you want to continue with installation (y/n): ")
-
-    printf '%s' "$QUESTION"
-
-    handle_user_input
-
-    if [ -z "$USER_INPUT" ]; then
-        default_value_autocomplete "n" "$QUESTION"
-    fi
-
-    echo ""
-
-    case "$USER_INPUT" in
-        "y" | "yes" | "Y" | "YES") ;;
-        *)
-            echo "Aborted."
-            exit 0
-            ;;
-    esac
-}
-
 check_has_server_public_ipv4() {
     POSSIBLE_SERVER_PUBLIC_IPV4=$(ip -4 addr 2>/dev/null | awk '/scope global/ { sub(/\/.*/, "", $2); print $2; exit }')
 
@@ -257,9 +235,6 @@ is_ready_to_continue() {
 
 
 prepare_to_install() {
-    confirm_installation
-
-    echo ""
     printf "Options require input. Default value is shown in [brackets] — press ${BOLD_FS}Enter${DEFAULT_FS} to ${GREEN}accept${DEFAULT_COLOR} it.\n"
 
     echo ""
