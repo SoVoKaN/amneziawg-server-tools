@@ -21,14 +21,6 @@ check_awg_interface_port_free() {
 
     AWG_POSSIBLE_INTERFACE_PORT_HEX=$(printf '%04X' "$1")
 
-    if grep ":${AWG_POSSIBLE_INTERFACE_PORT_HEX}" /proc/net/tcp > /dev/null 2>&1; then
-        return 1
-    fi
-
-    if grep ":${AWG_POSSIBLE_INTERFACE_PORT_HEX}" /proc/net/tcp6 > /dev/null 2>&1; then
-        return 1
-    fi
-
     if grep ":${AWG_POSSIBLE_INTERFACE_PORT_HEX}" /proc/net/udp > /dev/null 2>&1; then
         return 1
     fi
