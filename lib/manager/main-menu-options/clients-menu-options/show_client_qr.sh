@@ -99,7 +99,7 @@ PresharedKey = ${AWG_PRESHARED_KEY}
 AllowedIPs = ${AWG_CLIENT_ALLOWED_IPS}"
 
         if validate_ipv6 "$SERVER_PUBLIC_IP_OR_DOMAIN"; then
-            echo "Endpoint = \[${SERVER_PUBLIC_IP_OR_DOMAIN}\]:${AWG_INTERFACE_PORT}"
+            echo "Endpoint = [${SERVER_PUBLIC_IP_OR_DOMAIN}]:${AWG_INTERFACE_PORT}"
         else
             echo "Endpoint = ${SERVER_PUBLIC_IP_OR_DOMAIN}:${AWG_INTERFACE_PORT}"
         fi
