@@ -19,7 +19,6 @@ remove_config_files() {
     rm -rf "/etc/amnezia/amneziawg"
 }
 
-
 uninstall_modules() {
     add_uninstallation_scripts
 

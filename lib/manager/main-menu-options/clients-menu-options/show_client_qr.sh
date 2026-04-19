@@ -35,9 +35,7 @@ show_awg_client_qr() {
     fi
 
     print_dashes "$((19 + ${#AWG_INTERFACE_NAME}))"
-
     printf "${BOLD_FS} Show client QR [${AWG_INTERFACE_NAME}] ${DEFAULT_FS}\n"
-
     print_dashes "$((19 + ${#AWG_INTERFACE_NAME}))"
     echo ""
 

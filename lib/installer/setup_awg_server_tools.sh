@@ -25,11 +25,9 @@ create_files() {
 
 save_server_tools_config() {
     echo "AWG_IP_VERSION_SUPPORT_MODE=\"${AWG_IP_VERSION_SUPPORT_MODE}\"
-
 SERVER_PUBLIC_NETWORK_INTERFACE=\"${SERVER_PUBLIC_NETWORK_INTERFACE}\"
 SERVER_PUBLIC_IP_OR_DOMAIN=\"${SERVER_PUBLIC_IP_OR_DOMAIN}\"
 AWG_CLIENT_CONFIGS_PATH=\"${AWG_CLIENT_CONFIGS_PATH}\"
-
 AWG_SERVER_TOOLS_PATH=\"${AWG_SERVER_TOOLS_PATH}\"" > "${AWG_SERVER_TOOLS_PATH}/.server-tools.conf"
 }
 
@@ -49,7 +47,6 @@ net.ipv6.conf.all.forwarding = 1" > "/etc/sysctl.d/amneziawg.conf"
 
     sysctl --system > /dev/null 2>&1
 }
-
 
 setup_awg_server_tools() {
     AWG_SERVER_TOOLS_PATH="/etc/amnezia/amneziawg/server-tools"

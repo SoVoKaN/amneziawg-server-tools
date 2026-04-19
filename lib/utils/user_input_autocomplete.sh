@@ -1,10 +1,7 @@
 default_value_autocomplete() {
     DEFAULT_VALUE="$1"
-
     QUESTION="$2"
-
     DEFAULT_VALUE_LENGTH="${#DEFAULT_VALUE}"
-
     QUESTION_LENGTH="${#QUESTION}"
 
     cursor_move_up "1"

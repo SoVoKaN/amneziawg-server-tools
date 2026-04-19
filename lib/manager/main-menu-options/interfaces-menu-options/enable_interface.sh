@@ -66,7 +66,6 @@ confirm_awg_interface_enable() {
     esac
 }
 
-
 enable_awg_interface() {
     echo "------------------"
     printf "${BOLD_FS} Enable Interface ${DEFAULT_FS}\n"

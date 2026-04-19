@@ -26,7 +26,6 @@ add_lib() {
     done
 }
 
-
 check_root() {
     if [ $(id -u) -ne 0 ]; then
         echo "This script must be run as root."
@@ -97,7 +96,6 @@ validate_os_ver() {
     esac
 }
 
-
 check_required_params() {
     check_root
     check_awg_already_installed
@@ -105,7 +103,6 @@ check_required_params() {
     check_os
     validate_os_ver
 }
-
 
 handle_common_flags() {
     for ARG in "$@"; do
@@ -118,7 +115,6 @@ handle_common_flags() {
     done
 }
 
-
 main() {
     handle_common_flags "$@"
 
@@ -127,9 +123,7 @@ main() {
     add_lib "utils" "installer"
 
     print_dashes "$((22 + ${#AWG_SERVER_TOOLS_VERSION}))"
-
     printf "${BOLD_FS} AmneziaWG Installer ${AWG_SERVER_TOOLS_VERSION} ${DEFAULT_FS} -> https://github.com/SoVoKaN/amneziawg-server-tools\n"
-
     print_dashes "$((22 + ${#AWG_SERVER_TOOLS_VERSION}))"
     echo ""
 

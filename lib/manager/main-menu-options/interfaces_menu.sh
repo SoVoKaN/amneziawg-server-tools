@@ -32,7 +32,6 @@ stop_awg_interface_service() {
     systemctl disable "awg-quick@${1}"
 }
 
-
 interfaces_menu() {
     while :; do
         echo "-------------------"

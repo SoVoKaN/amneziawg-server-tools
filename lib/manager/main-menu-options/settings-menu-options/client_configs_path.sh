@@ -77,7 +77,6 @@ change_config_awg_client_configs_path() {
     mv "$TEMP_FILE" "${AWG_SERVER_TOOLS_PATH}/server-tools.conf"
 }
 
-
 change_awg_client_configs_path() {
     echo "----------------------------"
     printf "${BOLD_FS} Change client configs path${DEFAULT_FS}\n"

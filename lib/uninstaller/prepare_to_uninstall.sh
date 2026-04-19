@@ -36,7 +36,6 @@ disable_routing() {
     sysctl --system > /dev/null 2>&1
 }
 
-
 prepare_to_uninstall() {
     confirm_uninstallation
 

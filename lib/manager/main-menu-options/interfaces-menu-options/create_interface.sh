@@ -14,12 +14,10 @@ generate_awg_interface_name() {
     AWG_INTERFACE_NAME="$AWG_POSSIBLE_INTERFACE_NAME"
 }
 
-
 check_awg_interface_port_free() {
     if grep "^${1}$" "${AWG_SERVER_TOOLS_PATH}/interfaces/.ports_reserved" > /dev/null 2>&1; then
         return 1
     fi
-
 
     AWG_POSSIBLE_INTERFACE_PORT_HEX=$(printf '%04X' "$1")
 
@@ -38,7 +36,6 @@ check_awg_interface_port_free() {
     if grep ":${AWG_POSSIBLE_INTERFACE_PORT_HEX}" /proc/net/udp6 > /dev/null 2>&1; then
         return 1
     fi
-
 
     return 0
 }
@@ -66,12 +63,10 @@ generate_awg_interface_port() {
     AWG_INTERFACE_PORT="$AWG_POSSIBLE_INTERFACE_PORT"
 }
 
-
 check_awg_interface_ipv4_free() {
     if grep "^${1}$" "${AWG_SERVER_TOOLS_PATH}/interfaces/.ipv4_reserved" > /dev/null 2>&1; then
         return 1
     fi
-
 
     AWG_CHECK_INTERFACE_IPV4="$1"
 
@@ -86,7 +81,6 @@ check_awg_interface_ipv4_free() {
     AWG_CHECK_INTERFACE_IPV4_THIRD_PART=${AWG_CHECK_INTERFACE_IPV4%%.*}
 
     AWG_CHECK_INTERFACE_IPV4_FOURTH_PART=${AWG_CHECK_INTERFACE_IPV4#*.}
-    
 
     AWG_POSSIBLE_INTERFACE_IPV4_HEX=$(printf '%02X%02X%02X%02X' "$AWG_CHECK_INTERFACE_IPV4_FOURTH_PART" "$AWG_CHECK_INTERFACE_IPV4_THIRD_PART" "$AWG_CHECK_INTERFACE_IPV4_SECOND_PART" "$AWG_CHECK_INTERFACE_IPV4_FIRST_PART")
 
@@ -97,7 +91,6 @@ check_awg_interface_ipv4_free() {
     if grep "${AWG_POSSIBLE_INTERFACE_IPV4_HEX}:" /proc/net/udp > /dev/null 2>&1; then
         return 1
     fi
-
 
     return 0
 }
@@ -136,7 +129,6 @@ check_awg_interface_ipv6_free() {
         AWG_CHECK_INTERFACE_IPV6_RIGHT_SIDE=""
     fi
 
-
     IFS=":"
 
     AWG_CHECK_INTERFACE_IPV6_LEFT_SIDE_PARTS_COUNT="0"
@@ -148,7 +140,6 @@ check_awg_interface_ipv6_free() {
     for PART in $AWG_CHECK_INTERFACE_IPV6_RIGHT_SIDE; do
         AWG_CHECK_INTERFACE_IPV6_RIGHT_SIDE_PARTS_COUNT=$((AWG_CHECK_INTERFACE_IPV6_RIGHT_SIDE_PARTS_COUNT + 1))
     done
-
 
     AWG_CHECK_INTERFACE_IPV6_LEFT_SIDE_PARTS_PROCESSED=""
 
@@ -168,7 +159,6 @@ check_awg_interface_ipv6_free() {
         done
     fi
 
-
     AWG_CHECK_INTERFACE_IPV6_MISSING_PARTS=$((8 - AWG_CHECK_INTERFACE_IPV6_LEFT_SIDE_PARTS_COUNT - AWG_CHECK_INTERFACE_IPV6_RIGHT_SIDE_PARTS_COUNT))
 
     while [ "$AWG_CHECK_INTERFACE_IPV6_MISSING_PARTS" -gt 0 ]; do
@@ -176,7 +166,6 @@ check_awg_interface_ipv6_free() {
         
         AWG_CHECK_INTERFACE_IPV6_MISSING_PARTS=$((AWG_CHECK_INTERFACE_IPV6_MISSING_PARTS - 1))
     done
-    
 
     AWG_CHECK_INTERFACE_IPV6_ALL_PARTS="${AWG_CHECK_INTERFACE_IPV6_LEFT_SIDE_PARTS_PROCESSED}${AWG_CHECK_INTERFACE_IPV6_RIGHT_SIDE_PARTS_PROCESSED}"
 
@@ -187,7 +176,6 @@ check_awg_interface_ipv6_free() {
     if grep "^${AWG_CHECK_INTERFACE_IPV6_ALL_PARTS}$" "${AWG_SERVER_TOOLS_PATH}/interfaces/.ipv6_reserved" > /dev/null 2>&1; then
         return 1
     fi
-
 
     AWG_POSSIBLE_INTERFACE_IPV6_HEX=""
 
@@ -224,7 +212,6 @@ check_awg_interface_ipv6_free() {
         NUM=$((NUM - 1))
     done
 
-
     if grep "${AWG_POSSIBLE_INTERFACE_IPV6_HEX}:" /proc/net/tcp6 > /dev/null 2>&1; then
         return 1
     fi
@@ -232,7 +219,6 @@ check_awg_interface_ipv6_free() {
     if grep "${AWG_POSSIBLE_INTERFACE_IPV6_HEX}:" /proc/net/udp6 > /dev/null 2>&1; then
         return 1
     fi
-
 
     return 0
 }
@@ -282,7 +268,6 @@ generate_awg_interface_s_params() {
         break
     done
 }
-
 
 add_awg_interface_firewalld_rules() {
     echo "PostUp = firewall-cmd --zone=public --add-interface=${AWG_INTERFACE_NAME}
@@ -355,7 +340,6 @@ PostDown = nft list map inet filter amneziawg_ports | awk 'NR == 4 { exit !(/\"/
 
 " >> "/etc/amnezia/amneziawg/${AWG_INTERFACE_NAME}.conf"
 }
-
 
 get_awg_interface_name() {
     generate_awg_interface_name
@@ -1077,7 +1061,6 @@ get_awg_interface_h4() {
     done
 }
 
-
 get_awg_interface_jmin_jmax() {
     while :; do
         get_awg_interface_jmin
@@ -1134,7 +1117,6 @@ get_awg_interface_h_params() {
 
 create_awg_interface_key_pair() {
     AWG_INTERFACE_PRIVATE_KEY=$(awg genkey)
-
     AWG_INTERFACE_PUBLIC_KEY=$(echo "${AWG_INTERFACE_PRIVATE_KEY}" | awg pubkey)
 }
 
@@ -1243,7 +1225,6 @@ reserve_awg_interface_ipv6() {
         AWG_CHECK_INTERFACE_IPV6_RIGHT_SIDE=""
     fi
 
-
     IFS=":"
 
     AWG_CHECK_INTERFACE_IPV6_LEFT_SIDE_PARTS_COUNT="0"
@@ -1255,7 +1236,6 @@ reserve_awg_interface_ipv6() {
     for PART in $AWG_CHECK_INTERFACE_IPV6_RIGHT_SIDE; do
         AWG_CHECK_INTERFACE_IPV6_RIGHT_SIDE_PARTS_COUNT=$((AWG_CHECK_INTERFACE_IPV6_RIGHT_SIDE_PARTS_COUNT + 1))
     done
-
 
     AWG_CHECK_INTERFACE_IPV6_LEFT_SIDE_PARTS_PROCESSED=""
 
@@ -1275,7 +1255,6 @@ reserve_awg_interface_ipv6() {
         done
     fi
 
-
     AWG_CHECK_INTERFACE_IPV6_MISSING_PARTS=$((8 - AWG_CHECK_INTERFACE_IPV6_LEFT_SIDE_PARTS_COUNT - AWG_CHECK_INTERFACE_IPV6_RIGHT_SIDE_PARTS_COUNT))
 
     while [ "$AWG_CHECK_INTERFACE_IPV6_MISSING_PARTS" -gt 0 ]; do
@@ -1283,7 +1262,6 @@ reserve_awg_interface_ipv6() {
         
         AWG_CHECK_INTERFACE_IPV6_MISSING_PARTS=$((AWG_CHECK_INTERFACE_IPV6_MISSING_PARTS - 1))
     done
-    
 
     AWG_CHECK_INTERFACE_IPV6_ALL_PARTS="${AWG_CHECK_INTERFACE_IPV6_LEFT_SIDE_PARTS_PROCESSED}${AWG_CHECK_INTERFACE_IPV6_RIGHT_SIDE_PARTS_PROCESSED}"
 
@@ -1304,7 +1282,6 @@ check_awg_interface_service() {
         echo "You can verify the service status by running: systemctl status awg-quick@${AWG_INTERFACE_NAME}"
     fi
 }
-
 
 create_awg_interface() {
     echo "------------------"

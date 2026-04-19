@@ -82,12 +82,9 @@ to_uncomment > 0 { print substr($0, 2); to_uncomment--; next }
     mv "$TEMP_FILE" "/etc/amnezia/amneziawg/${AWG_INTERFACE_NAME}.conf"
 }
 
-
 enable_awg_client() {
     print_dashes "$((18 + ${#AWG_INTERFACE_NAME}))"
-
     printf "${BOLD_FS} Enable Client [${AWG_INTERFACE_NAME}] ${DEFAULT_FS}\n"
-
     print_dashes "$((18 + ${#AWG_INTERFACE_NAME}))"
     echo ""
 

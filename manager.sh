@@ -26,7 +26,6 @@ add_lib() {
     done
 }
 
-
 check_root() {
     if [ $(id -u) -ne 0 ]; then
         echo "This script must be run as root."
@@ -41,12 +40,10 @@ check_awg_installed() {
     fi
 }
 
-
 check_required_params() {
     check_root
     check_awg_installed
 }
-
 
 handle_common_flags() {
     for ARG in "$@"; do
@@ -58,7 +55,6 @@ handle_common_flags() {
         esac
     done
 }
-
 
 main() {
     handle_common_flags "$@"

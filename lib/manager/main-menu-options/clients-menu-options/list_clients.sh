@@ -63,7 +63,6 @@ print_clients() {
     fi
 }
 
-
 list_awg_clients() {
     set_awg_server_tools_pager
 

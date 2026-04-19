@@ -87,9 +87,7 @@ clients_menu() {
 
     while :; do
         print_dashes "$((19 + ${#AWG_INTERFACE_NAME}))"
-
         printf "${BOLD_FS} Manage clients [${AWG_INTERFACE_NAME}] ${DEFAULT_FS}\n"
-
         print_dashes "$((19 + ${#AWG_INTERFACE_NAME}))"
         echo ""
         echo "1) Enable client"

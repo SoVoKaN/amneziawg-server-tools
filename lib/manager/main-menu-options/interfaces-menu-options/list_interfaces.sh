@@ -11,9 +11,7 @@ check_awg_has_interfaces() {
 create_awg_interfaces_list() {
     ACTIVE_INTERFACES=$(awg show interfaces)
     ACTIVE_INTERFACES=" ${ACTIVE_INTERFACES} "
-
     ACTIVE_INTERFACES_LIST=""
-
     INACTIVE_INTERFACES_LIST=""
 
     for DIR in "${AWG_SERVER_TOOLS_PATH}/interfaces/"*/; do

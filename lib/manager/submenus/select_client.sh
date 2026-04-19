@@ -132,7 +132,6 @@ generate_select_awg_all_clients_submenu() {
     SELECT_AWG_CLIENT_SUBMENU="${SELECT_AWG_CLIENT_SUBMENU}Select interface [0-${LAST_CLIENT_NUMBER}]: "
 }
 
-
 get_awg_clients_count() {
     case "$SUBMENU_MODE" in
         "active")
@@ -186,7 +185,6 @@ set_awg_client_name() {
         fi
     done
 }
-
 
 select_awg_client_submenu() {
     LIMIT_AWG_CLIENTS_EXCEEDED_HANDLER="$1"

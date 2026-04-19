@@ -84,10 +84,8 @@ rename_awg_interface_configs() {
     rm "/etc/amnezia/amneziawg/${AWG_INTERFACE_NAME}.conf"
 
     mv "${AWG_SERVER_TOOLS_PATH}/interfaces/${AWG_INTERFACE_NAME}" "${AWG_SERVER_TOOLS_PATH}/interfaces/${AWG_INTERFACE_NEW_NAME}"
-
     mv "${AWG_SERVER_TOOLS_PATH}/interfaces/${AWG_INTERFACE_NEW_NAME}/${AWG_INTERFACE_NAME}.data" "${AWG_SERVER_TOOLS_PATH}/interfaces/${AWG_INTERFACE_NEW_NAME}/${AWG_INTERFACE_NEW_NAME}.data"
 }
-
 
 rename_interface() {
     echo "------------------"

@@ -7,13 +7,10 @@ set_awg_server_tools_pager() {
     fi
 }
 
-
 main_menu() {
     while :; do
         print_dashes "$((20 + ${#AWG_SERVER_TOOLS_VERSION}))"
-
         printf "${BOLD_FS} AmneziaWG Manager ${AWG_SERVER_TOOLS_VERSION} ${DEFAULT_FS} -> https://github.com/SoVoKaN/amneziawg-server-tools\n"
-
         print_dashes "$((20 + ${#AWG_SERVER_TOOLS_VERSION}))"
         echo ""
         echo "1) Manage clients"

@@ -19,7 +19,6 @@ configure_installation_packages() {
     fi
 }
 
-
 install_modules() {
     add_installation_scripts
 

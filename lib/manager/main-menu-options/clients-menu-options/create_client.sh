@@ -77,7 +77,6 @@ generate_awg_client_ipv6() {
     AWG_CLIENT_IPV6="$AWG_POSSIBLE_CLIENT_IPV6"
 }
 
-
 get_awg_client_name() {
     generate_awg_client_name
 
@@ -609,12 +608,9 @@ ask_to_show_qr() {
     echo ""
 }
 
-
 create_awg_client() {
     print_dashes "$((18 + ${#AWG_INTERFACE_NAME}))"
-
     printf "${BOLD_FS} Create client [${AWG_INTERFACE_NAME}] ${DEFAULT_FS}\n"
-
     print_dashes "$((18 + ${#AWG_INTERFACE_NAME}))"
     echo ""
 

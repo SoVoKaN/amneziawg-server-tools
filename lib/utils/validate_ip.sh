@@ -83,7 +83,6 @@ validate_ipv6() {
     esac
 
     if [ -n "$AWG_VALIDATE_IPV6_LEFT_SIDE" ]; then
-
         for PART in $AWG_VALIDATE_IPV6_LEFT_SIDE; do
             case "$PART" in
                 [0-9a-fA-F] | [0-9a-fA-F][0-9a-fA-F] | [0-9a-fA-F][0-9a-fA-F][0-9a-fA-F] | [0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]) ;;
@@ -95,7 +94,6 @@ validate_ipv6() {
     fi
 
     if [ -n "$AWG_VALIDATE_IPV6_RIGHT_SIDE" ]; then
-
         for PART in $AWG_VALIDATE_IPV6_RIGHT_SIDE; do
             case "$PART" in
                 [0-9a-fA-F] | [0-9a-fA-F][0-9a-fA-F] | [0-9a-fA-F][0-9a-fA-F][0-9a-fA-F] | [0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]) ;;

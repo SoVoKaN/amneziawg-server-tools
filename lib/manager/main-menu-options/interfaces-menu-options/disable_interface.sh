@@ -66,7 +66,6 @@ confirm_awg_interface_disable() {
     esac
 }
 
-
 disable_awg_interface() {
     echo "-------------------"
     printf "${BOLD_FS} Disable Interface ${DEFAULT_FS}\n"

@@ -49,7 +49,6 @@ ask_choose_awg_ip_version_support_mode() {
     done
 }
 
-
 get_awg_ip_version_support_mode() {
     if check_has_server_public_ipv4; then
         if check_has_server_public_ipv6; then
@@ -185,7 +184,6 @@ get_awg_client_configs_path() {
     done
 }
 
-
 ask_to_install_qrencode() {
     INSTALL_QRENCODE="y"
 
@@ -210,7 +208,6 @@ ask_to_install_qrencode() {
     done
 }
 
-
 is_ready_to_continue() {
     printf "Press ${BOLD_FS}Enter${DEFAULT_FS} to continue..."
 
@@ -232,7 +229,6 @@ is_ready_to_continue() {
 
     stty "$OLD_STTY"
 }
-
 
 prepare_to_install() {
     printf "Options require input. Default value is shown in [brackets] — press ${BOLD_FS}Enter${DEFAULT_FS} to ${GREEN}accept${DEFAULT_COLOR} it.\n"

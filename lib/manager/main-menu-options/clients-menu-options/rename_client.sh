@@ -88,12 +88,9 @@ rename_awg_client_configs() {
     mv "${AWG_SERVER_TOOLS_PATH}/interfaces/${AWG_INTERFACE_NAME}/clients/${AWG_CLIENT_NAME}.data" "${AWG_SERVER_TOOLS_PATH}/interfaces/${AWG_INTERFACE_NAME}/clients/${AWG_CLIENT_NEW_NAME}.data"
 }
 
-
 rename_client() {
     print_dashes "$((18 + ${#AWG_INTERFACE_NAME}))"
-
     printf "${BOLD_FS} Rename client [${AWG_INTERFACE_NAME}] ${DEFAULT_FS}\n"
-
     print_dashes "$((18 + ${#AWG_INTERFACE_NAME}))"
     echo ""
 

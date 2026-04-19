@@ -2,7 +2,6 @@ free_awg_interface_port() {
     TEMP_FILE=$(mktemp)
 
     sed "/^${1}$/d" "${AWG_SERVER_TOOLS_PATH}/interfaces/.ports_reserved" > "$TEMP_FILE"
-
     mv "$TEMP_FILE" "${AWG_SERVER_TOOLS_PATH}/interfaces/.ports_reserved"
 }
 
@@ -10,7 +9,6 @@ free_awg_interface_ipv4() {
     TEMP_FILE=$(mktemp)
 
     sed "/^${1}$/d" "${AWG_SERVER_TOOLS_PATH}/interfaces/.ipv4_reserved" > "$TEMP_FILE"
-
     mv "$TEMP_FILE" "${AWG_SERVER_TOOLS_PATH}/interfaces/.ipv4_reserved"
 }
 
@@ -24,7 +22,6 @@ free_awg_interface_ipv6() {
         AWG_CHECK_INTERFACE_IPV6_RIGHT_SIDE=""
     fi
 
-
     IFS=":"
 
     AWG_CHECK_INTERFACE_IPV6_LEFT_SIDE_PARTS_COUNT="0"
@@ -37,9 +34,7 @@ free_awg_interface_ipv6() {
         AWG_CHECK_INTERFACE_IPV6_RIGHT_SIDE_PARTS_COUNT=$((AWG_CHECK_INTERFACE_IPV6_RIGHT_SIDE_PARTS_COUNT + 1))
     done
 
-
     AWG_CHECK_INTERFACE_IPV6_LEFT_SIDE_PARTS_PROCESSED=""
-
     if [ "$AWG_CHECK_INTERFACE_IPV6_LEFT_SIDE_PARTS_COUNT" != "0" ]; then
         for PART in $AWG_CHECK_INTERFACE_IPV6_LEFT_SIDE; do
             PROCESSED_PART=$(printf '%04x' "0x${PART}")
@@ -56,7 +51,6 @@ free_awg_interface_ipv6() {
         done
     fi
 
-
     AWG_CHECK_INTERFACE_IPV6_MISSING_PARTS=$((8 - AWG_CHECK_INTERFACE_IPV6_LEFT_SIDE_PARTS_COUNT - AWG_CHECK_INTERFACE_IPV6_RIGHT_SIDE_PARTS_COUNT))
 
     while [ "$AWG_CHECK_INTERFACE_IPV6_MISSING_PARTS" -gt 0 ]; do
@@ -64,7 +58,6 @@ free_awg_interface_ipv6() {
         
         AWG_CHECK_INTERFACE_IPV6_MISSING_PARTS=$((AWG_CHECK_INTERFACE_IPV6_MISSING_PARTS - 1))
     done
-    
 
     AWG_CHECK_INTERFACE_IPV6_ALL_PARTS="${AWG_CHECK_INTERFACE_IPV6_LEFT_SIDE_PARTS_PROCESSED}${AWG_CHECK_INTERFACE_IPV6_RIGHT_SIDE_PARTS_PROCESSED}"
 
@@ -75,10 +68,8 @@ free_awg_interface_ipv6() {
     TEMP_FILE=$(mktemp)
 
     sed "/^${AWG_CHECK_INTERFACE_IPV6_ALL_PARTS}$/d" "${AWG_SERVER_TOOLS_PATH}/interfaces/.ipv6_reserved" > "$TEMP_FILE"
-
     mv "$TEMP_FILE" "${AWG_SERVER_TOOLS_PATH}/interfaces/.ipv6_reserved"
 }
-
 
 get_awg_interface_name_delete() {
     while :; do
@@ -153,7 +144,6 @@ delete_awg_interface_configs() {
 
     rm -rf "${AWG_SERVER_TOOLS_PATH}/interfaces/${AWG_INTERFACE_NAME}"
 }
-
 
 delete_awg_interface() {
     echo "------------------"

@@ -82,12 +82,9 @@ to_comment > 0 { print "#" $0; to_comment--; next }
     mv "$TEMP_FILE" "/etc/amnezia/amneziawg/${AWG_INTERFACE_NAME}.conf"
 }
 
-
 disable_awg_client() {
     print_dashes "$((19 + ${#AWG_INTERFACE_NAME}))"
-
     printf "${BOLD_FS} Disable Client [${AWG_INTERFACE_NAME}] ${DEFAULT_FS}\n"
-
     print_dashes "$((19 + ${#AWG_INTERFACE_NAME}))"
     echo ""
 

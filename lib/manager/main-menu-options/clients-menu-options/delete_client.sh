@@ -65,12 +65,9 @@ delete_awg_client_data() {
     rm -f "${AWG_SERVER_TOOLS_PATH}/interfaces/${AWG_INTERFACE_NAME}/clients/${AWG_CLIENT_NAME}.data"
 }
 
-
 delete_awg_client() {
     print_dashes "$((18 + ${#AWG_INTERFACE_NAME}))"
-
     printf "${BOLD_FS} Delete client [${AWG_INTERFACE_NAME}] ${DEFAULT_FS}\n"
-
     print_dashes "$((18 + ${#AWG_INTERFACE_NAME}))"
     echo ""
 
