@@ -509,10 +509,10 @@ get_awg_interface_mtu() {
 
     case "$AWG_INTERFACE_IP_VERSION_USE" in
         "ipv4")
-            AWG_INTERFACE_MTU=$((SERVER_PUBLIC_NETWORK_INTERFACE_MTU - 100))
+            AWG_INTERFACE_MTU=$((SERVER_PUBLIC_NETWORK_INTERFACE_MTU - 80))
             ;;
         "ipv6" | "both")
-            AWG_INTERFACE_MTU=$((SERVER_PUBLIC_NETWORK_INTERFACE_MTU - 120))
+            AWG_INTERFACE_MTU=$((SERVER_PUBLIC_NETWORK_INTERFACE_MTU - 100))
             ;;
     esac
 
