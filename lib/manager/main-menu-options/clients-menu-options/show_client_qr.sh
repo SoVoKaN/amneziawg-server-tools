@@ -80,16 +80,21 @@ show_awg_client_qr() {
     {
         echo "[Interface]
 PrivateKey = ${AWG_CLIENT_PRIVATE_KEY}
-Jc = ${AWG_JC}
-Jmin = ${AWG_JMIN}
-Jmax = ${AWG_JMAX}
-S1 = ${AWG_S1}
-S2 = ${AWG_S2}
-H1 = ${AWG_H1}
-H2 = ${AWG_H2}
-H3 = ${AWG_H3}
-H4 = ${AWG_H4}
-Address = ${AWG_CLIENT_ADDRESS}
+Jc = ${AWG_CLIENT_JC}
+Jmin = ${AWG_CLIENT_JMIN}
+Jmax = ${AWG_CLIENT_JMAX}
+S1 = ${AWG_INTERFACE_S1}
+S2 = ${AWG_INTERFACE_S2}
+S3 = ${AWG_INTERFACE_S3}
+S4 = ${AWG_INTERFACE_S4}
+H1 = ${AWG_INTERFACE_H1}
+H2 = ${AWG_INTERFACE_H2}
+H3 = ${AWG_INTERFACE_H3}
+H4 = ${AWG_INTERFACE_H4}"
+
+        printf "${AWG_CLIENT_I_PARAMS}"
+
+        echo "Address = ${AWG_CLIENT_ADDRESS}
 DNS = ${AWG_CLIENT_DNS}
 MTU = ${AWG_INTERFACE_MTU}
 

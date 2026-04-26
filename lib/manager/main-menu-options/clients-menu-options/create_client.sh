@@ -1,5 +1,5 @@
 check_awg_interface_has_free_clients() {
-    if INTERFACE_COUNT_CLIENTS_GREP_OUTPUT=$(grep '^\[Peer\]$' /etc/amnezia/amneziawg/${CURRENT_INTERFACE_NAME}.conf); then
+    if INTERFACE_COUNT_CLIENTS_GREP_OUTPUT=$(grep '^\[Peer\]$' /etc/amnezia/amneziawg/${AWG_INTERFACE_NAME}.conf); then
         INTERFACE_COUNT_CLIENTS=$(echo "$INTERFACE_COUNT_CLIENTS_GREP_OUTPUT" | wc -l)
     else
         INTERFACE_COUNT_CLIENTS="0"
@@ -8,6 +8,20 @@ check_awg_interface_has_free_clients() {
     if [ "$INTERFACE_COUNT_CLIENTS" -gt 251 ]; then
         echo "Maximum clients(252) reached on \"${AWG_INTERFACE_NAME}\" interface."
         exit 0
+    fi
+}
+
+check_awg_client_ipv4_free() {
+    if grep "${1}" "/etc/amnezia/amneziawg/${AWG_INTERFACE_NAME}.conf" > /dev/null 2>&1; then
+        return 1
+    fi
+
+    return 0
+}
+
+check_awg_client_ipv6_free() {
+    if grep "${1}" "/etc/amnezia/amneziawg/${AWG_INTERFACE_NAME}.conf" > /dev/null 2>&1; then
+        return 1
     fi
 }
 
@@ -27,14 +41,6 @@ generate_awg_client_name() {
     AWG_CLIENT_NAME="$AWG_POSSIBLE_CLIENT_NAME"
 }
 
-check_awg_client_ipv4_free() {
-    if grep "${1}" "/etc/amnezia/amneziawg/${AWG_INTERFACE_NAME}.conf" > /dev/null 2>&1; then
-        return 1
-    fi
-
-    return 0
-}
-
 generate_awg_client_ipv4() {
     AWG_CLIENT_IPV4_PREFIX="${AWG_INTERFACE_IPV4%.*}."
     AWG_POSSIBLE_CLIENT_IPV4_PART="2"
@@ -50,12 +56,6 @@ generate_awg_client_ipv4() {
     done
 
     AWG_CLIENT_IPV4="$AWG_CLIENT_POSSIBLE_IPV4"
-}
-
-check_awg_client_ipv6_free() {
-    if grep "${1}" "/etc/amnezia/amneziawg/${AWG_INTERFACE_NAME}.conf" > /dev/null 2>&1; then
-        return 1
-    fi
 }
 
 generate_awg_client_ipv6() {
@@ -459,6 +459,233 @@ get_awg_client_allowed_ips() {
     done
 }
 
+get_awg_client_jc() {
+    AWG_CLIENT_JC=$(awk 'BEGIN { srand(); print int(4 + rand() * (12 - 4 + 1)) }')
+
+    QUESTION=$(printf 'Jc [%s]: ' "$AWG_CLIENT_JC")
+
+    while :; do
+        printf "$QUESTION"
+
+        handle_user_input
+
+        if [ -n "$USER_INPUT" ]; then
+            TEMP="$USER_INPUT"
+
+            ALL_CHARS_CORRECT="1"
+
+            while [ -n "$TEMP" ]; do
+                CHAR=${TEMP%${TEMP#?}}
+
+                case "$CHAR" in
+                    [!0-9])
+                        ALL_CHARS_CORRECT="0"
+                        break
+                        ;;
+                esac
+
+                TEMP=${TEMP#?}
+            done
+
+            if [ "$ALL_CHARS_CORRECT" != "1" ]; then
+                continue
+            fi
+
+            if [ "$USER_INPUT" -lt 1 ] || [ "$USER_INPUT" -gt 128 ]; then
+                continue
+            fi
+
+            AWG_CLIENT_JC="$USER_INPUT"
+        else
+            default_value_autocomplete "$AWG_CLIENT_JC" "$QUESTION"
+        fi
+
+        break
+    done
+}
+
+get_awg_client_jmin() {
+    AWG_CLIENT_JMIN="8"
+
+    QUESTION=$(printf 'Jmin [%s]: ' "$AWG_CLIENT_JMIN")
+
+    while :; do
+        printf "$QUESTION"
+
+        handle_user_input
+
+        if [ -n "$USER_INPUT" ]; then
+            TEMP="$USER_INPUT"
+
+            ALL_CHARS_CORRECT="1"
+
+            while [ -n "$TEMP" ]; do
+                CHAR=${TEMP%${TEMP#?}}
+
+                case "$CHAR" in
+                    [!0-9])
+                        ALL_CHARS_CORRECT="0"
+                        break
+                        ;;
+                esac
+
+                TEMP=${TEMP#?}
+            done
+
+            if [ "$ALL_CHARS_CORRECT" != "1" ]; then
+                continue
+            fi
+
+            if [ "$USER_INPUT" -lt 1 ] || [ "$USER_INPUT" -gt 1279 ]; then
+                continue
+            fi
+
+            AWG_CLIENT_JMIN="$USER_INPUT"
+        else
+            default_value_autocomplete "$AWG_CLIENT_JMIN" "$QUESTION"
+        fi
+
+        break
+    done
+}
+
+get_awg_client_jmax() {
+    AWG_CLIENT_JMAX="80"
+
+    QUESTION=$(printf 'Jmax [%s]: ' "$AWG_CLIENT_JMAX")
+
+    while :; do
+        printf "$QUESTION"
+
+        handle_user_input
+
+        if [ -n "$USER_INPUT" ]; then
+            TEMP="$USER_INPUT"
+
+            ALL_CHARS_CORRECT="1"
+
+            while [ -n "$TEMP" ]; do
+                CHAR=${TEMP%${TEMP#?}}
+
+                case "$CHAR" in
+                    [!0-9])
+                        ALL_CHARS_CORRECT="0"
+                        break
+                        ;;
+                esac
+
+                TEMP=${TEMP#?}
+            done
+
+            if [ "$ALL_CHARS_CORRECT" != "1" ]; then
+                continue
+            fi
+
+            if [ "$USER_INPUT" -lt 1 ] || [ "$USER_INPUT" -gt 1280 ]; then
+                continue
+            fi
+
+            AWG_CLIENT_JMAX="$USER_INPUT"
+        else
+            default_value_autocomplete "$AWG_CLIENT_JMAX" "$QUESTION"
+        fi
+
+        break
+    done
+}
+
+get_awg_client_i1() {
+    AWG_CLIENT_I_PARAMS=""
+
+    while :; do
+        printf 'I1: '
+
+        handle_user_input
+
+        if [ -n "$USER_INPUT" ]; then
+            if [ "$USER_INPUT" = "-" ]; then
+                return 1
+            fi
+
+            AWG_CLIENT_I_PARAMS="I1 = ${USER_INPUT}\n"
+
+            break
+        fi
+    done
+}
+
+get_awg_client_i2() {
+    while :; do
+        printf 'I2: '
+
+        handle_user_input
+
+        if [ -n "$USER_INPUT" ]; then
+            if [ "$USER_INPUT" = "-" ]; then
+                return 1
+            fi
+
+            AWG_CLIENT_I_PARAMS="${AWG_CLIENT_I_PARAMS}I2 = ${USER_INPUT}\n"
+
+            break
+        fi
+    done
+}
+
+get_awg_client_i3() {
+    while :; do
+        printf 'I3: '
+
+        handle_user_input
+
+        if [ -n "$USER_INPUT" ]; then
+            if [ "$USER_INPUT" = "-" ]; then
+                return 1
+            fi
+
+            AWG_CLIENT_I_PARAMS="${AWG_CLIENT_I_PARAMS}I3 = ${USER_INPUT}\n"
+
+            break
+        fi
+    done
+}
+
+get_awg_client_i4() {
+    while :; do
+        printf 'I4: '
+
+        handle_user_input
+
+        if [ -n "$USER_INPUT" ]; then
+            if [ "$USER_INPUT" = "-" ]; then
+                return 1
+            fi
+
+            AWG_CLIENT_I_PARAMS="${AWG_CLIENT_I_PARAMS}I4 = ${USER_INPUT}\n"
+
+            break
+        fi
+    done
+}
+
+get_awg_client_i5() {
+    while :; do
+        printf 'I5: '
+
+        handle_user_input
+
+        if [ -n "$USER_INPUT" ]; then
+            if [ "$USER_INPUT" = "-" ]; then
+                return 1
+            fi
+
+            AWG_CLIENT_I_PARAMS="${AWG_CLIENT_I_PARAMS}I5 = ${USER_INPUT}\n"
+
+            break
+        fi
+    done
+}
+
 create_awg_client_key_pair() {
     AWG_CLIENT_PRIVATE_KEY=$(awg genkey)
 	AWG_CLIENT_PUBLIC_KEY=$(echo "${AWG_CLIENT_PRIVATE_KEY}" | awg pubkey)
@@ -513,35 +740,42 @@ save_awg_client_config() {
             ;;
     esac
 
-    echo "[Interface]
+    {
+        echo "[Interface]
 PrivateKey = ${AWG_CLIENT_PRIVATE_KEY}
-Jc = ${AWG_JC}
-Jmin = ${AWG_JMIN}
-Jmax = ${AWG_JMAX}
-S1 = ${AWG_S1}
-S2 = ${AWG_S2}
-H1 = ${AWG_H1}
-H2 = ${AWG_H2}
-H3 = ${AWG_H3}
-H4 = ${AWG_H4}
-Address = ${AWG_CLIENT_ADDRESS}
+Jc = ${AWG_CLIENT_JC}
+Jmin = ${AWG_CLIENT_JMIN}
+Jmax = ${AWG_CLIENT_JMAX}
+S1 = ${AWG_INTERFACE_S1}
+S2 = ${AWG_INTERFACE_S2}
+S3 = ${AWG_INTERFACE_S3}
+S4 = ${AWG_INTERFACE_S4}
+H1 = ${AWG_INTERFACE_H1}
+H2 = ${AWG_INTERFACE_H2}
+H3 = ${AWG_INTERFACE_H3}
+H4 = ${AWG_INTERFACE_H4}"
+
+        printf "${AWG_CLIENT_I_PARAMS}"
+
+        echo "Address = ${AWG_CLIENT_ADDRESS}
 DNS = ${AWG_CLIENT_DNS}
 MTU = ${AWG_INTERFACE_MTU}
 
 [Peer]
 PublicKey = ${AWG_INTERFACE_PUBLIC_KEY}
 PresharedKey = ${AWG_PRESHARED_KEY}
-AllowedIPs = ${AWG_CLIENT_ALLOWED_IPS}" > "${AWG_CLIENT_CONFIGS_PATH}/${AWG_INTERFACE_NAME}/${AWG_CLIENT_NAME}.conf"
+AllowedIPs = ${AWG_CLIENT_ALLOWED_IPS}"
 
-    if validate_ipv6 "$SERVER_PUBLIC_IP_OR_DOMAIN"; then
-        echo "Endpoint = \[${SERVER_PUBLIC_IP_OR_DOMAIN}\]:${AWG_INTERFACE_PORT}" >> "${AWG_CLIENT_CONFIGS_PATH}/${AWG_INTERFACE_NAME}/${AWG_CLIENT_NAME}.conf"
-    else
-        echo "Endpoint = ${SERVER_PUBLIC_IP_OR_DOMAIN}:${AWG_INTERFACE_PORT}" >> "${AWG_CLIENT_CONFIGS_PATH}/${AWG_INTERFACE_NAME}/${AWG_CLIENT_NAME}.conf"
-    fi
+        if validate_ipv6 "$SERVER_PUBLIC_IP_OR_DOMAIN"; then
+            echo "Endpoint = [${SERVER_PUBLIC_IP_OR_DOMAIN}]:${AWG_INTERFACE_PORT}"
+        else
+            echo "Endpoint = ${SERVER_PUBLIC_IP_OR_DOMAIN}:${AWG_INTERFACE_PORT}"
+        fi
 
-    if [ "$AWG_CLIENT_PERSISTENT_KEEPALIVE" != "0" ]; then
-        echo "PersistentKeepalive = ${AWG_CLIENT_PERSISTENT_KEEPALIVE}" >> "${AWG_CLIENT_CONFIGS_PATH}/${AWG_INTERFACE_NAME}/${AWG_CLIENT_NAME}.conf"
-    fi
+        if [ "$AWG_CLIENT_PERSISTENT_KEEPALIVE" != "0" ]; then
+            echo "PersistentKeepalive = ${AWG_CLIENT_PERSISTENT_KEEPALIVE}"
+        fi
+    } > "${AWG_CLIENT_CONFIGS_PATH}/${AWG_INTERFACE_NAME}/${AWG_CLIENT_NAME}.conf"
 }
 
 save_awg_client_data() {
@@ -577,7 +811,12 @@ AWG_PRESHARED_KEY=\"${AWG_PRESHARED_KEY}\"
 AWG_CLIENT_PUBLIC_KEY=\"${AWG_CLIENT_PUBLIC_KEY}\"
 AWG_CLIENT_PRIVATE_KEY=\"${AWG_CLIENT_PRIVATE_KEY}\"
 AWG_CLIENT_PERSISTENT_KEEPALIVE=\"${AWG_CLIENT_PERSISTENT_KEEPALIVE}\"
-AWG_CLIENT_ALLOWED_IPS=\"${AWG_CLIENT_ALLOWED_IPS}\"\n" > "${AWG_SERVER_TOOLS_PATH}/interfaces/${AWG_INTERFACE_NAME}/clients/${AWG_CLIENT_NAME}.data"
+AWG_CLIENT_ALLOWED_IPS=\"${AWG_CLIENT_ALLOWED_IPS}\"
+AWG_CLIENT_JC=\"${AWG_CLIENT_JC}\"
+AWG_CLIENT_JMIN=\"${AWG_CLIENT_JMIN}\"
+AWG_CLIENT_JMAX=\"${AWG_CLIENT_JMAX}\"
+"AWG_CLIENT_I_PARAMS=\"%s\""
+" "${AWG_CLIENT_I_PARAMS}" > "${AWG_SERVER_TOOLS_PATH}/interfaces/${AWG_INTERFACE_NAME}/clients/${AWG_CLIENT_NAME}.data"
 }
 
 ask_to_show_qr() {
@@ -602,9 +841,56 @@ ask_to_show_qr() {
         default_value_autocomplete "y" "$QUESTION"
     fi
 
+    case "$AWG_INTERFACE_IP_VERSION_USE" in
+        "ipv4")
+            AWG_CLIENT_ADDRESS="${AWG_CLIENT_IPV4}/32"
+            ;;
+        "ipv6")
+            AWG_CLIENT_ADDRESS="${AWG_CLIENT_IPV6}/128"
+            ;;
+        "both")
+            AWG_CLIENT_ADDRESS="${AWG_CLIENT_IPV4}/32, ${AWG_CLIENT_IPV6}/128"
+            ;;
+    esac
+
     echo ""
     printf "${BOLD_FS}Here is your client config file as a QR code: ${DEFAULT_FS}\n"
-    qrencode -t ansiutf8 -l L < "${AWG_CLIENT_CONFIGS_PATH}/${AWG_INTERFACE_NAME}/${AWG_CLIENT_NAME}.conf"
+    {
+        echo "[Interface]
+PrivateKey = ${AWG_CLIENT_PRIVATE_KEY}
+Jc = ${AWG_CLIENT_JC}
+Jmin = ${AWG_CLIENT_JMIN}
+Jmax = ${AWG_CLIENT_JMAX}
+S1 = ${AWG_INTERFACE_S1}
+S2 = ${AWG_INTERFACE_S2}
+S3 = ${AWG_INTERFACE_S3}
+S4 = ${AWG_INTERFACE_S4}
+H1 = ${AWG_INTERFACE_H1}
+H2 = ${AWG_INTERFACE_H2}
+H3 = ${AWG_INTERFACE_H3}
+H4 = ${AWG_INTERFACE_H4}"
+
+        printf "${AWG_CLIENT_I_PARAMS}"
+
+        echo "Address = ${AWG_CLIENT_ADDRESS}
+DNS = ${AWG_CLIENT_DNS}
+MTU = ${AWG_INTERFACE_MTU}
+
+[Peer]
+PublicKey = ${AWG_INTERFACE_PUBLIC_KEY}
+PresharedKey = ${AWG_PRESHARED_KEY}
+AllowedIPs = ${AWG_CLIENT_ALLOWED_IPS}"
+
+        if validate_ipv6 "$SERVER_PUBLIC_IP_OR_DOMAIN"; then
+            echo "Endpoint = [${SERVER_PUBLIC_IP_OR_DOMAIN}]:${AWG_INTERFACE_PORT}"
+        else
+            echo "Endpoint = ${SERVER_PUBLIC_IP_OR_DOMAIN}:${AWG_INTERFACE_PORT}"
+        fi
+
+        if [ "$AWG_CLIENT_PERSISTENT_KEEPALIVE" != "0" ]; then
+            echo "PersistentKeepalive = ${AWG_CLIENT_PERSISTENT_KEEPALIVE}"
+        fi
+    } | qrencode -t ansiutf8 -l L
     echo ""
 }
 
@@ -625,6 +911,49 @@ create_awg_client() {
     get_awg_client_persistent_keepalive
 
     get_awg_client_allowed_ips
+
+    echo ""
+    get_awg_client_jc
+
+    while :; do
+        get_awg_client_jmin
+
+        get_awg_client_jmax
+
+        if [ "$AWG_CLIENT_JMAX" -le "$AWG_CLIENT_JMIN" ]; then
+            echo ""
+            printf "${YELLOW}Invalid J values detected — Jmax must be > Jmin. Please re-enter them.${DEFAULT_COLOR}\n"
+            continue
+        fi
+
+        break
+    done
+
+    echo ""
+    echo "${BOLD_FS}Enter '-' to leave I param blank.${DEFAULT_FS}"
+    while :; do
+        if ! get_awg_client_i1; then
+            break
+        fi
+
+        if ! get_awg_client_i2; then
+            break
+        fi
+
+        if ! get_awg_client_i3; then
+            break
+        fi
+
+        if ! get_awg_client_i4; then
+            break
+        fi
+
+        if ! get_awg_client_i5; then
+            break
+        fi
+
+        break
+    done
 
     create_awg_client_key_pair
 

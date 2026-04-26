@@ -1,19 +1,3 @@
-generate_awg_interface_name() {
-    NUM="0"
-
-    while :; do
-        AWG_POSSIBLE_INTERFACE_NAME="awg${NUM}"
-
-        if ! check_interface_name_free "$AWG_POSSIBLE_INTERFACE_NAME" || check_awg_interface_exists "$USER_INPUT"; then
-            NUM=$((NUM + 1))
-        else
-            break
-        fi
-    done
-
-    AWG_INTERFACE_NAME="$AWG_POSSIBLE_INTERFACE_NAME"
-}
-
 check_awg_interface_port_free() {
     if grep "^${1}$" "${AWG_SERVER_TOOLS_PATH}/interfaces/.ports_reserved" > /dev/null 2>&1; then
         return 1
@@ -30,29 +14,6 @@ check_awg_interface_port_free() {
     fi
 
     return 0
-}
-
-generate_awg_interface_port() {
-    NUM="0"
-
-    while :; do
-        AWG_POSSIBLE_INTERFACE_PORT=$(awk -v num="$NUM" '
-        function random_num(min, max) {
-            srand(systime() + num)
-            return int(rand() * (max - min + 1)) + min
-        }
-        BEGIN {
-            print random_num(50000, 65535)
-        }')
-
-        if ! check_awg_interface_port_free "$AWG_POSSIBLE_INTERFACE_PORT"; then
-            NUM=$((NUM + 1))
-        else
-            break
-        fi
-    done
-
-    AWG_INTERFACE_PORT="$AWG_POSSIBLE_INTERFACE_PORT"
 }
 
 check_awg_interface_ipv4_free() {
@@ -85,30 +46,6 @@ check_awg_interface_ipv4_free() {
     fi
 
     return 0
-}
-
-generate_awg_interface_ipv4() {
-    AWG_POSSIBLE_INTERFACE_IPV4_SECOND_PART="1"
-    AWG_POSSIBLE_INTERFACE_IPV4_THIRD_PART="1"
-
-    while :; do
-        AWG_INTERFACE_POSSIBLE_IPV4="10.${AWG_POSSIBLE_INTERFACE_IPV4_SECOND_PART}.${AWG_POSSIBLE_INTERFACE_IPV4_THIRD_PART}.1"
-
-        if ! check_awg_interface_ipv4_free "$AWG_INTERFACE_POSSIBLE_IPV4"; then
-            if [ ${AWG_POSSIBLE_INTERFACE_IPV4_THIRD_PART} -eq 255 ]; then
-                AWG_POSSIBLE_INTERFACE_IPV4_SECOND_PART=$((AWG_POSSIBLE_INTERFACE_IPV4_SECOND_PART + 1))
-                AWG_POSSIBLE_INTERFACE_IPV4_THIRD_PART="1"
-
-                continue
-            fi
-
-            AWG_POSSIBLE_INTERFACE_IPV4_THIRD_PART=$((AWG_POSSIBLE_INTERFACE_IPV4_THIRD_PART + 1))
-        else
-            break
-        fi
-    done
-
-    AWG_INTERFACE_IPV4="$AWG_INTERFACE_POSSIBLE_IPV4"
 }
 
 check_awg_interface_ipv6_free() {
@@ -215,6 +152,66 @@ check_awg_interface_ipv6_free() {
     return 0
 }
 
+generate_awg_interface_name() {
+    NUM="0"
+
+    while :; do
+        AWG_POSSIBLE_INTERFACE_NAME="awg${NUM}"
+
+        if ! check_interface_name_free "$AWG_POSSIBLE_INTERFACE_NAME" || check_awg_interface_exists "$USER_INPUT"; then
+            NUM=$((NUM + 1))
+        else
+            break
+        fi
+    done
+
+    AWG_INTERFACE_NAME="$AWG_POSSIBLE_INTERFACE_NAME"
+}
+
+generate_awg_interface_port() {
+    NUM="0"
+
+    while :; do
+        AWG_POSSIBLE_INTERFACE_PORT=$(awk -v num="$NUM" '
+        BEGIN {
+            srand(systime() + num)
+            print int(rand() * (65535 - 50000 + 1)) + 50000
+        }')
+
+        if ! check_awg_interface_port_free "$AWG_POSSIBLE_INTERFACE_PORT"; then
+            NUM=$((NUM + 1))
+        else
+            break
+        fi
+    done
+
+    AWG_INTERFACE_PORT="$AWG_POSSIBLE_INTERFACE_PORT"
+}
+
+generate_awg_interface_ipv4() {
+    AWG_POSSIBLE_INTERFACE_IPV4_SECOND_PART="10"
+    AWG_POSSIBLE_INTERFACE_IPV4_THIRD_PART="1"
+
+    while :; do
+        AWG_INTERFACE_POSSIBLE_IPV4="10.${AWG_POSSIBLE_INTERFACE_IPV4_SECOND_PART}.${AWG_POSSIBLE_INTERFACE_IPV4_THIRD_PART}.1"
+
+        if ! check_awg_interface_ipv4_free "$AWG_INTERFACE_POSSIBLE_IPV4"; then
+            if [ ${AWG_POSSIBLE_INTERFACE_IPV4_THIRD_PART} -eq 255 ]; then
+                AWG_POSSIBLE_INTERFACE_IPV4_SECOND_PART=$((AWG_POSSIBLE_INTERFACE_IPV4_SECOND_PART + 1))
+                AWG_POSSIBLE_INTERFACE_IPV4_THIRD_PART="1"
+
+                continue
+            fi
+
+            AWG_POSSIBLE_INTERFACE_IPV4_THIRD_PART=$((AWG_POSSIBLE_INTERFACE_IPV4_THIRD_PART + 1))
+        else
+            break
+        fi
+    done
+
+    AWG_INTERFACE_IPV4="$AWG_INTERFACE_POSSIBLE_IPV4"
+}
+
 generate_awg_interface_ipv6() {
     AWG_POSSIBLE_INTERFACE_IPV6_PART="1"
 
@@ -231,106 +228,6 @@ generate_awg_interface_ipv6() {
     done
 
     AWG_INTERFACE_IPV6="$AWG_POSSIBLE_INTERFACE_IPV6"
-}
-
-generate_awg_interface_s_params() {
-    while :; do
-        POSSIBLE_AWG_S1=$(awk '
-        function random_num(min, max) {
-            srand(systime() + 1)
-            return int(rand() * (max - min + 1)) + min
-        }
-        BEGIN {
-            print random_num(15, 150)
-        }')
-
-        POSSIBLE_AWG_S2=$(awk '
-        function random_num(min, max) {
-            srand(systime() + 2)
-            return int(rand() * (max - min + 1)) + min
-        }
-        BEGIN {
-            print random_num(15, 150)
-        }')
-
-        if [ "$((POSSIBLE_AWG_S1 + 56))" -eq "$POSSIBLE_AWG_S2" ]; then
-            continue
-        fi
-
-        break
-    done
-}
-
-add_awg_interface_firewalld_rules() {
-    echo "PostUp = firewall-cmd --zone=public --add-interface=${AWG_INTERFACE_NAME}
-PostUp = firewall-cmd --zone=public --add-port=${AWG_INTERFACE_PORT}/udp" >> "/etc/amnezia/amneziawg/${AWG_INTERFACE_NAME}.conf"
-
-    case "$AWG_INTERFACE_IP_VERSION_USE" in
-        "ipv4")
-            echo "PostUp = firewall-cmd --direct --add-rule ipv4 filter FORWARD 0 -i ${SERVER_PUBLIC_NETWORK_INTERFACE} -o ${AWG_INTERFACE_NAME} -j ACCEPT
-PostUp = firewall-cmd --direct --add-rule ipv4 filter FORWARD 0 -i ${AWG_INTERFACE_NAME} -o ${SERVER_PUBLIC_NETWORK_INTERFACE} -j ACCEPT
-PostUp = firewall-cmd --direct --add-rule ipv4 nat POSTROUTING 0 -o ${SERVER_PUBLIC_NETWORK_INTERFACE} -j MASQUERADE" >> "/etc/amnezia/amneziawg/${AWG_INTERFACE_NAME}.conf"
-
-            echo "PostDown = firewall-cmd --direct --remove-rule ipv4 nat POSTROUTING 0 -o ${SERVER_PUBLIC_NETWORK_INTERFACE} -j MASQUERADE
-PostDown = firewall-cmd --direct --remove-rule ipv4 filter FORWARD 0 -i ${AWG_INTERFACE_NAME} -o ${SERVER_PUBLIC_NETWORK_INTERFACE} -j ACCEPT
-PostDown = firewall-cmd --direct --remove-rule ipv4 filter FORWARD 0 -i ${SERVER_PUBLIC_NETWORK_INTERFACE} -o ${AWG_INTERFACE_NAME} -j ACCEPT" >> "/etc/amnezia/amneziawg/${AWG_INTERFACE_NAME}.conf"
-            ;;
-        "ipv6")
-            echo "PostUp = firewall-cmd --direct --add-rule ipv6 filter FORWARD 0 -i ${SERVER_PUBLIC_NETWORK_INTERFACE} -o ${AWG_INTERFACE_NAME} -j ACCEPT
-PostUp = firewall-cmd --direct --add-rule ipv6 filter FORWARD 0 -i ${AWG_INTERFACE_NAME} -o ${SERVER_PUBLIC_NETWORK_INTERFACE} -j ACCEPT
-PostUp = firewall-cmd --direct --add-rule ipv6 nat POSTROUTING 0 -o ${SERVER_PUBLIC_NETWORK_INTERFACE} -j MASQUERADE" >> "/etc/amnezia/amneziawg/${AWG_INTERFACE_NAME}.conf"
-
-            echo "PostDown = firewall-cmd --direct --remove-rule ipv6 nat POSTROUTING 0 -o ${SERVER_PUBLIC_NETWORK_INTERFACE} -j MASQUERADE
-PostDown = firewall-cmd --direct --remove-rule ipv6 filter FORWARD 0 -i ${AWG_INTERFACE_NAME} -o ${SERVER_PUBLIC_NETWORK_INTERFACE} -j ACCEPT
-PostDown = firewall-cmd --direct --remove-rule ipv6 filter FORWARD 0 -i ${SERVER_PUBLIC_NETWORK_INTERFACE} -o ${AWG_INTERFACE_NAME} -j ACCEPT" >> "/etc/amnezia/amneziawg/${AWG_INTERFACE_NAME}.conf"
-            ;;
-        "both")
-            echo "PostUp = firewall-cmd --direct --add-rule ipv4 filter FORWARD 0 -i ${SERVER_PUBLIC_NETWORK_INTERFACE} -o ${AWG_INTERFACE_NAME} -j ACCEPT
-PostUp = firewall-cmd --direct --add-rule ipv4 filter FORWARD 0 -i ${AWG_INTERFACE_NAME} -o ${SERVER_PUBLIC_NETWORK_INTERFACE} -j ACCEPT
-PostUp = firewall-cmd --direct --add-rule ipv4 nat POSTROUTING 0 -o ${SERVER_PUBLIC_NETWORK_INTERFACE} -j MASQUERADE" >> "/etc/amnezia/amneziawg/${AWG_INTERFACE_NAME}.conf"
-
-            echo "PostUp = firewall-cmd --direct --add-rule ipv6 filter FORWARD 0 -i ${SERVER_PUBLIC_NETWORK_INTERFACE} -o ${AWG_INTERFACE_NAME} -j ACCEPT
-PostUp = firewall-cmd --direct --add-rule ipv6 filter FORWARD 0 -i ${AWG_INTERFACE_NAME} -o ${SERVER_PUBLIC_NETWORK_INTERFACE} -j ACCEPT
-PostUp = firewall-cmd --direct --add-rule ipv6 nat POSTROUTING 0 -o ${SERVER_PUBLIC_NETWORK_INTERFACE} -j MASQUERADE" >> "/etc/amnezia/amneziawg/${AWG_INTERFACE_NAME}.conf"
-
-            echo "PostDown = firewall-cmd --direct --remove-rule ipv6 nat POSTROUTING 0 -o ${SERVER_PUBLIC_NETWORK_INTERFACE} -j MASQUERADE
-PostDown = firewall-cmd --direct --remove-rule ipv6 filter FORWARD 0 -i ${AWG_INTERFACE_NAME} -o ${SERVER_PUBLIC_NETWORK_INTERFACE} -j ACCEPT
-PostDown = firewall-cmd --direct --remove-rule ipv6 filter FORWARD 0 -i ${SERVER_PUBLIC_NETWORK_INTERFACE} -o ${AWG_INTERFACE_NAME} -j ACCEPT" >> "/etc/amnezia/amneziawg/${AWG_INTERFACE_NAME}.conf"
-
-            echo "PostDown = firewall-cmd --direct --remove-rule ipv4 nat POSTROUTING 0 -o ${SERVER_PUBLIC_NETWORK_INTERFACE} -j MASQUERADE
-PostDown = firewall-cmd --direct --remove-rule ipv4 filter FORWARD 0 -i ${AWG_INTERFACE_NAME} -o ${SERVER_PUBLIC_NETWORK_INTERFACE} -j ACCEPT
-PostDown = firewall-cmd --direct --remove-rule ipv4 filter FORWARD 0 -i ${SERVER_PUBLIC_NETWORK_INTERFACE} -o ${AWG_INTERFACE_NAME} -j ACCEPT" >> "/etc/amnezia/amneziawg/${AWG_INTERFACE_NAME}.conf"
-            ;;
-    esac
-
-    echo "PostDown = firewall-cmd --zone=public --remove-port=${AWG_INTERFACE_PORT}/udp
-PostDown = firewall-cmd --zone=public --remove-interface=${AWG_INTERFACE_NAME}
-
-" >> "/etc/amnezia/amneziawg/${AWG_INTERFACE_NAME}.conf"
-}
-
-add_awg_interface_nftables_rules() {
-    echo "PostUp = nft list table inet filter 2>/dev/null || nft add table inet filter
-PostUp = nft list chain inet filter input 2>/dev/null || nft add chain inet filter input { type filter hook input priority filter \; }
-PostUp = nft list chain inet filter forward 2>/dev/null || nft add chain inet filter forward { type filter hook forward priority filter \; }
-PostUp = nft list chain inet filter postrouting 2>/dev/null || nft add chain inet filter postrouting { type nat hook postrouting priority srcnat \; }
-PostUp = nft list map inet filter amneziawg_ports 2>/dev/null || nft add map inet filter amneziawg_ports { type ifname . inet_service : verdict \; }
-PostUp = nft list set inet filter amneziawg_interfaces 2>/dev/null || nft add set inet filter amneziawg_interfaces { type ifname \; }
-PostUp = nft list chain inet filter input | grep \"iifname . udp dport vmap @amneziawg_ports\" 2>/dev/null || nft add rule inet filter input iifname . udp dport vmap @amneziawg_ports
-PostUp = nft list chain inet filter forward | grep \"ct state established,related accept\" 2>/dev/null || nft add rule inet filter forward ct state established,related accept
-PostUp = nft list chain inet filter forward | grep \"iifname @amneziawg_interfaces oifname \\\"${SERVER_PUBLIC_NETWORK_INTERFACE}\\\" accept\" 2>/dev/null || nft add rule inet filter forward iifname @amneziawg_interfaces oifname \"${SERVER_PUBLIC_NETWORK_INTERFACE}\" accept
-PostUp = nft list chain inet filter postrouting | grep \"iifname @amneziawg_interfaces oifname \\\"${SERVER_PUBLIC_NETWORK_INTERFACE}\\\" masquerade\" || nft add rule inet filter postrouting iifname @amneziawg_interfaces oifname \"${SERVER_PUBLIC_NETWORK_INTERFACE}\" masquerade
-PostUp = nft add element inet filter amneziawg_ports { \"${SERVER_PUBLIC_NETWORK_INTERFACE}\" . ${AWG_INTERFACE_PORT} : accept }
-PostUp = nft add element inet filter amneziawg_interfaces { \"${AWG_INTERFACE_NAME}\" }
-PostDown = nft delete element inet filter amneziawg_interfaces { \"${AWG_INTERFACE_NAME}\" }
-PostDown = nft delete element inet filter amneziawg_ports { \"${SERVER_PUBLIC_NETWORK_INTERFACE}\" . ${AWG_INTERFACE_PORT} : accept }
-PostDown = nft list set inet filter amneziawg_interfaces | awk 'NR == 4 { exit !(/\"/) }' || nft -a list chain inet filter postrouting | grep \"iifname @amneziawg_interfaces oifname \\\"${SERVER_PUBLIC_NETWORK_INTERFACE}\\\" masquerade\" | awk '{ print \$NF }' | xargs nft delete rule inet filter postrouting handle
-PostDown = nft list set inet filter amneziawg_interfaces | awk 'NR == 4 { exit !(/\"/) }' || nft -a list chain inet filter forward | grep \"iifname @amneziawg_interfaces oifname \\\"${SERVER_PUBLIC_NETWORK_INTERFACE}\\\" accept\" | awk '{ print \$NF }' | xargs nft delete rule inet filter forward handle
-PostDown = nft list map inet filter amneziawg_ports | awk 'NR == 4 { exit !(/\"/) }' || nft -a list chain inet filter input | grep \"iifname . udp dport vmap @amneziawg_ports\" | awk '{ print \$NF }' | xargs nft delete rule inet filter input handle
-PostDown = nft list set inet filter amneziawg_interfaces | awk 'NR == 4 { exit !(/\"/) }' || nft delete set inet filter amneziawg_interfaces
-PostDown = nft list map inet filter amneziawg_ports | awk 'NR == 4 { exit !(/\"/) }' || nft delete map inet filter amneziawg_ports
-
-" >> "/etc/amnezia/amneziawg/${AWG_INTERFACE_NAME}.conf"
 }
 
 get_awg_interface_name() {
@@ -620,145 +517,14 @@ get_awg_interface_port() {
     done
 }
 
-get_awg_interface_jc() {
-    AWG_JC=$(awk 'BEGIN { srand(); print int(4 + rand() * (12 - 4 + 1)) }')
-
-    QUESTION=$(printf 'Jc [%s]: ' "$AWG_JC")
-
-    while :; do
-        echo ""
-
-        printf "$QUESTION"
-
-        handle_user_input
-
-        if [ -n "$USER_INPUT" ]; then
-            TEMP="$USER_INPUT"
-
-            ALL_CHARS_CORRECT="1"
-
-            while [ -n "$TEMP" ]; do
-                CHAR=${TEMP%${TEMP#?}}
-
-                case "$CHAR" in
-                    [!0-9])
-                        ALL_CHARS_CORRECT="0"
-                        break
-                        ;;
-                esac
-
-                TEMP=${TEMP#?}
-            done
-
-            if [ "$ALL_CHARS_CORRECT" != "1" ]; then
-                continue
-            fi
-
-            if [ "$USER_INPUT" -lt 1 ] || [ "$USER_INPUT" -gt 128 ]; then
-                continue
-            fi
-
-            AWG_JC="$USER_INPUT"
-        else
-            default_value_autocomplete "$AWG_JC" "$QUESTION"
-        fi
-
-        break
-    done
-}
-
-get_awg_interface_jmin() {
-    AWG_JMIN="8"
-
-    QUESTION=$(printf 'Jmin [%s]: ' "$AWG_JMIN")
-
-    while :; do
-        printf "$QUESTION"
-
-        handle_user_input
-
-        if [ -n "$USER_INPUT" ]; then
-            TEMP="$USER_INPUT"
-
-            ALL_CHARS_CORRECT="1"
-
-            while [ -n "$TEMP" ]; do
-                CHAR=${TEMP%${TEMP#?}}
-
-                case "$CHAR" in
-                    [!0-9])
-                        ALL_CHARS_CORRECT="0"
-                        break
-                        ;;
-                esac
-
-                TEMP=${TEMP#?}
-            done
-
-            if [ "$ALL_CHARS_CORRECT" != "1" ]; then
-                continue
-            fi
-
-            if [ "$USER_INPUT" -lt 1 ] || [ "$USER_INPUT" -gt 1479 ]; then
-                continue
-            fi
-
-            AWG_JMIN="$USER_INPUT"
-        else
-            default_value_autocomplete "$AWG_JMIN" "$QUESTION"
-        fi
-
-        break
-    done
-}
-
-get_awg_interface_jmax() {
-    AWG_JMAX="80"
-
-    QUESTION=$(printf 'Jmax [%s]: ' "$AWG_JMAX")
-
-    while :; do
-        printf "$QUESTION"
-
-        handle_user_input
-
-        if [ -n "$USER_INPUT" ]; then
-            TEMP="$USER_INPUT"
-
-            ALL_CHARS_CORRECT="1"
-
-            while [ -n "$TEMP" ]; do
-                CHAR=${TEMP%${TEMP#?}}
-
-                case "$CHAR" in
-                    [!0-9])
-                        ALL_CHARS_CORRECT="0"
-                        break
-                        ;;
-                esac
-
-                TEMP=${TEMP#?}
-            done
-
-            if [ "$ALL_CHARS_CORRECT" != "1" ]; then
-                continue
-            fi
-
-            if [ "$USER_INPUT" -lt 1 ] || [ "$USER_INPUT" -gt 1480 ]; then
-                continue
-            fi
-
-            AWG_JMAX="$USER_INPUT"
-        else
-            default_value_autocomplete "$AWG_JMAX" "$QUESTION"
-        fi
-
-        break
-    done
-}
-
 get_awg_interface_s1() {
-    QUESTION=$(printf 'S1 [%s]: ' "$POSSIBLE_AWG_S1")
+    AWG_INTERFACE_S1=$(awk -v max=$((AWG_INTERFACE_MTU - 148)) '
+    BEGIN {
+        srand(systime())
+        print int(rand() * (max - 16 + 1)) + 16
+    }')
+
+    QUESTION=$(printf 'S1 [%s]: ' "$AWG_INTERFACE_S1")
 
     while :; do
         printf "$QUESTION"
@@ -787,14 +553,13 @@ get_awg_interface_s1() {
                 continue
             fi
 
-            if [ "$USER_INPUT" -lt 1 ] || [ "$USER_INPUT" -gt 65535 ]; then
+            if [ "$USER_INPUT" -lt 0 ] || [ "$USER_INPUT" -gt $((AWG_INTERFACE_MTU - 148)) ]; then
                 continue
             fi
 
-            AWG_S1="$USER_INPUT"
+            AWG_INTERFACE_S1="$USER_INPUT"
         else
-            AWG_S1="$POSSIBLE_AWG_S1"
-            default_value_autocomplete "$AWG_S1" "$QUESTION"
+            default_value_autocomplete "$AWG_INTERFACE_S1" "$QUESTION"
         fi
 
         break
@@ -802,7 +567,13 @@ get_awg_interface_s1() {
 }
 
 get_awg_interface_s2() {
-    QUESTION=$(printf 'S2 [%s]: ' "$POSSIBLE_AWG_S2")
+    AWG_INTERFACE_S2=$(awk -v max=$((AWG_INTERFACE_MTU - 92)) '
+    BEGIN {
+        srand(systime() + 1)
+        print int(rand() * (max - 16 + 1)) + 16
+    }')
+
+    QUESTION=$(printf 'S2 [%s]: ' "$AWG_INTERFACE_S2")
 
     while :; do
         printf "$QUESTION"
@@ -831,14 +602,120 @@ get_awg_interface_s2() {
                 continue
             fi
 
-            if [ "$USER_INPUT" -lt 1 ] || [ "$USER_INPUT" -gt 65535 ]; then
+            if [ "$USER_INPUT" -lt 0 ] || [ "$USER_INPUT" -gt $((AWG_INTERFACE_MTU - 92)) ]; then
                 continue
             fi
 
-            AWG_S2="$USER_INPUT"
+            AWG_INTERFACE_S2="$USER_INPUT"
         else
-            AWG_S2="$POSSIBLE_AWG_S2"
-            default_value_autocomplete "$AWG_S2" "$QUESTION"
+            default_value_autocomplete "$AWG_INTERFACE_S2" "$QUESTION"
+        fi
+
+        break
+    done
+}
+
+get_awg_interface_s3() {
+    AWG_INTERFACE_S3=$(awk -v max=$((AWG_INTERFACE_MTU - 64)) '
+    BEGIN {
+        srand(systime() + 2)
+        print int(rand() * (max - 16 + 1)) + 16
+    }')
+
+    QUESTION=$(printf 'S3 [%s]: ' "$AWG_INTERFACE_S3")
+
+    while :; do
+        printf "$QUESTION"
+
+        handle_user_input
+
+        if [ -n "$USER_INPUT" ]; then
+            TEMP="$USER_INPUT"
+
+            ALL_CHARS_CORRECT="1"
+
+            while [ -n "$TEMP" ]; do
+                CHAR=${TEMP%${TEMP#?}}
+
+                case "$CHAR" in
+                    [!0-9])
+                        ALL_CHARS_CORRECT="0"
+                        break
+                        ;;
+                esac
+
+                TEMP=${TEMP#?}
+            done
+
+            if [ "$ALL_CHARS_CORRECT" != "1" ]; then
+                continue
+            fi
+
+            if [ "$USER_INPUT" -lt 0 ] || [ "$USER_INPUT" -gt $((AWG_INTERFACE_MTU - 64)) ]; then
+                continue
+            fi
+
+            AWG_INTERFACE_S3="$USER_INPUT"
+        else
+            default_value_autocomplete "$AWG_INTERFACE_S3" "$QUESTION"
+        fi
+
+        break
+    done
+}
+
+get_awg_interface_s4() {
+    case "$AWG_INTERFACE_IP_VERSION_USE" in
+        "ipv4")
+            AWG_INTERFACE_S4_MAX=$(($(cat /sys/class/net/${SERVER_PUBLIC_NETWORK_INTERFACE}/mtu) - AWG_INTERFACE_MTU - 64))
+            ;;
+        "ipv6" | "both")
+            AWG_INTERFACE_S4_MAX=$(($(cat /sys/class/net/${SERVER_PUBLIC_NETWORK_INTERFACE}/mtu) - AWG_INTERFACE_MTU - 84))
+            ;;
+    esac
+
+    AWG_INTERFACE_S4=$(awk -v max="$AWG_INTERFACE_S4_MAX" '
+    BEGIN {
+        srand(systime() + 3)
+        print int(rand() * (max - 4 + 1)) + 4
+    }')
+
+    QUESTION=$(printf 'S4 [%s]: ' "$AWG_INTERFACE_S4")
+
+    while :; do
+        printf "$QUESTION"
+
+        handle_user_input
+
+        if [ -n "$USER_INPUT" ]; then
+            TEMP="$USER_INPUT"
+
+            ALL_CHARS_CORRECT="1"
+
+            while [ -n "$TEMP" ]; do
+                CHAR=${TEMP%${TEMP#?}}
+
+                case "$CHAR" in
+                    [!0-9])
+                        ALL_CHARS_CORRECT="0"
+                        break
+                        ;;
+                esac
+
+                TEMP=${TEMP#?}
+            done
+
+            if [ "$ALL_CHARS_CORRECT" != "1" ]; then
+                continue
+            fi
+
+            if [ "$USER_INPUT" -lt 0 ] || [ "$USER_INPUT" -gt "$AWG_INTERFACE_S4_MAX" ]; then
+                continue
+            fi
+
+            AWG_INTERFACE_S4="$USER_INPUT"
+        else
+            default_value_autocomplete "$AWG_INTERFACE_S4" "$QUESTION"
         fi
 
         break
@@ -846,16 +723,9 @@ get_awg_interface_s2() {
 }
 
 get_awg_interface_h1() {
-    AWG_H1=$(awk '
-    function random_num(min, max) {
-        srand(systime() + 1)
-        return int(rand() * (max - min + 1)) + min
-    }
-    BEGIN {
-        print random_num(5, 2147483647)
-    }')
+    AWG_INTERFACE_H1="5-1073741827"
 
-    QUESTION=$(printf 'H1 [%s]: ' "$AWG_H1")
+    QUESTION=$(printf 'H1 [%s]: ' "$AWG_INTERFACE_H1")
 
     while :; do
         printf "$QUESTION"
@@ -871,7 +741,7 @@ get_awg_interface_h1() {
                 CHAR=${TEMP%${TEMP#?}}
 
                 case "$CHAR" in
-                    [!0-9])
+                    [!-0-9])
                         ALL_CHARS_CORRECT="0"
                         break
                         ;;
@@ -884,13 +754,25 @@ get_awg_interface_h1() {
                 continue
             fi
 
-            if [ "$USER_INPUT" -lt 5 ] || [ "$USER_INPUT" -gt 2147483647 ]; then
+            case "$USER_INPUT" in
+                *-*-*) continue ;;
+            esac
+
+            if [ "${USER_INPUT%-*}" -lt 0 ] || [ "${USER_INPUT%-*}" -gt 4294967295 ]; then
                 continue
             fi
 
-            AWG_H1="$USER_INPUT"
+            if [ "${USER_INPUT#*-}" -lt 0 ] || [ "${USER_INPUT#*-}" -gt 4294967295 ]; then
+                continue
+            fi
+
+            if [ "${USER_INPUT%-*}" -gt "${USER_INPUT#*-}" ]; then
+                continue
+            fi
+
+            AWG_INTERFACE_H1="$USER_INPUT"
         else
-            default_value_autocomplete "$AWG_H1" "$QUESTION"
+            default_value_autocomplete "$AWG_INTERFACE_H1" "$QUESTION"
         fi
 
         break
@@ -898,16 +780,9 @@ get_awg_interface_h1() {
 }
 
 get_awg_interface_h2() {
-    AWG_H2=$(awk '
-    function random_num(min, max) {
-        srand(systime() + 2)
-        return int(rand() * (max - min + 1)) + min
-    }
-    BEGIN {
-        print random_num(5, 2147483647)
-    }')
+    AWG_INTERFACE_H2="1073741828-2147483650"
 
-    QUESTION=$(printf 'H2 [%s]: ' "$AWG_H2")
+    QUESTION=$(printf 'H2 [%s]: ' "$AWG_INTERFACE_H2")
 
     while :; do
         printf "$QUESTION"
@@ -923,7 +798,7 @@ get_awg_interface_h2() {
                 CHAR=${TEMP%${TEMP#?}}
 
                 case "$CHAR" in
-                    [!0-9])
+                    [!-0-9])
                         ALL_CHARS_CORRECT="0"
                         break
                         ;;
@@ -936,13 +811,25 @@ get_awg_interface_h2() {
                 continue
             fi
 
-            if [ "$USER_INPUT" -lt 5 ] || [ "$USER_INPUT" -gt 2147483647 ]; then
+            case "$USER_INPUT" in
+                *-*-*) continue ;;
+            esac
+
+            if [ "${USER_INPUT%-*}" -lt 0 ] || [ "${USER_INPUT%-*}" -gt 4294967295 ]; then
                 continue
             fi
 
-            AWG_H2="$USER_INPUT"
+            if [ "${USER_INPUT#*-}" -lt 0 ] || [ "${USER_INPUT#*-}" -gt 4294967295 ]; then
+                continue
+            fi
+
+            if [ "${USER_INPUT%-*}" -gt "${USER_INPUT#*-}" ]; then
+                continue
+            fi
+
+            AWG_INTERFACE_H2="$USER_INPUT"
         else
-            default_value_autocomplete "$AWG_H2" "$QUESTION"
+            default_value_autocomplete "$AWG_INTERFACE_H2" "$QUESTION"
         fi
 
         break
@@ -950,16 +837,9 @@ get_awg_interface_h2() {
 }
 
 get_awg_interface_h3() {
-    AWG_H3=$(awk '
-    function random_num(min, max) {
-        srand(systime() + 3)
-        return int(rand() * (max - min + 1)) + min
-    }
-    BEGIN {
-        print random_num(5, 2147483647)
-    }')
+    AWG_INTERFACE_H3="2147483651-3221225472"
 
-    QUESTION=$(printf 'H3 [%s]: ' "$AWG_H3")
+    QUESTION=$(printf 'H3 [%s]: ' "$AWG_INTERFACE_H3")
 
     while :; do
         printf "$QUESTION"
@@ -975,7 +855,7 @@ get_awg_interface_h3() {
                 CHAR=${TEMP%${TEMP#?}}
 
                 case "$CHAR" in
-                    [!0-9])
+                    [!-0-9])
                         ALL_CHARS_CORRECT="0"
                         break
                         ;;
@@ -988,13 +868,25 @@ get_awg_interface_h3() {
                 continue
             fi
 
-            if [ "$USER_INPUT" -lt 5 ] || [ "$USER_INPUT" -gt 2147483647 ]; then
+            case "$USER_INPUT" in
+                *-*-*) continue ;;
+            esac
+
+            if [ "${USER_INPUT%-*}" -lt 0 ] || [ "${USER_INPUT%-*}" -gt 4294967295 ]; then
                 continue
             fi
 
-            AWG_H3="$USER_INPUT"
+            if [ "${USER_INPUT#*-}" -lt 0 ] || [ "${USER_INPUT#*-}" -gt 4294967295 ]; then
+                continue
+            fi
+
+            if [ "${USER_INPUT%-*}" -gt "${USER_INPUT#*-}" ]; then
+                continue
+            fi
+
+            AWG_INTERFACE_H3="$USER_INPUT"
         else
-            default_value_autocomplete "$AWG_H3" "$QUESTION"
+            default_value_autocomplete "$AWG_INTERFACE_H3" "$QUESTION"
         fi
 
         break
@@ -1002,16 +894,9 @@ get_awg_interface_h3() {
 }
 
 get_awg_interface_h4() {
-    AWG_H4=$(awk '
-    function random_num(min, max) {
-        srand(systime() + 4)
-        return int(rand() * (max - min + 1)) + min
-    }
-    BEGIN {
-        print random_num(5, 2147483647)
-    }')
+    AWG_INTERFACE_H4="3221225473-4294967295"
 
-    QUESTION=$(printf 'H4 [%s]: ' "$AWG_H4")
+    QUESTION=$(printf 'H4 [%s]: ' "$AWG_INTERFACE_H4")
 
     while :; do
         printf "$QUESTION"
@@ -1027,7 +912,7 @@ get_awg_interface_h4() {
                 CHAR=${TEMP%${TEMP#?}}
 
                 case "$CHAR" in
-                    [!0-9])
+                    [!-0-9])
                         ALL_CHARS_CORRECT="0"
                         break
                         ;;
@@ -1040,67 +925,25 @@ get_awg_interface_h4() {
                 continue
             fi
 
-            if [ "$USER_INPUT" -lt 5 ] || [ "$USER_INPUT" -gt 2147483647 ]; then
+            case "$USER_INPUT" in
+                *-*-*) continue ;;
+            esac
+
+            if [ "${USER_INPUT%-*}" -lt 0 ] || [ "${USER_INPUT%-*}" -gt 4294967295 ]; then
                 continue
             fi
 
-            AWG_H4="$USER_INPUT"
+            if [ "${USER_INPUT#*-}" -lt 0 ] || [ "${USER_INPUT#*-}" -gt 4294967295 ]; then
+                continue
+            fi
+
+            if [ "${USER_INPUT%-*}" -gt "${USER_INPUT#*-}" ]; then
+                continue
+            fi
+
+            AWG_INTERFACE_H4="$USER_INPUT"
         else
-            default_value_autocomplete "$AWG_H4" "$QUESTION"
-        fi
-
-        break
-    done
-}
-
-get_awg_interface_jmin_jmax() {
-    while :; do
-        get_awg_interface_jmin
-
-        get_awg_interface_jmax
-
-        if [ "$AWG_JMAX" -le "$AWG_JMIN" ]; then
-            echo ""
-            printf "${YELLOW}Invalid J values detected — Jmax must be > Jmin. Please re-enter them.${DEFAULT_COLOR}\n"
-            continue
-        fi
-
-        break
-    done
-}
-
-get_awg_interface_s_params() {
-    generate_awg_interface_s_params
-
-    while :; do
-        get_awg_interface_s1
-
-        get_awg_interface_s2
-
-        if [ $((AWG_S1 + 56)) -eq "$AWG_S2" ]; then
-            echo ""
-            printf "${YELLOW}Invalid S values detected — S2 must not equal S1 + 56. Please re-enter them.${DEFAULT_COLOR}\n"
-            continue
-        fi
-
-        break
-    done
-}
-
-get_awg_interface_h_params() {
-    while :; do
-        get_awg_interface_h1
-
-        get_awg_interface_h2
-
-        get_awg_interface_h3
-
-        get_awg_interface_h4
-
-        if [ "$AWG_H1" = "$AWG_H2" ] || [ "$AWG_H1" = "$AWG_H3" ] || [ "$AWG_H1" = "$AWG_H4" ] || [ "$AWG_H2" = "$AWG_H3" ] || [ "$AWG_H2" = "$AWG_H4" ] || [ "$AWG_H3" = "$AWG_H4" ]; then
-            echo ""
-            printf "${YELLOW}Duplicate H parameters detected. Please re-enter them.${DEFAULT_COLOR}\n"
-            continue
+            default_value_autocomplete "$AWG_INTERFACE_H4" "$QUESTION"
         fi
 
         break
@@ -1110,6 +953,78 @@ get_awg_interface_h_params() {
 create_awg_interface_key_pair() {
     AWG_INTERFACE_PRIVATE_KEY=$(awg genkey)
     AWG_INTERFACE_PUBLIC_KEY=$(echo "${AWG_INTERFACE_PRIVATE_KEY}" | awg pubkey)
+}
+
+add_awg_interface_firewalld_rules() {
+    echo "PostUp = firewall-cmd --zone=public --add-interface=${AWG_INTERFACE_NAME}
+PostUp = firewall-cmd --zone=public --add-port=${AWG_INTERFACE_PORT}/udp" >> "/etc/amnezia/amneziawg/${AWG_INTERFACE_NAME}.conf"
+
+    case "$AWG_INTERFACE_IP_VERSION_USE" in
+        "ipv4")
+            echo "PostUp = firewall-cmd --direct --add-rule ipv4 filter FORWARD 0 -i ${SERVER_PUBLIC_NETWORK_INTERFACE} -o ${AWG_INTERFACE_NAME} -j ACCEPT
+PostUp = firewall-cmd --direct --add-rule ipv4 filter FORWARD 0 -i ${AWG_INTERFACE_NAME} -o ${SERVER_PUBLIC_NETWORK_INTERFACE} -j ACCEPT
+PostUp = firewall-cmd --direct --add-rule ipv4 nat POSTROUTING 0 -o ${SERVER_PUBLIC_NETWORK_INTERFACE} -j MASQUERADE" >> "/etc/amnezia/amneziawg/${AWG_INTERFACE_NAME}.conf"
+
+            echo "PostDown = firewall-cmd --direct --remove-rule ipv4 nat POSTROUTING 0 -o ${SERVER_PUBLIC_NETWORK_INTERFACE} -j MASQUERADE
+PostDown = firewall-cmd --direct --remove-rule ipv4 filter FORWARD 0 -i ${AWG_INTERFACE_NAME} -o ${SERVER_PUBLIC_NETWORK_INTERFACE} -j ACCEPT
+PostDown = firewall-cmd --direct --remove-rule ipv4 filter FORWARD 0 -i ${SERVER_PUBLIC_NETWORK_INTERFACE} -o ${AWG_INTERFACE_NAME} -j ACCEPT" >> "/etc/amnezia/amneziawg/${AWG_INTERFACE_NAME}.conf"
+            ;;
+        "ipv6")
+            echo "PostUp = firewall-cmd --direct --add-rule ipv6 filter FORWARD 0 -i ${SERVER_PUBLIC_NETWORK_INTERFACE} -o ${AWG_INTERFACE_NAME} -j ACCEPT
+PostUp = firewall-cmd --direct --add-rule ipv6 filter FORWARD 0 -i ${AWG_INTERFACE_NAME} -o ${SERVER_PUBLIC_NETWORK_INTERFACE} -j ACCEPT
+PostUp = firewall-cmd --direct --add-rule ipv6 nat POSTROUTING 0 -o ${SERVER_PUBLIC_NETWORK_INTERFACE} -j MASQUERADE" >> "/etc/amnezia/amneziawg/${AWG_INTERFACE_NAME}.conf"
+
+            echo "PostDown = firewall-cmd --direct --remove-rule ipv6 nat POSTROUTING 0 -o ${SERVER_PUBLIC_NETWORK_INTERFACE} -j MASQUERADE
+PostDown = firewall-cmd --direct --remove-rule ipv6 filter FORWARD 0 -i ${AWG_INTERFACE_NAME} -o ${SERVER_PUBLIC_NETWORK_INTERFACE} -j ACCEPT
+PostDown = firewall-cmd --direct --remove-rule ipv6 filter FORWARD 0 -i ${SERVER_PUBLIC_NETWORK_INTERFACE} -o ${AWG_INTERFACE_NAME} -j ACCEPT" >> "/etc/amnezia/amneziawg/${AWG_INTERFACE_NAME}.conf"
+            ;;
+        "both")
+            echo "PostUp = firewall-cmd --direct --add-rule ipv4 filter FORWARD 0 -i ${SERVER_PUBLIC_NETWORK_INTERFACE} -o ${AWG_INTERFACE_NAME} -j ACCEPT
+PostUp = firewall-cmd --direct --add-rule ipv4 filter FORWARD 0 -i ${AWG_INTERFACE_NAME} -o ${SERVER_PUBLIC_NETWORK_INTERFACE} -j ACCEPT
+PostUp = firewall-cmd --direct --add-rule ipv4 nat POSTROUTING 0 -o ${SERVER_PUBLIC_NETWORK_INTERFACE} -j MASQUERADE" >> "/etc/amnezia/amneziawg/${AWG_INTERFACE_NAME}.conf"
+
+            echo "PostUp = firewall-cmd --direct --add-rule ipv6 filter FORWARD 0 -i ${SERVER_PUBLIC_NETWORK_INTERFACE} -o ${AWG_INTERFACE_NAME} -j ACCEPT
+PostUp = firewall-cmd --direct --add-rule ipv6 filter FORWARD 0 -i ${AWG_INTERFACE_NAME} -o ${SERVER_PUBLIC_NETWORK_INTERFACE} -j ACCEPT
+PostUp = firewall-cmd --direct --add-rule ipv6 nat POSTROUTING 0 -o ${SERVER_PUBLIC_NETWORK_INTERFACE} -j MASQUERADE" >> "/etc/amnezia/amneziawg/${AWG_INTERFACE_NAME}.conf"
+
+            echo "PostDown = firewall-cmd --direct --remove-rule ipv6 nat POSTROUTING 0 -o ${SERVER_PUBLIC_NETWORK_INTERFACE} -j MASQUERADE
+PostDown = firewall-cmd --direct --remove-rule ipv6 filter FORWARD 0 -i ${AWG_INTERFACE_NAME} -o ${SERVER_PUBLIC_NETWORK_INTERFACE} -j ACCEPT
+PostDown = firewall-cmd --direct --remove-rule ipv6 filter FORWARD 0 -i ${SERVER_PUBLIC_NETWORK_INTERFACE} -o ${AWG_INTERFACE_NAME} -j ACCEPT" >> "/etc/amnezia/amneziawg/${AWG_INTERFACE_NAME}.conf"
+
+            echo "PostDown = firewall-cmd --direct --remove-rule ipv4 nat POSTROUTING 0 -o ${SERVER_PUBLIC_NETWORK_INTERFACE} -j MASQUERADE
+PostDown = firewall-cmd --direct --remove-rule ipv4 filter FORWARD 0 -i ${AWG_INTERFACE_NAME} -o ${SERVER_PUBLIC_NETWORK_INTERFACE} -j ACCEPT
+PostDown = firewall-cmd --direct --remove-rule ipv4 filter FORWARD 0 -i ${SERVER_PUBLIC_NETWORK_INTERFACE} -o ${AWG_INTERFACE_NAME} -j ACCEPT" >> "/etc/amnezia/amneziawg/${AWG_INTERFACE_NAME}.conf"
+            ;;
+    esac
+
+    echo "PostDown = firewall-cmd --zone=public --remove-port=${AWG_INTERFACE_PORT}/udp
+PostDown = firewall-cmd --zone=public --remove-interface=${AWG_INTERFACE_NAME}
+
+" >> "/etc/amnezia/amneziawg/${AWG_INTERFACE_NAME}.conf"
+}
+
+add_awg_interface_nftables_rules() {
+    echo "PostUp = nft list table inet filter 2>/dev/null || nft add table inet filter
+PostUp = nft list chain inet filter input 2>/dev/null || nft add chain inet filter input { type filter hook input priority filter \; }
+PostUp = nft list chain inet filter forward 2>/dev/null || nft add chain inet filter forward { type filter hook forward priority filter \; }
+PostUp = nft list chain inet filter postrouting 2>/dev/null || nft add chain inet filter postrouting { type nat hook postrouting priority srcnat \; }
+PostUp = nft list map inet filter amneziawg_ports 2>/dev/null || nft add map inet filter amneziawg_ports { type ifname . inet_service : verdict \; }
+PostUp = nft list set inet filter amneziawg_interfaces 2>/dev/null || nft add set inet filter amneziawg_interfaces { type ifname \; }
+PostUp = nft list chain inet filter input | grep \"iifname . udp dport vmap @amneziawg_ports\" 2>/dev/null || nft add rule inet filter input iifname . udp dport vmap @amneziawg_ports
+PostUp = nft list chain inet filter forward | grep \"ct state established,related accept\" 2>/dev/null || nft add rule inet filter forward ct state established,related accept
+PostUp = nft list chain inet filter forward | grep \"iifname @amneziawg_interfaces oifname \\\"${SERVER_PUBLIC_NETWORK_INTERFACE}\\\" accept\" 2>/dev/null || nft add rule inet filter forward iifname @amneziawg_interfaces oifname \"${SERVER_PUBLIC_NETWORK_INTERFACE}\" accept
+PostUp = nft list chain inet filter postrouting | grep \"iifname @amneziawg_interfaces oifname \\\"${SERVER_PUBLIC_NETWORK_INTERFACE}\\\" masquerade\" || nft add rule inet filter postrouting iifname @amneziawg_interfaces oifname \"${SERVER_PUBLIC_NETWORK_INTERFACE}\" masquerade
+PostUp = nft add element inet filter amneziawg_ports { \"${SERVER_PUBLIC_NETWORK_INTERFACE}\" . ${AWG_INTERFACE_PORT} : accept }
+PostUp = nft add element inet filter amneziawg_interfaces { \"${AWG_INTERFACE_NAME}\" }
+PostDown = nft delete element inet filter amneziawg_interfaces { \"${AWG_INTERFACE_NAME}\" }
+PostDown = nft delete element inet filter amneziawg_ports { \"${SERVER_PUBLIC_NETWORK_INTERFACE}\" . ${AWG_INTERFACE_PORT} : accept }
+PostDown = nft list set inet filter amneziawg_interfaces | awk 'NR == 4 { exit !(/\"/) }' || nft -a list chain inet filter postrouting | grep \"iifname @amneziawg_interfaces oifname \\\"${SERVER_PUBLIC_NETWORK_INTERFACE}\\\" masquerade\" | awk '{ print \$NF }' | xargs nft delete rule inet filter postrouting handle
+PostDown = nft list set inet filter amneziawg_interfaces | awk 'NR == 4 { exit !(/\"/) }' || nft -a list chain inet filter forward | grep \"iifname @amneziawg_interfaces oifname \\\"${SERVER_PUBLIC_NETWORK_INTERFACE}\\\" accept\" | awk '{ print \$NF }' | xargs nft delete rule inet filter forward handle
+PostDown = nft list map inet filter amneziawg_ports | awk 'NR == 4 { exit !(/\"/) }' || nft -a list chain inet filter input | grep \"iifname . udp dport vmap @amneziawg_ports\" | awk '{ print \$NF }' | xargs nft delete rule inet filter input handle
+PostDown = nft list set inet filter amneziawg_interfaces | awk 'NR == 4 { exit !(/\"/) }' || nft delete set inet filter amneziawg_interfaces
+PostDown = nft list map inet filter amneziawg_ports | awk 'NR == 4 { exit !(/\"/) }' || nft delete map inet filter amneziawg_ports
+
+" >> "/etc/amnezia/amneziawg/${AWG_INTERFACE_NAME}.conf"
 }
 
 save_awg_interface() {
@@ -1129,15 +1044,14 @@ save_awg_interface() {
 ListenPort = ${AWG_INTERFACE_PORT}
 Address = ${AWG_INTERFACE_ADDRESS}
 PrivateKey = ${AWG_INTERFACE_PRIVATE_KEY}
-Jc = ${AWG_JC}
-Jmin = ${AWG_JMIN}
-Jmax = ${AWG_JMAX}
-S1 = ${AWG_S1}
-S2 = ${AWG_S2}
-H1 = ${AWG_H1}
-H2 = ${AWG_H2}
-H3 = ${AWG_H3}
-H4 = ${AWG_H4}
+S1 = ${AWG_INTERFACE_S1}
+S2 = ${AWG_INTERFACE_S2}
+S3 = ${AWG_INTERFACE_S3}
+S4 = ${AWG_INTERFACE_S4}
+H1 = ${AWG_INTERFACE_H1}
+H2 = ${AWG_INTERFACE_H2}
+H3 = ${AWG_INTERFACE_H3}
+H4 = ${AWG_INTERFACE_H4}
 MTU = ${AWG_INTERFACE_MTU}
 " > "/etc/amnezia/amneziawg/${AWG_INTERFACE_NAME}.conf"
 
@@ -1146,57 +1060,6 @@ MTU = ${AWG_INTERFACE_MTU}
     else
         add_awg_interface_nftables_rules
     fi
-}
-
-save_awg_interface_data() {
-    AWG_INTERFACE_FOLDER_PATH="${AWG_SERVER_TOOLS_PATH}/interfaces/${AWG_INTERFACE_NAME}"
-
-    mkdir -p "$AWG_INTERFACE_FOLDER_PATH"
-
-    case "$AWG_INTERFACE_IP_VERSION_USE" in
-        "ipv4")
-            AWG_INTERFACE_IPS="AWG_INTERFACE_IPV4=\"${AWG_INTERFACE_IPV4}\""
-            ;;
-        "ipv6")
-            AWG_INTERFACE_IPS="AWG_INTERFACE_IPV6=\"${AWG_INTERFACE_IPV6}\""
-            ;;
-        "both")
-            AWG_INTERFACE_IPS="AWG_INTERFACE_IPV4=\"${AWG_INTERFACE_IPV4}\"\nAWG_INTERFACE_IPV6=\"${AWG_INTERFACE_IPV6}\""
-            ;;
-    esac
-
-    printf "AWG_INTERFACE_IP_VERSION_USE=\"${AWG_INTERFACE_IP_VERSION_USE}\"
-
-${AWG_INTERFACE_IPS}
-AWG_INTERFACE_PUBLIC_KEY=\"${AWG_INTERFACE_PUBLIC_KEY}\"
-AWG_INTERFACE_PRIVATE_KEY=\"${AWG_INTERFACE_PRIVATE_KEY}\"
-AWG_JC=\"${AWG_JC}\"
-AWG_JMIN=\"${AWG_JMIN}\"
-AWG_JMAX=\"${AWG_JMAX}\"
-AWG_S1=\"${AWG_S1}\"
-AWG_S2=\"${AWG_S2}\"
-AWG_H1=\"${AWG_H1}\"
-AWG_H2=\"${AWG_H2}\"
-AWG_H3=\"${AWG_H3}\"
-AWG_H4=\"${AWG_H4}\"
-AWG_INTERFACE_MTU=\"${AWG_INTERFACE_MTU}\"
-AWG_INTERFACE_PORT=\"${AWG_INTERFACE_PORT}\"
-" >> "${AWG_INTERFACE_FOLDER_PATH}/${AWG_INTERFACE_NAME}.data"
-
-    reserve_awg_interface_port
-
-    case "$AWG_INTERFACE_IP_VERSION_USE" in
-        "ipv4")
-            reserve_awg_interface_ipv4
-            ;;
-        "ipv6")
-            reserve_awg_interface_ipv6
-            ;;
-        "both")
-            reserve_awg_interface_ipv4
-            reserve_awg_interface_ipv6
-            ;;
-    esac
 }
 
 reserve_awg_interface_port() {
@@ -1264,6 +1127,55 @@ reserve_awg_interface_ipv6() {
     echo "${AWG_CHECK_INTERFACE_IPV6_ALL_PARTS}" >> "${AWG_SERVER_TOOLS_PATH}/interfaces/.ipv6_reserved"
 }
 
+save_awg_interface_data() {
+    AWG_INTERFACE_FOLDER_PATH="${AWG_SERVER_TOOLS_PATH}/interfaces/${AWG_INTERFACE_NAME}"
+
+    mkdir -p "$AWG_INTERFACE_FOLDER_PATH"
+
+    case "$AWG_INTERFACE_IP_VERSION_USE" in
+        "ipv4")
+            AWG_INTERFACE_IPS="AWG_INTERFACE_IPV4=\"${AWG_INTERFACE_IPV4}\""
+            ;;
+        "ipv6")
+            AWG_INTERFACE_IPS="AWG_INTERFACE_IPV6=\"${AWG_INTERFACE_IPV6}\""
+            ;;
+        "both")
+            AWG_INTERFACE_IPS="AWG_INTERFACE_IPV4=\"${AWG_INTERFACE_IPV4}\"\nAWG_INTERFACE_IPV6=\"${AWG_INTERFACE_IPV6}\""
+            ;;
+    esac
+
+    printf "AWG_INTERFACE_IP_VERSION_USE=\"${AWG_INTERFACE_IP_VERSION_USE}\"
+${AWG_INTERFACE_IPS}
+AWG_INTERFACE_PUBLIC_KEY=\"${AWG_INTERFACE_PUBLIC_KEY}\"
+AWG_INTERFACE_PRIVATE_KEY=\"${AWG_INTERFACE_PRIVATE_KEY}\"
+AWG_INTERFACE_S1=\"${AWG_INTERFACE_S1}\"
+AWG_INTERFACE_S2=\"${AWG_INTERFACE_S2}\"
+AWG_INTERFACE_S3=\"${AWG_INTERFACE_S3}\"
+AWG_INTERFACE_S4=\"${AWG_INTERFACE_S4}\"
+AWG_INTERFACE_H1=\"${AWG_INTERFACE_H1}\"
+AWG_INTERFACE_H2=\"${AWG_INTERFACE_H2}\"
+AWG_INTERFACE_H3=\"${AWG_INTERFACE_H3}\"
+AWG_INTERFACE_H4=\"${AWG_INTERFACE_H4}\"
+AWG_INTERFACE_MTU=\"${AWG_INTERFACE_MTU}\"
+AWG_INTERFACE_PORT=\"${AWG_INTERFACE_PORT}\"
+" >> "${AWG_INTERFACE_FOLDER_PATH}/${AWG_INTERFACE_NAME}.data"
+
+    reserve_awg_interface_port
+
+    case "$AWG_INTERFACE_IP_VERSION_USE" in
+        "ipv4")
+            reserve_awg_interface_ipv4
+            ;;
+        "ipv6")
+            reserve_awg_interface_ipv6
+            ;;
+        "both")
+            reserve_awg_interface_ipv4
+            reserve_awg_interface_ipv6
+            ;;
+    esac
+}
+
 check_awg_interface_service() {
     if systemctl --no-pager --no-ask-password status "awg-quick@${AWG_INTERFACE_NAME}" > /dev/null 2>&1; then
         echo ""
@@ -1289,13 +1201,31 @@ create_awg_interface() {
 
     get_awg_interface_port
 
-    get_awg_interface_jc
+    echo ""
+    get_awg_interface_s1
 
-    get_awg_interface_jmin_jmax
+    get_awg_interface_s2
 
-    get_awg_interface_s_params
+    get_awg_interface_s3
 
-    get_awg_interface_h_params
+    get_awg_interface_s4
+
+    while :; do
+        get_awg_interface_h1
+
+        get_awg_interface_h2
+
+        get_awg_interface_h3
+
+        get_awg_interface_h4
+
+        if ! awk -v r1="$AWG_INTERFACE_H1" -v r2="$AWG_INTERFACE_H2" -v r3="$AWG_INTERFACE_H3" -v r4="$AWG_INTERFACE_H4" 'BEGIN{split(r1,a,"-");s[1]=a[1];e[1]=a[2];split(r2,a,"-");s[2]=a[1];e[2]=a[2];split(r3,a,"-");s[3]=a[1];e[3]=a[2];split(r4,a,"-");s[4]=a[1];e[4]=a[2];for(i=1;i<=4;i++)for(j=i+1;j<=4;j++)if(s[i]<=e[j]&&s[j]<=e[i])exit 1}'; then
+            printf "${YELLOW}The Ranges of H params overlap. Please re-enter them.${DEFAULT_COLOR}\n"
+            continue
+        fi
+
+        break
+    done
 
     create_awg_interface_key_pair
 
