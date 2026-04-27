@@ -1,6 +1,6 @@
 #!/bin/sh
 
-AWG_SERVER_TOOLS_VERSION="1.1.0"
+AWG_SERVER_TOOLS_VERSION="2.0.0"
 
 set -eu
 
