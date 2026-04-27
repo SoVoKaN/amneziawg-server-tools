@@ -819,14 +819,14 @@ AWG_CLIENT_JMAX=\"${AWG_CLIENT_JMAX}\"
 " "${AWG_CLIENT_I_PARAMS}" > "${AWG_SERVER_TOOLS_PATH}/interfaces/${AWG_INTERFACE_NAME}/clients/${AWG_CLIENT_NAME}.data"
 }
 
-ask_to_show_qr() {
+ask_save_qr_to_file() {
     if ! command -v qrencode > /dev/null 2>&1; then
         return
     fi
 
     echo ""
 
-    QUESTION=$(printf 'Do you want to show client config as QR code (y/n) [y]: ')
+    QUESTION=$(printf 'Save client config QR to file (y/n) [y]: ')
 
     printf '%s' "$QUESTION"
 
@@ -839,6 +839,77 @@ ask_to_show_qr() {
         esac
     else
         default_value_autocomplete "y" "$QUESTION"
+    fi
+
+    case "$AWG_INTERFACE_IP_VERSION_USE" in
+        "ipv4")
+            AWG_CLIENT_ADDRESS="${AWG_CLIENT_IPV4}/32"
+            ;;
+        "ipv6")
+            AWG_CLIENT_ADDRESS="${AWG_CLIENT_IPV6}/128"
+            ;;
+        "both")
+            AWG_CLIENT_ADDRESS="${AWG_CLIENT_IPV4}/32, ${AWG_CLIENT_IPV6}/128"
+            ;;
+    esac
+
+    {
+        echo "[Interface]
+PrivateKey = ${AWG_CLIENT_PRIVATE_KEY}
+Jc = ${AWG_CLIENT_JC}
+Jmin = ${AWG_CLIENT_JMIN}
+Jmax = ${AWG_CLIENT_JMAX}
+S1 = ${AWG_INTERFACE_S1}
+S2 = ${AWG_INTERFACE_S2}
+S3 = ${AWG_INTERFACE_S3}
+S4 = ${AWG_INTERFACE_S4}
+H1 = ${AWG_INTERFACE_H1}
+H2 = ${AWG_INTERFACE_H2}
+H3 = ${AWG_INTERFACE_H3}
+H4 = ${AWG_INTERFACE_H4}"
+
+        printf "${AWG_CLIENT_I_PARAMS}"
+
+        echo "Address = ${AWG_CLIENT_ADDRESS}
+DNS = ${AWG_CLIENT_DNS}
+MTU = ${AWG_INTERFACE_MTU}
+
+[Peer]
+PublicKey = ${AWG_INTERFACE_PUBLIC_KEY}
+PresharedKey = ${AWG_PRESHARED_KEY}
+AllowedIPs = ${AWG_CLIENT_ALLOWED_IPS}"
+
+        if validate_ipv6 "$SERVER_PUBLIC_IP_OR_DOMAIN"; then
+            echo "Endpoint = [${SERVER_PUBLIC_IP_OR_DOMAIN}]:${AWG_INTERFACE_PORT}"
+        else
+            echo "Endpoint = ${SERVER_PUBLIC_IP_OR_DOMAIN}:${AWG_INTERFACE_PORT}"
+        fi
+
+        if [ "$AWG_CLIENT_PERSISTENT_KEEPALIVE" != "0" ]; then
+            echo "PersistentKeepalive = ${AWG_CLIENT_PERSISTENT_KEEPALIVE}"
+        fi
+    } | qrencode -t png -l L -o "${AWG_CLIENT_CONFIGS_PATH}/${AWG_INTERFACE_NAME}/${AWG_CLIENT_NAME}.png"
+}
+
+ask_to_show_qr() {
+    if ! command -v qrencode > /dev/null 2>&1; then
+        return
+    fi
+
+    QUESTION=$(printf 'Display client config as QR in terminal (y/n) [n]: ')
+
+    printf '%s' "$QUESTION"
+
+    handle_user_input
+
+    if [ -n "$USER_INPUT" ]; then
+        case "$USER_INPUT" in
+            "y" | "yes" | "Y" | "YES") ;;
+            *) return ;;
+        esac
+    else
+        default_value_autocomplete "n" "$QUESTION"
+        return
     fi
 
     case "$AWG_INTERFACE_IP_VERSION_USE" in
@@ -964,6 +1035,8 @@ create_awg_client() {
     save_awg_client_data
 
     awg_sync_clients
+
+    ask_save_qr_to_file
 
     ask_to_show_qr
 
