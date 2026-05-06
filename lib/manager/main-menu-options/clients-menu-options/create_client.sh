@@ -166,11 +166,7 @@ get_awg_client_ipv4() {
                 continue
             fi
 
-            if [ ${USER_INPUT%%.*} = "0" ]; then
-                continue
-            fi
-
-            if [ ${USER_INPUT##.*} = "255" ]; then
+            if [ ${USER_INPUT%%.*} = "0" ] || [ ${USER_INPUT##.*} = "255" ]; then
                 continue
             fi
 
