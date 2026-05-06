@@ -598,91 +598,126 @@ get_awg_client_i1() {
     AWG_CLIENT_I_PARAMS=""
 
     while :; do
-        printf 'I1: '
+        printf 'I1 [none]: '
 
         handle_user_input
 
         if [ -n "$USER_INPUT" ]; then
-            if [ "$USER_INPUT" = "-" ]; then
-                return 1
+            if [ "${#USER_INPUT}" -lt "3"  ]; then
+                continue
+            fi
+
+            if [ "${USER_INPUT%${USER_INPUT#?}}" != "<" ] || [ "${USER_INPUT#${USER_INPUT%?}}" != ">" ]; then
+                continue
             fi
 
             AWG_CLIENT_I_PARAMS="I1 = ${USER_INPUT}\n"
-
-            break
+        else
+            default_value_autocomplete "" "$QUESTION"
+            return 1
         fi
+
+        break
     done
 }
 
 get_awg_client_i2() {
     while :; do
-        printf 'I2: '
+        printf 'I2 [none]: '
 
         handle_user_input
 
         if [ -n "$USER_INPUT" ]; then
-            if [ "$USER_INPUT" = "-" ]; then
-                return 1
+            if [ "${#USER_INPUT}" -lt "3"  ]; then
+                continue
             fi
 
-            AWG_CLIENT_I_PARAMS="${AWG_CLIENT_I_PARAMS}I2 = ${USER_INPUT}\n"
+            if [ "${USER_INPUT%${USER_INPUT#?}}" != "<" ] || [ "${USER_INPUT#${USER_INPUT%?}}" != ">" ]; then
+                continue
+            fi
 
-            break
+            AWG_CLIENT_I_PARAMS="I2 = ${USER_INPUT}\n"
+        else
+            default_value_autocomplete "" "$QUESTION"
+            return 1
         fi
+
+        break
     done
 }
 
 get_awg_client_i3() {
     while :; do
-        printf 'I3: '
+        printf 'I3 [none]: '
 
         handle_user_input
 
         if [ -n "$USER_INPUT" ]; then
-            if [ "$USER_INPUT" = "-" ]; then
-                return 1
+            if [ "${#USER_INPUT}" -lt "3"  ]; then
+                continue
             fi
 
-            AWG_CLIENT_I_PARAMS="${AWG_CLIENT_I_PARAMS}I3 = ${USER_INPUT}\n"
+            if [ "${USER_INPUT%${USER_INPUT#?}}" != "<" ] || [ "${USER_INPUT#${USER_INPUT%?}}" != ">" ]; then
+                continue
+            fi
 
-            break
+            AWG_CLIENT_I_PARAMS="I3 = ${USER_INPUT}\n"
+        else
+            default_value_autocomplete "" "$QUESTION"
+            return 1
         fi
+
+        break
     done
 }
 
 get_awg_client_i4() {
     while :; do
-        printf 'I4: '
+        printf 'I4 [none]: '
 
         handle_user_input
 
         if [ -n "$USER_INPUT" ]; then
-            if [ "$USER_INPUT" = "-" ]; then
-                return 1
+            if [ "${#USER_INPUT}" -lt "3"  ]; then
+                continue
             fi
 
-            AWG_CLIENT_I_PARAMS="${AWG_CLIENT_I_PARAMS}I4 = ${USER_INPUT}\n"
+            if [ "${USER_INPUT%${USER_INPUT#?}}" != "<" ] || [ "${USER_INPUT#${USER_INPUT%?}}" != ">" ]; then
+                continue
+            fi
 
-            break
+            AWG_CLIENT_I_PARAMS="I4 = ${USER_INPUT}\n"
+        else
+            default_value_autocomplete "" "$QUESTION"
+            return 1
         fi
+
+        break
     done
 }
 
 get_awg_client_i5() {
     while :; do
-        printf 'I5: '
+        printf 'I5 [none]: '
 
         handle_user_input
 
         if [ -n "$USER_INPUT" ]; then
-            if [ "$USER_INPUT" = "-" ]; then
-                return 1
+            if [ "${#USER_INPUT}" -lt "3"  ]; then
+                continue
             fi
 
-            AWG_CLIENT_I_PARAMS="${AWG_CLIENT_I_PARAMS}I5 = ${USER_INPUT}\n"
+            if [ "${USER_INPUT%${USER_INPUT#?}}" != "<" ] || [ "${USER_INPUT#${USER_INPUT%?}}" != ">" ]; then
+                continue
+            fi
 
-            break
+            AWG_CLIENT_I_PARAMS="I5 = ${USER_INPUT}\n"
+        else
+            default_value_autocomplete "" "$QUESTION"
+            return 1
         fi
+
+        break
     done
 }
 
@@ -999,8 +1034,6 @@ create_awg_client() {
         break
     done
 
-    echo ""
-    echo "${BOLD_FS}Enter '-' to leave I param blank.${DEFAULT_FS}"
     while :; do
         if ! get_awg_client_i1; then
             break
