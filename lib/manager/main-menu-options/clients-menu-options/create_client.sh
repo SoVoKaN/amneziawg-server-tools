@@ -358,7 +358,7 @@ get_awg_client_dns() {
 }
 
 get_awg_client_persistent_keepalive() {
-    AWG_CLIENT_PERSISTENT_KEEPALIVE="25"
+    AWG_CLIENT_PERSISTENT_KEEPALIVE="0"
     
     QUESTION=$(printf 'Persistent Keepalive [%s]: ' "$AWG_CLIENT_PERSISTENT_KEEPALIVE")
 
