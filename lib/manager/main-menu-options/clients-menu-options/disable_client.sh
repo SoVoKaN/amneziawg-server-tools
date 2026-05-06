@@ -28,8 +28,8 @@ get_awg_client_name_disable() {
             exit 1
         fi
 
-        if [ ${#USER_INPUT} -gt 20 ]; then
-            echo "Client name length must be <= 20."
+        if [ ${#USER_INPUT} -gt 40 ]; then
+            echo "Client name length must be <= 40."
             exit 1
         fi
 

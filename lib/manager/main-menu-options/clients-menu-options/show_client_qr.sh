@@ -12,8 +12,8 @@ get_awg_client_name_display_qr() {
             exit 1
         fi
 
-        if [ ${#USER_INPUT} -gt 15 ]; then
-            echo "Client name length must be < 16."
+        if [ ${#USER_INPUT} -gt 40 ]; then
+            echo "Client name length must be <= 40."
             exit 1
         fi
 

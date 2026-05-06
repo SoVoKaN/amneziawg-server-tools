@@ -6,7 +6,7 @@ check_awg_interface_has_free_clients() {
     fi
 
     if [ "$INTERFACE_COUNT_CLIENTS" -gt 251 ]; then
-        echo "Maximum clients(252) reached on \"${AWG_INTERFACE_NAME}\" interface."
+        echo "Maximum clients(251) reached on \"${AWG_INTERFACE_NAME}\" interface."
         exit 0
     fi
 }
@@ -109,11 +109,7 @@ get_awg_client_name() {
                 continue
             fi
 
-            if [ ${#USER_INPUT} -lt 1 ]; then
-                continue
-            fi
-
-            if [ ${#USER_INPUT} -gt 20 ]; then
+            if [ ${#USER_INPUT} -lt 1 ] || [ ${#USER_INPUT} -gt 40 ]; then
                 continue
             fi
 
