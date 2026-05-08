@@ -518,7 +518,7 @@ get_awg_interface_port() {
 }
 
 get_awg_interface_s1() {
-    AWG_INTERFACE_S1=$(awk -v max=$((AWG_INTERFACE_MTU - 148)) '
+    AWG_INTERFACE_S1=$(awk -v max="$((AWG_INTERFACE_MTU - 148))" '
     BEGIN {
         srand(systime())
         print int(rand() * (max - 16 + 1)) + 16
@@ -567,10 +567,18 @@ get_awg_interface_s1() {
 }
 
 get_awg_interface_s2() {
-    AWG_INTERFACE_S2=$(awk -v max=$((AWG_INTERFACE_MTU - 92)) '
+    AWG_INTERFACE_S2=$(awk -v max="$((AWG_INTERFACE_MTU - 92))" -v s1="$AWG_INTERFACE_S1" '
     BEGIN {
-        srand(systime() + 1)
-        print int(rand() * (max - 16 + 1)) + 16
+        i = 1
+        while (1) {
+            srand(systime() + i)
+            ret = int(rand() * (max - 16 + 1)) + 16
+            if (ret != s1 + 56) {
+                print ret
+                exit 0
+            }
+            i += 1
+        }
     }')
 
     QUESTION=$(printf 'S2 [%s]: ' "$AWG_INTERFACE_S2")
@@ -606,6 +614,10 @@ get_awg_interface_s2() {
                 continue
             fi
 
+            if [ "$USER_INPUT" = "$((AWG_INTERFACE_S1 + 56))" ]; then
+                continue
+            fi
+
             AWG_INTERFACE_S2="$USER_INPUT"
         else
             default_value_autocomplete "$AWG_INTERFACE_S2" "$QUESTION"
@@ -616,10 +628,18 @@ get_awg_interface_s2() {
 }
 
 get_awg_interface_s3() {
-    AWG_INTERFACE_S3=$(awk -v max=$((AWG_INTERFACE_MTU - 64)) '
+    AWG_INTERFACE_S3=$(awk -v max="$((AWG_INTERFACE_MTU - 64))" -v s1="$AWG_INTERFACE_S1" -v s2="$AWG_INTERFACE_S2" '
     BEGIN {
-        srand(systime() + 2)
-        print int(rand() * (max - 16 + 1)) + 16
+        i = 200
+        while (1) {
+            srand(systime() + i)
+            ret = int(rand() * (max - 16 + 1)) + 16
+            if ((ret != s1 + 84) && (ret != s2 + 28)) {
+                print ret
+                exit 0
+            }
+            i += 2
+        }
     }')
 
     QUESTION=$(printf 'S3 [%s]: ' "$AWG_INTERFACE_S3")
@@ -655,6 +675,14 @@ get_awg_interface_s3() {
                 continue
             fi
 
+            if [ "$USER_INPUT" = "$((AWG_INTERFACE_S1 + 84))" ]; then
+                continue
+            fi
+
+            if [ "$USER_INPUT" = "$((AWG_INTERFACE_S2 + 28))" ]; then
+                continue
+            fi
+
             AWG_INTERFACE_S3="$USER_INPUT"
         else
             default_value_autocomplete "$AWG_INTERFACE_S3" "$QUESTION"
@@ -674,10 +702,18 @@ get_awg_interface_s4() {
             ;;
     esac
 
-    AWG_INTERFACE_S4=$(awk -v max="$AWG_INTERFACE_S4_MAX" '
+    AWG_INTERFACE_S4=$(awk -v max="$AWG_INTERFACE_S4_MAX" -v s1="$AWG_INTERFACE_S1" -v s2="$AWG_INTERFACE_S2" -v s3="$AWG_INTERFACE_S3" '
     BEGIN {
-        srand(systime() + 3)
-        print int(rand() * (max - 4 + 1)) + 4
+        i = 400
+        while (1) {
+            srand(systime() + i)
+            ret = int(rand() * (max - 4 + 1)) + 4
+            if ((ret != s1 + 116) && (ret != s2 + 60) && (ret != s3 + 32)) {
+                print ret
+                exit 0
+            }
+            i += 3
+        }
     }')
 
     QUESTION=$(printf 'S4 [%s]: ' "$AWG_INTERFACE_S4")
@@ -710,6 +746,18 @@ get_awg_interface_s4() {
             fi
 
             if [ "$USER_INPUT" -lt 0 ] || [ "$USER_INPUT" -gt "$AWG_INTERFACE_S4_MAX" ]; then
+                continue
+            fi
+
+            if [ "$USER_INPUT" = "$((AWG_INTERFACE_S1 + 116))" ]; then
+                continue
+            fi
+
+            if [ "$USER_INPUT" = "$((AWG_INTERFACE_S2 + 60))" ]; then
+                continue
+            fi
+
+            if [ "$USER_INPUT" = "$((AWG_INTERFACE_S3 + 32))" ]; then
                 continue
             fi
 
