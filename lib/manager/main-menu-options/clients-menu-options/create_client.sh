@@ -1000,7 +1000,7 @@ ask_to_show_qr() {
         return
     fi
 
-    QUESTION=$(printf 'Display client config as QR in terminal (y/n) [y]: ')
+    QUESTION=$(printf 'Display client config as QR in terminal (y/n) [n]: ')
 
     printf '%s' "$QUESTION"
 
@@ -1012,7 +1012,8 @@ ask_to_show_qr() {
             *) return ;;
         esac
     else
-        default_value_autocomplete "y" "$QUESTION"
+        default_value_autocomplete "n" "$QUESTION"
+        return
     fi
 
     case "$AWG_INTERFACE_IP_VERSION_USE" in
