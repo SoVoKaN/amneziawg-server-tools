@@ -96,16 +96,17 @@ clients_menu() {
         echo "4) Create client"
         echo "5) Delete client"
         echo "6) Rename client"
-        echo "7) Show client QR"
+        echo "7) Show client link"
+        echo "8) Show client QR"
         echo ""
         echo "0) Back"
         echo ""
 
-        printf "Select option [0-7]: "
+        printf "Select option [0-8]: "
 
         handle_user_input
 
-        clean_lines "15"
+        clean_lines "16"
 
         case "$USER_INPUT" in
             "1")
@@ -128,6 +129,9 @@ clients_menu() {
                 rename_client
                 ;;
             "7")
+                show_awg_client_link
+                ;;
+            "8")
                 show_awg_client_qr
                 ;;
             "0")

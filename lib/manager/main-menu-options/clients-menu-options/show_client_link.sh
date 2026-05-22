@@ -1,0 +1,122 @@
+get_awg_client_name_show_link() {
+    while :; do
+        printf "${BOLD_FS}Enter client name to show link.${DEFAULT_FS}\n"
+        printf '%s' "Name: "
+
+        handle_user_input
+
+        echo ""
+
+        if [ -z "$USER_INPUT" ]; then
+            echo "Client name can not be empty."
+            exit 1
+        fi
+
+        if [ ${#USER_INPUT} -gt 40 ]; then
+            echo "Client name length must be <= 40."
+            exit 1
+        fi
+
+        if ! check_awg_client_exists "$USER_INPUT"; then
+            echo "Client \"${USER_INPUT}\" does not exists."
+            exit 1
+        fi
+
+        AWG_CLIENT_NAME="$USER_INPUT"
+
+        break
+    done
+}
+
+show_awg_client_link() {
+    if ! command -v base64 > /dev/null 2>&1; then
+        echo "To use this option, \"base64\" must be installed. Please install it and try again."
+        return
+    fi
+
+    print_dashes "$((21 + ${#AWG_INTERFACE_NAME}))"
+    printf "${BOLD_FS} Show client link [${AWG_INTERFACE_NAME}] ${DEFAULT_FS}\n"
+    print_dashes "$((21 + ${#AWG_INTERFACE_NAME}))"
+    echo ""
+
+    if select_awg_client_submenu "get_awg_client_name_show_link" "all"; then
+        SUBMENU_RETURN_CODE="0"
+    else
+        SUBMENU_RETURN_CODE="$?"
+    fi
+
+    if [ "$SUBMENU_RETURN_CODE" = "1" ]; then
+        clean_lines "4"
+
+        return
+    elif [ "$SUBMENU_RETURN_CODE" = "2" ]; then
+        set_awg_server_tools_pager
+
+        clean_lines "4"
+
+        if [ -n "$AWG_SERVER_TOOLS_PAGER" ]; then
+            printf "$SELECT_CLIENT_SUBMENU_FAILURE_RETURN_MESSAGE" | "$AWG_SERVER_TOOLS_PAGER"
+        else
+            printf "\n${BOLD_FS}${SELECT_CLIENT_SUBMENU_FAILURE_RETURN_MESSAGE}${DEFAULT_FS}\n\n"
+        fi
+
+        return
+    fi
+
+    load_client_data
+
+    case "$AWG_INTERFACE_IP_VERSION_USE" in
+        "ipv4")
+            AWG_CLIENT_ADDRESS="${AWG_CLIENT_IPV4}/32"
+            ;;
+        "ipv6")
+            AWG_CLIENT_ADDRESS="${AWG_CLIENT_IPV6}/128"
+            ;;
+        "both")
+            AWG_CLIENT_ADDRESS="${AWG_CLIENT_IPV4}/32, ${AWG_CLIENT_IPV6}/128"
+            ;;
+    esac
+
+    printf "vpn://"
+    {
+        echo "[Interface]
+PrivateKey = ${AWG_CLIENT_PRIVATE_KEY}
+Jc = ${AWG_CLIENT_JC}
+Jmin = ${AWG_CLIENT_JMIN}
+Jmax = ${AWG_CLIENT_JMAX}
+S1 = ${AWG_INTERFACE_S1}
+S2 = ${AWG_INTERFACE_S2}
+S3 = ${AWG_INTERFACE_S3}
+S4 = ${AWG_INTERFACE_S4}
+H1 = ${AWG_INTERFACE_H1}
+H2 = ${AWG_INTERFACE_H2}
+H3 = ${AWG_INTERFACE_H3}
+H4 = ${AWG_INTERFACE_H4}"
+
+        printf "${AWG_CLIENT_I_PARAMS}"
+
+        echo "Address = ${AWG_CLIENT_ADDRESS}
+DNS = ${AWG_CLIENT_DNS}
+MTU = ${AWG_INTERFACE_MTU}
+
+[Peer]
+PublicKey = ${AWG_INTERFACE_PUBLIC_KEY}
+PresharedKey = ${AWG_PRESHARED_KEY}
+AllowedIPs = ${AWG_CLIENT_ALLOWED_IPS}"
+
+        if validate_ipv6 "$SERVER_PUBLIC_IP_OR_DOMAIN"; then
+            echo "Endpoint = [${SERVER_PUBLIC_IP_OR_DOMAIN}]:${AWG_INTERFACE_PORT}"
+        else
+            echo "Endpoint = ${SERVER_PUBLIC_IP_OR_DOMAIN}:${AWG_INTERFACE_PORT}"
+        fi
+
+        if [ "$AWG_CLIENT_PERSISTENT_KEEPALIVE" != "0" ]; then
+            echo "PersistentKeepalive = ${AWG_CLIENT_PERSISTENT_KEEPALIVE}"
+        fi
+    } | base64 -w 0
+
+    echo ""
+    echo ""
+    printf "${GREEN}Here is your ${BOLD_FS}\"${AWG_CLIENT_NAME}\"${DEFAULT_FS} client config as link.${DEFAULT_COLOR}\n"
+    exit 0
+}
