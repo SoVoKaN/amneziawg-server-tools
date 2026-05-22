@@ -929,7 +929,7 @@ ask_save_qr_to_file() {
         return
     fi
 
-    QUESTION=$(printf 'Save client config QR to file (y/n) [y]: ')
+    QUESTION=$(printf 'Save client config QR to file (y/n) [n]: ')
 
     printf '%s' "$QUESTION"
 
@@ -941,7 +941,8 @@ ask_save_qr_to_file() {
             *) return ;;
         esac
     else
-        default_value_autocomplete "y" "$QUESTION"
+        default_value_autocomplete "n" "$QUESTION"
+        return
     fi
 
     case "$AWG_INTERFACE_IP_VERSION_USE" in
