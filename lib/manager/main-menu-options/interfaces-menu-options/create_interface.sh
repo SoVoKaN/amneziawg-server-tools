@@ -708,7 +708,7 @@ get_awg_interface_s4() {
         while (1) {
             srand(systime() + i)
             ret = int(rand() * (max - 4 + 1)) + 4
-            if ((ret != s1 + 116) && (ret != s2 + 60) && (ret != s3 + 32)) {
+            if ((ret != s1 + 132) && (ret != s2 + 76) && (ret != s3 + 16)) {
                 print ret
                 exit 0
             }
@@ -749,15 +749,15 @@ get_awg_interface_s4() {
                 continue
             fi
 
-            if [ "$USER_INPUT" = "$((AWG_INTERFACE_S1 + 116))" ]; then
+            if [ "$USER_INPUT" = "$((AWG_INTERFACE_S1 + 132))" ]; then
                 continue
             fi
 
-            if [ "$USER_INPUT" = "$((AWG_INTERFACE_S2 + 60))" ]; then
+            if [ "$USER_INPUT" = "$((AWG_INTERFACE_S2 + 76))" ]; then
                 continue
             fi
 
-            if [ "$USER_INPUT" = "$((AWG_INTERFACE_S3 + 32))" ]; then
+            if [ "$USER_INPUT" = "$((AWG_INTERFACE_S3 + 16))" ]; then
                 continue
             fi
 
